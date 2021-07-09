@@ -26,7 +26,7 @@ import {
   MdShare,
   MdShowChart,
   MdThumbUp,
-  MdLibraryBooks,
+  MdLibraryBooks,MdDelete,MdCloudUpload,MdWarning,MdEdit,MdCheckCircle,MdSearch,
 } from 'react-icons/md';
 import InfiniteCalendar from 'react-infinite-calendar';
 import {
@@ -40,7 +40,7 @@ import {
   CardTitle,
   Col,
   ListGroup,
-  ListGroupItem,
+  ListGroupItem, Table,
   Row,
 } from 'reactstrap';
 import { getColor } from 'utils/colors';
@@ -55,20 +55,23 @@ var iconWidgetsData = [
   {
     bgColor: 'warning',
     icon: MdLibraryBooks,
-    title: '0 Kontrak',
-    subtitle: 'diatas 200 Juta',
+    title: 'Diatas 200 Juta',
+    subtitle: 'kontrak',
+    jml:0,
   },
   {
     bgColor: 'success',
     icon: MdLibraryBooks,
-    title: '0 Kontrak',
-    subtitle: '50-200 Juta',
+    title: '50-200 Juta',
+    subtitle: 'kontrak',
+    jml:0,
   },
   {
     bgColor: 'info',
     icon: MdLibraryBooks,
-    title: '10 Kotrak',
-    subtitle: '50-200 Juta PL',
+    title: '50-200 Juta PL',
+    subtitle: 'kontrak',
+    jml:0,
   },
   
 ];
@@ -85,27 +88,9 @@ class DashboardPage extends React.Component {
       },
       message:'',
       search:'',
-      Data: [
-        {
-          bgColor: 'warning',
-          icon: MdLibraryBooks,
-          title: '0 Kontrak',
-          subtitle: 'diatas 200 Juta',
-        },
-        {
-          bgColor: 'success',
-          icon: MdLibraryBooks,
-          title: '0 Kontrak',
-          subtitle: '50-200 Juta',
-        },
-        {
-          bgColor: 'info',
-          icon: MdLibraryBooks,
-          title: '10 Kotrak',
-          subtitle: '50-200 Juta PL',
-        },
-        
-      ]
+      Data: [],
+      sumAllKontrak:0,
+      dataRender:[]
     };
     
   }
@@ -129,14 +114,32 @@ class DashboardPage extends React.Component {
         .then(respon => {
           var dataAPI = respon;
           if(dataAPI.response_code == 200){
+            var sumAllKontrak = 0;
             console.log(dataAPI.data);
             dataAPI.data.map(
               ({tipeKontrak, jml}, index)=>{
-                iconWidgetsData[index].title = jml + " Kontrak";
+                iconWidgetsData[index].jml = jml;
+                sumAllKontrak += jml;
               });
-            this.setState({Data:iconWidgetsData});
+            this.setState({Data:iconWidgetsData, sumAllKontrak:sumAllKontrak});
           }else{
             
+          }
+        });
+    const requestOptions2 = {
+      method: 'POST',
+      //headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userid: localStorage.getItem("user_session") })
+    };
+    fetch(process.env.REACT_APP_URL_API+'/rest/kontrakTerbaru.php', requestOptions2)
+        .then(response => response.json())
+        .then(respon => {
+          var dataAPI = respon;
+          if(dataAPI.response_code != 200){
+            this.setState({ message: dataAPI.message });
+          }else{
+            this.setState({ data: dataAPI.data, dataRender:dataAPI.data });
+            //this.handlePageChange(1)
           }
         });
   }
@@ -153,16 +156,26 @@ class DashboardPage extends React.Component {
       >
         <Row>
         {this.state.Data.map(
-          ({ bgColor, icon, title, subtitle, ...restProps }, index) => (
+          ({ bgColor, icon, title, subtitle, jml, ...restProps }, index) => (
             <Col key={index} lg={4} md={6} sm={6} xs={12} className="mb-3">
-              <IconWidget
+              {/* <IconWidget
                 bgColor={bgColor}
                 icon={icon}
                 title={title}
                 subtitle={subtitle}
                 {...restProps}
               >
-              </IconWidget>
+              </IconWidget> */}
+              <NumberWidget
+                title={title}
+                subtitle={subtitle}
+                number={jml + " Kontrak"}
+                color="secondary"
+                progress={{
+                  value: jml*this.state.sumAllKontrak/100,
+                  label: '',
+                }}
+              />
             </Col>
           )
         )}
@@ -219,9 +232,9 @@ class DashboardPage extends React.Component {
               }}
             />
           </Col>
-        </Row>
+        </Row> */}
 
-        <Row>
+        {/* <Row>
           <Col lg="8" md="12" sm="12" xs="12">
             <Card>
               <CardHeader>
@@ -325,7 +338,52 @@ class DashboardPage extends React.Component {
           </Col>
         </Row> */}
        <Row>
-          <Col lg="4" md="12" sm="12" xs="12">
+          <Col md="9" sm="12" xs="12">
+            <Card inverse>
+              <CardHeader inverse className="bg-gradient-primary">Kontrak Terbaru</CardHeader>
+              <CardBody>
+              <Table responsive {...{ ['striped' || 'default']: true }}>
+                  <thead>
+                    <tr>
+                      <th>No</th>
+                      <th>Nama Pekerjaan</th>
+                      <th>Nilai Kontrak</th>
+                      <th>Perusahaan Pemenang</th>
+                      <th>Tipe Kontrak</th>
+                      <th>Tanggal Input</th>
+                      {/* <th>Action</th> */}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {this.state.dataRender.map((dt,index)=>(
+                      <tr key={index}>
+                        <td scope="row">{index+1}</td>
+                        <td>{dt.namaPekerjaan}</td>
+                        <td>{commafy(dt.hrgtotal)}</td>
+                        <td>{dt.namaPerusahaan}</td>
+                        <td>{getNamaTipeKontrak(dt.tipeKontrak)}</td>
+                        <td>{dt.date_created}</td>
+                        {/* <td>
+                          <Button 
+                            color="secondary"
+                            onClick={()=>{this.gotoEdit(((activePage*itemPerPage)-itemPerPage) + index)}}
+                            size="sm"
+                          ><MdEdit/></Button>&nbsp;                               
+                          <Button 
+                            style={{background:'rgb(230 14 20)', borderColor:'rgb(230 14 20)'}}
+                            onClick={()=>{this.deleteData(((activePage*itemPerPage)-itemPerPage) + index)}}
+                            size="sm"
+                          ><MdDelete/></Button>                                
+                        </td> */}
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </CardBody>
+            </Card>
+          </Col>
+        
+          <Col lg="3" md="12" sm="12" xs="12">
             <InfiniteCalendar
               selected={today}
               minDate={lastWeek}
@@ -349,17 +407,7 @@ class DashboardPage extends React.Component {
             />
           </Col>
 
-          <Col lg="8" md="12" sm="12" xs="12">
-            <Card inverse className="bg-gradient-primary">
-              <CardHeader className="bg-gradient-primary">
-                Map with bubbles
-              </CardHeader>
-              <CardBody>
-                <MapWithBubbles />
-              </CardBody>
-            </Card>
-          </Col>
-        </Row>
+          </Row>
 
         {/* <CardDeck style={{ marginBottom: '1rem' }}>
           <Card body style={{ overflowX: 'auto','paddingBottom':'15px','height': 'fit-content','paddingTop': 'inherit'}}>
@@ -418,6 +466,28 @@ class DashboardPage extends React.Component {
         </Row>
       </Page>
     );
+  }
+}
+function commafy( num ) {
+  var str = num.toString().split('.');
+  if (str[0].length >= 5) {
+      str[0] = str[0].replace(/(\d)(?=(\d{3})+$)/g, '$1,');
+  }
+  if (str[1] && str[1].length >= 5) {
+      str[1] = str[1].replace(/(\d{3})/g, '$1 ');
+  }
+  return str.join('.');
+}
+
+function getNamaTipeKontrak(input){
+  if(input=="50200PL"){
+    return <Badge color="info" pill className="mr-1">50-200 PL</Badge>;
+  }
+  if(input=="50200NonPL"){
+    return <Badge color="success" pill className="mr-1">50-200</Badge>;
+  }
+  if(input=="200up"){
+    return <Badge color="warning" pill className="mr-1">Diatas 200</Badge>;
   }
 }
 export default DashboardPage;

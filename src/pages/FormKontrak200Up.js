@@ -32,20 +32,20 @@ var dataKontrak = {
   unique_id:null,
   id:null,
   namaPekerjaan: null,
-  suratPermintaanPPK: null,
-  pengadaanBarJas:null,
-  HPS:null,
-  penawaranRKS:null,
-  pengajuanPenawaran:null,
-  undanganEvaluasi:null,
-  evaluasi:null,
-  penetapanPenyedia:null,
-  laporanPelaksanaan:null,
-  suratPemesanan:null,
-  penandatangananKontrak:null,
-  pelaksanaanPekerjaan:null,
-  penyelesaianPekerjaan:null,
-  pembayaran:null,
+  suratPermintaanPPK: '0000-00-00',
+  pengadaanBarJas:'0000-00-00',
+  HPS:'0000-00-00',
+  penawaranRKS:'0000-00-00',
+  pengajuanPenawaran:'0000-00-00',
+  undanganEvaluasi:'0000-00-00',
+  evaluasi:'0000-00-00',
+  penetapanPenyedia:'0000-00-00',
+  laporanPelaksanaan:'0000-00-00',
+  suratPemesanan:'0000-00-00',
+  penandatangananKontrak:'0000-00-00',
+  pelaksanaanPekerjaan:0,
+  penyelesaianPekerjaan:'0000-00-00',
+  pembayaran:'0000-00-00',
   namaPerusahaan:null,
   alamatPerusahaan:null,
   namaDirektur:null,
@@ -63,10 +63,10 @@ var dataKontrak = {
   hrgtotal:0,
 
   TABEL:[],
-  managementFeePctg:null,
+  managementFeePctg:0,
   cb_managementFee:false,
   
-  suratKesanggupan:null,	
+  suratKesanggupan:'0000-00-00',	
   namaGroupPokja:null,
   pokja1:null,				
   pokja2:null,				
@@ -165,20 +165,20 @@ class Form200Up extends React.Component {
       unique_id:null,
       id:null,
       namaPekerjaan: null,
-      suratPermintaanPPK: null,
-      pengadaanBarJas:null,
-      HPS:null,
-      penawaranRKS:null,
-      pengajuanPenawaran:null,
-      undanganEvaluasi:null,
-      evaluasi:null,
-      penetapanPenyedia:null,
-      laporanPelaksanaan:null,
-      suratPemesanan:null,
-      penandatangananKontrak:null,
-      pelaksanaanPekerjaan:null,
-      penyelesaianPekerjaan:null,
-      pembayaran:null,
+      suratPermintaanPPK: '0000-00-00',
+      pengadaanBarJas:'0000-00-00',
+      HPS:'0000-00-00',
+      penawaranRKS:'0000-00-00',
+      pengajuanPenawaran:'0000-00-00',
+      undanganEvaluasi:'0000-00-00',
+      evaluasi:'0000-00-00',
+      penetapanPenyedia:'0000-00-00',
+      laporanPelaksanaan:'0000-00-00',
+      suratPemesanan:'0000-00-00',
+      penandatangananKontrak:'0000-00-00',
+      pelaksanaanPekerjaan:0,
+      penyelesaianPekerjaan:'0000-00-00',
+      pembayaran:'0000-00-00',
       namaPerusahaan:null,
       alamatPerusahaan:null,
       namaDirektur:null,
@@ -196,10 +196,10 @@ class Form200Up extends React.Component {
       hrgtotal:0,
     
       TABEL:[],
-      managementFeePctg:null,
+      managementFeePctg:0,
       cb_managementFee:false,
       
-      suratKesanggupan:null,	
+      suratKesanggupan:'0000-00-00',	
       namaGroupPokja:null,
       pokja1:null,				
       pokja2:null,				
@@ -207,9 +207,9 @@ class Form200Up extends React.Component {
       pokja4:null,				
       pokja5:null,				
       nipPokja1:null,			
-      jabatan:null,			
+      jabatan:"Direktur Utama",			
     
-      tipeKontrak:'50200PL',
+      tipeKontrak:'200up',
     };
   }
   componentDidMount(){
@@ -1289,7 +1289,7 @@ class Form200Up extends React.Component {
                             style={{height:'140px'}}
                             id="descr"
                             name="descr"
-                            placeholder="deskripsi penawaran"
+                            placeholder="uraian kegiatan/barang"
                             onChange={this.handleInputChange}
                             onKeyUp={()=>{this.setState({msg_tb1:''})}}
                           />
@@ -1317,6 +1317,25 @@ class Form200Up extends React.Component {
                             </Col>
                           </FormGroup>
                           <FormGroup row>
+                            <Label for="freq" sm={4}>
+                              Satuan
+                            </Label>
+                            <Col sm={8}>
+                              <Input
+                                type="text"
+                                id="freq"
+                                name="freq"
+                                placeholder="paket, bulan, OH, OK, OB, dll"
+                                onChange={this.handleInputChange}
+                                onKeyUp={()=>{this.setState({msg_tb4:''})}}
+                              />
+                              <FormText color={'danger'}>{this.state.msg_tb4}</FormText>
+                            </Col>
+                          </FormGroup>
+                          
+                        </Col>
+                        <Col xl={6} lg={12} md={12}>
+                          <FormGroup row>
                             <Label for="unitprice" sm={4}>
                               Harga Satuan
                             </Label>
@@ -1330,24 +1349,6 @@ class Form200Up extends React.Component {
                                 onKeyUp={()=>{this.setState({msg_tb3:''})}}
                               />
                               <FormText color={'danger'}>{this.state.msg_tb3}</FormText>
-                            </Col>
-                          </FormGroup>
-                        </Col>
-                        <Col xl={6} lg={12} md={12}>
-                          <FormGroup row>
-                            <Label for="freq" sm={4}>
-                              Satuan
-                            </Label>
-                            <Col sm={8}>
-                              <Input
-                                type="text"
-                                id="freq"
-                                name="freq"
-                                placeholder="satuan"
-                                onChange={this.handleInputChange}
-                                onKeyUp={()=>{this.setState({msg_tb4:''})}}
-                              />
-                              <FormText color={'danger'}>{this.state.msg_tb4}</FormText>
                             </Col>
                           </FormGroup>
                           <FormGroup row>
@@ -1583,7 +1584,7 @@ class Form200Up extends React.Component {
                         <Col sm={6}>
                           <Input
                             //style={{height:'160px'}}
-                            type="number"
+                            type="text"
                             name="nipPokja1"
                             id="nipPokja1"
                             placeholder="NIP pokja 1"
@@ -1760,7 +1761,7 @@ class Form200Up extends React.Component {
       ppn: ppn,
       managementFee: mgmtFee,
       hrgtotal: hrgtotal
-    },()=>{this.cekNominalKontrak();})
+    })
 
     dataKontrak.subtotal = subtot;
     dataKontrak.ppn = ppn;

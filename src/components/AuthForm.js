@@ -1,4 +1,4 @@
-import logo200Image from 'assets/img/logo/logo_200.png';
+import logo200Image from 'assets/img/logo/logo_login.png';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Button, Form, FormGroup, Input, Label, InputGroupAddon, InputGroup } from 'reactstrap';
@@ -136,14 +136,14 @@ class AuthForm extends React.Component {
             <img
               src={logo200Image}
               className="rounded"
-              style={{ width: 60, height: 60, cursor: 'pointer' }}
+              style={{ width: 210, height: 78, cursor: 'pointer' }}
               alt="logo"
               onClick={onLogoClick}
             />
           </div>
         )}
         <div className="text-center pt-1">
-          <h2>SiKarlia</h2>
+          {/* <h2>SiKarlia</h2> */}
           {/* <h6>Aplikasi Kotrak Cepat</h6> */}
         </div>
         <br/>

@@ -296,6 +296,13 @@ function getDataSet(dataKontrak, hps2){
       namaDirektur: dataKontrak.namaDirektur,
       npwpPerusahaan: dataKontrak.npwpPerusahaan,
 
+      namaPerusahaanPembanding1: dataKontrak.namaPerusahaanPembanding1!=''?dataKontrak.namaPerusahaanPembanding1:'PT. XXXXXX (Perusahaan Pembanding 1)',
+      alamatPerusahaanPembanding1: dataKontrak.alamatPerusahaanPembanding1!=''?dataKontrak.alamatPerusahaanPembanding1:'(Alamat Perusahaan Pembanding 1)',
+      namaPerusahaanPembanding2: dataKontrak.namaPerusahaanPembanding2!=''?dataKontrak.namaPerusahaanPembanding2:'PT. YYYYY (Perusahaan Pembanding 2)',
+      alamatPerusahaanPembanding2: dataKontrak.alamatPerusahaanPembanding2!=''?dataKontrak.alamatPerusahaanPembanding2:'(alamat perusahaan pembanding 2)',
+      namaDirekturPembanding1: dataKontrak.namaDirekturPembanding1!=''?dataKontrak.namaDirekturPembanding1:'Nama Direktur',
+      namaDirekturPembanding2: dataKontrak.namaDirekturPembanding2!=''?dataKontrak.namaDirekturPembanding2:'Nama Direktur',
+
       hps: setTabelHPS(dataKontrak.TABEL),
       hpsSUM: hps2,
       hrgtotal: commafy(dataKontrak.hrgtotal),

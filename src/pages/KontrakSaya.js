@@ -25,7 +25,7 @@ class KontrakSaya extends React.Component {
       message:'',
       search:'',
       activePage: 1,
-      itemPerPage:5,
+      itemPerPage: 10,
     };
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleKeyDown = this.handleKeyDown.bind(this);
@@ -159,16 +159,16 @@ class KontrakSaya extends React.Component {
               </Col>
               </CardHeader>
               <CardBody>
-                <Table responsive>
+                <Table responsive {...{ ['hover' || 'default']: true }}>
                   <thead>
                     <tr>
                       <th>No</th>
-                      <th>Nama Pekerjaan</th>
+                      <th style={{width: "450px"}}>Nama Pekerjaan</th>
                       <th>Nilai Kontrak</th>
                       <th>Perusahaan Pemenang</th>
                       <th>Tipe Kontrak</th>
                       <th>Tanggal Input</th>
-                      <th>Action</th>
+                      <th style={{width:"95px"}}>Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -182,11 +182,13 @@ class KontrakSaya extends React.Component {
                         <td>{dt.date_created}</td>
                         <td>
                           <Button 
+                            title="Edit Kontrak"
                             color="secondary"
                             onClick={()=>{this.gotoEdit(((activePage*itemPerPage)-itemPerPage) + index)}}
                             size="sm"
                           ><MdEdit/></Button>&nbsp;                               
                           <Button 
+                            title="Hapus Kontrak"
                             style={{background:'rgb(230 14 20)', borderColor:'rgb(230 14 20)'}}
                             onClick={()=>{this.deleteData(((activePage*itemPerPage)-itemPerPage) + index)}}
                             size="sm"
@@ -243,13 +245,13 @@ function commafy( num ) {
 
 function getNamaTipeKontrak(input){
   if(input=="50200PL"){
-    return <Badge color="info" pill className="mr-1">50-200 PL</Badge>;
+    return <Badge title="Kontrak dengan nilai antara 50 - 200 Juta Penunjukan Langsung" color="info" pill className="mr-1">50-200 PL</Badge>;
   }
   if(input=="50200NonPL"){
-    return <Badge color="success" pill className="mr-1">50-200</Badge>;
+    return <Badge title="Kontrak dengan nilai 50 - 200 Juta" color="success" pill className="mr-1">50-200</Badge>;
   }
   if(input=="200up"){
-    return <Badge color="warning" pill className="mr-1">Diatas 200</Badge>;
+    return <Badge title="Kontrak dengan nilai daiatas 200 Juta" color="warning" pill className="mr-1">Diatas 200</Badge>;
   }
 }
 export default KontrakSaya;

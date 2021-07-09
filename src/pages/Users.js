@@ -182,9 +182,21 @@ class Users extends React.Component {
     }
     const requestOptions = {
       method: 'POST',
+      //mode: 'cors', // no-cors, *cors, same-origin
+      //cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+      //credentials: 'same-origin', // include, *same-origin, omit
+      // headers: {
+      //   'Content-Type': 'application/json',
+      //   'Access-Control-Allow-Origin':'*',
+      //   'mode': 'cors',
+      //   // 'Content-Type': 'application/x-www-form-urlencoded',
+      // },
+      //redirect: 'follow', // manual, *follow, error
+      //referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url 
       //headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(dt)
     };
+    try{
     fetch(process.env.REACT_APP_URL_API+'/rest/insertUsers.php', requestOptions)
     .then(response => response.json())
     .then(respon => {
@@ -207,7 +219,10 @@ class Users extends React.Component {
         this.loadData();
         this.resetField();
       }
-    });
+    });}
+    catch(er){
+      console.log(er);
+    }
   }
   resetField(){
     document.getElementById("name").value = '';
@@ -392,6 +407,9 @@ class Users extends React.Component {
                                   <MdRemoveRedEye/></Button>
                             </InputGroupAddon>
                           </InputGroup>
+                          <Button color="link" size="sm" onClick={()=>{
+                            document.getElementById("password").value = this.state.defaultPwd
+                          }}>Generate Default Password</Button>
                         <FormText color={'danger'}>{this.state.u4}</FormText>
                       </Col>}
                       </FormGroup>
@@ -407,7 +425,7 @@ class Users extends React.Component {
                           }}>Cancel</Button> &nbsp;
                           <Button color="success" onClick={()=>{
                             this.addUser();
-                            if(this.state.isAdd){
+                            if(!this.state.isEdit){
                               document.getElementById("password").value = '';
                             }
                           }}>Simpan</Button>

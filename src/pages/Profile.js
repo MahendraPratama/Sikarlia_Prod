@@ -56,31 +56,10 @@ class Profile extends React.Component {
     this.loadData();
   }
   loadData(){
-    // this.setState({data:[]})
-    // const requestOptions = {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ userid: localStorage.getItem("user_session"), search: this.state.search })
-    // };
-    // fetch(process.env.REACT_APP_URL_API+'/rest/users.php', requestOptions)
-    //     .then(response => response.json())
-    //     .then(respon => {
-    //       var dataAPI = respon;
-    //       if(dataAPI.response_code != 200){
-    //         this.setState({ message: dataAPI.message });
-    //       }else{
-    //         this.setState({ data: dataAPI.data, dataRender:dataAPI.data });
-    //         this.handlePageChange(1)
-    //       }
-    //     });
-    // var user_data = localStorage.getItem("user_data");
-    // console.log(JSON.parse(user_data));
-    // console.log(localStorage.getItem("user_session"));
-
     document.getElementById("name").value = localStorage.user_name;
     document.getElementById("userid").value = localStorage.user_session;
     document.getElementById("email").value = localStorage.email;
-
+    this.setState({password:localStorage.password,u1:'',u2:'',u3:'',u4:''});
   }
   resetPassword(){
     var dt = { 
@@ -353,7 +332,7 @@ class Profile extends React.Component {
                                 type={this.state.isViewPwd?"text":"password"}
                                 name="password"
                                 id="password"
-                                placeholder="password"
+                                placeholder="new password"
                                 onChange={this.handleInputChange}
                               />
                               <InputGroupAddon addonType="append">
@@ -396,6 +375,7 @@ class Profile extends React.Component {
                         <Button color="danger" onClick={()=>{
                           this.setState({isEdit:false});
                           //this.resetField();
+                          this.loadData();
                         }}>Cancel</Button> &nbsp;
                         <Button color="success" onClick={()=>{
                           this.addUser();

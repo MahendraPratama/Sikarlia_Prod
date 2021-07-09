@@ -32,20 +32,20 @@ var dataKontrak = {
   unique_id:null,
   id:null,
   namaPekerjaan: null,
-  suratPermintaanPPK: null,
-  pengadaanBarJas:null,
-  HPS:null,
-  penawaranRKS:null,
-  pengajuanPenawaran:null,
-  undanganEvaluasi:null,
-  evaluasi:null,
-  penetapanPenyedia:null,
-  laporanPelaksanaan:null,
-  suratPemesanan:null,
-  penandatangananKontrak:null,
-  pelaksanaanPekerjaan:null,
-  penyelesaianPekerjaan:null,
-  pembayaran:null,
+  suratPermintaanPPK: '0000-00-00',
+  pengadaanBarJas:'0000-00-00',
+  HPS:'0000-00-00',
+  penawaranRKS:'0000-00-00',
+  pengajuanPenawaran:'0000-00-00',
+  undanganEvaluasi:'0000-00-00',
+  evaluasi:'0000-00-00',
+  penetapanPenyedia:'0000-00-00',
+  laporanPelaksanaan:'0000-00-00',
+  suratPemesanan:'0000-00-00',
+  penandatangananKontrak:'0000-00-00',
+  pelaksanaanPekerjaan:0,
+  penyelesaianPekerjaan:'0000-00-00',
+  pembayaran:'0000-00-00',
   namaPerusahaan:null,
   alamatPerusahaan:null,
   namaDirektur:null,
@@ -63,10 +63,10 @@ var dataKontrak = {
   hrgtotal:0,
 
   TABEL:[],
-  managementFeePctg:null,
+  managementFeePctg:0,
   cb_managementFee:false,
 
-  suratKesanggupan:null,	
+  suratKesanggupan:'0000-00-00',	
   namaGroupPokja:null,
   pokja1:null,				
   pokja2:null,				
@@ -77,6 +77,12 @@ var dataKontrak = {
   jabatan:null,	
   
   tipeKontrak:'50200NonPL',
+  namaPerusahaanPembanding1:'', 	
+  alamatPerusahaanPembanding1:'',
+  namaPerusahaanPembanding2:'', 	
+  alamatPerusahaanPembanding2:'',
+  namaDirekturPembanding1:'',
+  namaDirekturPembanding2:'',
 }
 class Form50200 extends React.Component {
   constructor(props){
@@ -161,20 +167,20 @@ class Form50200 extends React.Component {
       unique_id:null,
       id:null,
       namaPekerjaan: null,
-      suratPermintaanPPK: null,
-      pengadaanBarJas:null,
-      HPS:null,
-      penawaranRKS:null,
-      pengajuanPenawaran:null,
-      undanganEvaluasi:null,
-      evaluasi:null,
-      penetapanPenyedia:null,
-      laporanPelaksanaan:null,
-      suratPemesanan:null,
-      penandatangananKontrak:null,
-      pelaksanaanPekerjaan:null,
-      penyelesaianPekerjaan:null,
-      pembayaran:null,
+      suratPermintaanPPK: '0000-00-00',
+      pengadaanBarJas:'0000-00-00',
+      HPS:'0000-00-00',
+      penawaranRKS:'0000-00-00',
+      pengajuanPenawaran:'0000-00-00',
+      undanganEvaluasi:'0000-00-00',
+      evaluasi:'0000-00-00',
+      penetapanPenyedia:'0000-00-00',
+      laporanPelaksanaan:'0000-00-00',
+      suratPemesanan:'0000-00-00',
+      penandatangananKontrak:'0000-00-00',
+      pelaksanaanPekerjaan:0,
+      penyelesaianPekerjaan:'0000-00-00',
+      pembayaran:'0000-00-00',
       namaPerusahaan:null,
       alamatPerusahaan:null,
       namaDirektur:null,
@@ -192,10 +198,10 @@ class Form50200 extends React.Component {
       hrgtotal:0,
     
       TABEL:[],
-      managementFeePctg:null,
+      managementFeePctg:0,
       cb_managementFee:false,
       
-      suratKesanggupan:null,	
+      suratKesanggupan:'0000-00-00',	
       namaGroupPokja:null,
       pokja1:null,				
       pokja2:null,				
@@ -206,6 +212,12 @@ class Form50200 extends React.Component {
       jabatan:null,			
     
       tipeKontrak:'50200PL',
+      namaPerusahaanPembanding1:'', 	
+      alamatPerusahaanPembanding1:'',
+      namaPerusahaanPembanding2:'', 	
+      alamatPerusahaanPembanding2:'',
+      namaDirekturPembanding1:'',
+      namaDirekturPembanding2:'',
     };
   }
   componentDidMount(){
@@ -235,6 +247,13 @@ class Form50200 extends React.Component {
     dataKontrak.alamatPerusahaan      = data.alamatPerusahaan
     dataKontrak.namaDirektur          = data.namaDirektur
     dataKontrak.npwpPerusahaan        = data.npwpPerusahaan
+
+    dataKontrak.namaPerusahaanPembanding1        = data.namaPerusahaanPembanding1
+    dataKontrak.alamatPerusahaanPembanding1        = data.alamatPerusahaanPembanding1
+    dataKontrak.namaPerusahaanPembanding2        = data.namaPerusahaanPembanding2
+    dataKontrak.alamatPerusahaanPembanding2        = data.alamatPerusahaanPembanding2
+    dataKontrak.namaDirekturPembanding1        = data.namaDirekturPembanding1
+    dataKontrak.namaDirekturPembanding2        = data.namaDirekturPembanding2
   
     dataKontrak.hrgtotal              = data.hrgtotal;
     dataKontrak.managementFeePctg     = data.mgmtFeePctg;
@@ -294,6 +313,13 @@ class Form50200 extends React.Component {
     document.getElementById("alamatPerusahaan").value       = data.alamatPerusahaan;
     document.getElementById("namaDirektur").value           = data.namaDirektur;
     document.getElementById("npwpPerusahaan").value         = data.npwpPerusahaan;
+
+    document.getElementById("namaPerusahaanPembanding1").value         = data.namaPerusahaanPembanding1;
+    document.getElementById("alamatPerusahaanPembanding1").value         = data.alamatPerusahaanPembanding1;
+    document.getElementById("namaPerusahaanPembanding2").value         = data.namaPerusahaanPembanding2;
+    document.getElementById("alamatPerusahaanPembanding2").value         = data.alamatPerusahaanPembanding2;
+    document.getElementById("namaDirekturPembanding1").value         = data.namaDirekturPembanding1;
+    document.getElementById("namaDirekturPembanding2").value         = data.namaDirekturPembanding2;
     
     const requestOptions = {
       method: 'POST',
@@ -1163,7 +1189,7 @@ class Form50200 extends React.Component {
                         <Label for="namaPerusahaan" sm={3}>
                           Nama Perusahaan
                         </Label>
-                        <Col sm={9}>
+                        <Col sm={7}>
                           <Input
                             type="text"
                             name="namaPerusahaan"
@@ -1180,7 +1206,7 @@ class Form50200 extends React.Component {
                         <Label for="alamatPerusahaan" sm={3}>
                           Alamat Perusahaan
                         </Label>
-                        <Col sm={9}>
+                        <Col sm={7}>
                           <Input
                             style={{height:'160px'}}
                             type="textarea"
@@ -1196,7 +1222,7 @@ class Form50200 extends React.Component {
                         <Label for="namaDirektur" sm={3}>
                           Nama Direktur
                         </Label>
-                        <Col sm={9}>
+                        <Col sm={6}>
                           <Input
                             type="text"
                             name="namaDirektur"
@@ -1211,7 +1237,7 @@ class Form50200 extends React.Component {
                         <Label for="npwpPerusahaan" sm={3}>
                           NPWP
                         </Label>
-                        <Col sm={9}>
+                        <Col sm={6}>
                           <Input
                             type="text"
                             name="npwpPerusahaan"
@@ -1224,7 +1250,105 @@ class Form50200 extends React.Component {
                         </Col>
                       </FormGroup>
                     </Col>
+                    
+                    <Col xl={12} lg={12} md={12}>
                     <hr/>
+                      <CardHeader>Perusahaan Pembanding (Optional)</CardHeader>
+                      <CardBody>
+                        <FormGroup row>
+                          <Label for="namaPerusahaanPembanding1" sm={3}>
+                            Nama Perusahaan Pembanding 1
+                          </Label> 
+                          <Col sm={7}>
+                            <Input
+                              type="text"
+                              name="namaPerusahaanPembanding1"
+                              id="namaPerusahaanPembanding1"
+                              placeholder="nama perusahaan"
+                              onChange={this.handleInputChange}
+                              //onKeyUp={()=>{this.handleSearchPerusahaan()}}
+                            />
+                          </Col>
+                        </FormGroup>
+                        <FormGroup row>
+                          <Label for="alamatPerusahaanPembanding1" sm={3}>
+                            Alamat Perusahaan Pembanding 1
+                          </Label>
+                          <Col sm={7}>
+                            <Input
+                              style={{height:'160px'}}
+                              type="textarea"
+                              name="alamatPerusahaanPembanding1"
+                              id="alamatPerusahaanPembanding1"
+                              placeholder="alamat perusahaan"
+                              onChange={this.handleInputChange}
+                            />
+                          </Col>
+                        </FormGroup>
+                        <FormGroup row>
+                          <Label for="namaDirekturPembanding1" sm={3}>
+                            Nama Direktur Pembanding 1
+                          </Label> 
+                          <Col sm={7}>
+                            <Input
+                              type="text"
+                              name="namaDirekturPembanding1"
+                              id="namaDirekturPembanding1"
+                              placeholder="nama direktur perusahaan pembanding 1"
+                              onChange={this.handleInputChange}
+                              //onKeyUp={()=>{this.handleSearchPerusahaan()}}
+                            />
+                          </Col>
+                        </FormGroup>
+                        <hr/>
+                        <FormGroup row>
+                          <Label for="namaPerusahaanPembanding2" sm={3}>
+                            Nama Perusahaan Pembanding 2
+                          </Label> 
+                          <Col sm={7}>
+                            <Input
+                              type="text"
+                              name="namaPerusahaanPembanding2"
+                              id="namaPerusahaanPembanding2"
+                              placeholder="nama perusahaan"
+                              onChange={this.handleInputChange}
+                              //onKeyUp={()=>{this.handleSearchPerusahaan()}}
+                            />
+                          </Col>
+                        </FormGroup>
+                        <FormGroup row>
+                          <Label for="alamatPerusahaanPembanding2" sm={3}>
+                            Alamat Perusahaan Pembanding 2
+                          </Label>
+                          <Col sm={7}>
+                            <Input
+                              style={{height:'160px'}}
+                              type="textarea"
+                              name="alamatPerusahaanPembanding2"
+                              id="alamatPerusahaanPembanding2"
+                              placeholder="alamat perusahaan"
+                              onChange={this.handleInputChange}
+                            />
+                          </Col>
+                        </FormGroup>
+                        <FormGroup row>
+                          <Label for="namaDirekturPembanding2" sm={3}>
+                            Nama Direktur Pembanding 2
+                          </Label> 
+                          <Col sm={7}>
+                            <Input
+                              type="text"
+                              name="namaDirekturPembanding2"
+                              id="namaDirekturPembanding2"
+                              placeholder="nama direktur perusahaan pembanding 1"
+                              onChange={this.handleInputChange}
+                              //onKeyUp={()=>{this.handleSearchPerusahaan()}}
+                            />
+                          </Col>
+                        </FormGroup>
+                      </CardBody>
+                    </Col>
+                    
                     <Col xl={12} lg={12} md={12}>
                       <FormGroup row>
                         <Col sm={{ offset: 8 }}>
@@ -1253,7 +1377,7 @@ class Form50200 extends React.Component {
                             style={{height:'140px'}}
                             id="descr"
                             name="descr"
-                            placeholder="deskripsi penawaran"
+                            placeholder="uraian kegiatan/barang"
                             onChange={this.handleInputChange}
                             onKeyUp={()=>{this.setState({msg_tb1:''})}}
                           />
@@ -1281,6 +1405,24 @@ class Form50200 extends React.Component {
                             </Col>
                           </FormGroup>
                           <FormGroup row>
+                            <Label for="freq" sm={4}>
+                              Satuan
+                            </Label>
+                            <Col sm={8}>
+                              <Input
+                                type="text"
+                                id="freq"
+                                name="freq"
+                                placeholder="paket, bulan, OH, OK, OB, dll"
+                                onChange={this.handleInputChange}
+                                onKeyUp={()=>{this.setState({msg_tb4:''})}}
+                              />
+                              <FormText color={'danger'}>{this.state.msg_tb4}</FormText>
+                            </Col>
+                          </FormGroup>
+                        </Col>
+                        <Col xl={6} lg={12} md={12}>
+                          <FormGroup row>
                             <Label for="unitprice" sm={4}>
                               Harga Satuan
                             </Label>
@@ -1294,24 +1436,6 @@ class Form50200 extends React.Component {
                                 onKeyUp={()=>{this.setState({msg_tb3:''})}}
                               />
                               <FormText color={'danger'}>{this.state.msg_tb3}</FormText>
-                            </Col>
-                          </FormGroup>
-                        </Col>
-                        <Col xl={6} lg={12} md={12}>
-                          <FormGroup row>
-                            <Label for="freq" sm={4}>
-                              Satuan
-                            </Label>
-                            <Col sm={8}>
-                              <Input
-                                type="text"
-                                id="freq"
-                                name="freq"
-                                placeholder="satuan"
-                                onChange={this.handleInputChange}
-                                onKeyUp={()=>{this.setState({msg_tb4:''})}}
-                              />
-                              <FormText color={'danger'}>{this.state.msg_tb4}</FormText>
                             </Col>
                           </FormGroup>
                           <FormGroup row>
