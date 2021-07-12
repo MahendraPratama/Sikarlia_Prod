@@ -1,6 +1,7 @@
 import Page from 'components/Page';
 import React from 'react';
 import {generateDocument} from '../docxtemplater/engine';
+import {reSatPlkPkjChooser, getDefaultSetDataKontrak} from '../docxtemplater/element';
 import {pushKontrak} from '../server/API';
 import { Stepper, Step } from 'react-form-stepper';
 import NotificationSystem from 'react-notification-system';
@@ -27,57 +28,7 @@ var tableHPS = [];
 const urlFile= 'https://drive.google.com/u/0/uc?id=15uCHB-w4Xhz-pQAqwBzcil3AoRZB7f6U&export=download';
 const path = window.location.origin  + '/kontrak50_200.docx';
 const urlLocal = 'https://localhost/docxtemplate/kontrak50_200.docx';
-var dataKontrak = {
-  userid:localStorage.getItem("user_session"),
-  unique_id:null,
-  id:null,
-  namaPekerjaan: null,
-  suratPermintaanPPK: '0000-00-00',
-  pengadaanBarJas:'0000-00-00',
-  HPS:'0000-00-00',
-  penawaranRKS:'0000-00-00',
-  pengajuanPenawaran:'0000-00-00',
-  undanganEvaluasi:'0000-00-00',
-  evaluasi:'0000-00-00',
-  penetapanPenyedia:'0000-00-00',
-  laporanPelaksanaan:'0000-00-00',
-  suratPemesanan:'0000-00-00',
-  penandatangananKontrak:'0000-00-00',
-  pelaksanaanPekerjaan:0,
-  penyelesaianPekerjaan:'0000-00-00',
-  pembayaran:'0000-00-00',
-  namaPerusahaan:null,
-  alamatPerusahaan:null,
-  namaDirektur:null,
-  npwpPerusahaan:null,
-  
-  descr:'',
-  qty:'',
-  freq:'',
-  unitprice:'',
-  total:'',
-  managementFee:0,
-
-  subtotal:0,
-  ppn:0,
-  hrgtotal:0,
-
-  TABEL:[],
-  managementFeePctg:0,
-  cb_managementFee:false,
-  
-  suratKesanggupan:'0000-00-00',	
-  namaGroupPokja:null,
-  pokja1:null,				
-  pokja2:null,				
-  pokja3:null,				
-  pokja4:null,				
-  pokja5:null,				
-  nipPokja1:null,			
-  jabatan:null,			
-
-  tipeKontrak:'50200PL',
-}
+var dataKontrak = getDefaultSetDataKontrak('50200PL');
 class Form50200PL extends React.Component {
   constructor(props){
     super(props)
@@ -151,63 +102,14 @@ class Form50200PL extends React.Component {
 
         isEditHPS:false,
         indexEditHPS:null,
-        
+        tglKosong:'0000-00-00',
+        indexSatPlkPkj:0,
     };
     //this.handleNext = this.handleNext.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
   }
   componentWillUnmount(){
-    dataKontrak = {
-      userid:localStorage.getItem("user_session"),
-      unique_id:null,
-      id:null,
-      namaPekerjaan: null,
-      suratPermintaanPPK: '0000-00-00',
-      pengadaanBarJas:'0000-00-00',
-      HPS:'0000-00-00',
-      penawaranRKS:'0000-00-00',
-      pengajuanPenawaran:'0000-00-00',
-      undanganEvaluasi:'0000-00-00',
-      evaluasi:'0000-00-00',
-      penetapanPenyedia:'0000-00-00',
-      laporanPelaksanaan:'0000-00-00',
-      suratPemesanan:'0000-00-00',
-      penandatangananKontrak:'0000-00-00',
-      pelaksanaanPekerjaan:0,
-      penyelesaianPekerjaan:'0000-00-00',
-      pembayaran:'0000-00-00',
-      namaPerusahaan:null,
-      alamatPerusahaan:null,
-      namaDirektur:null,
-      npwpPerusahaan:null,
-      
-      descr:'',
-      qty:'',
-      freq:'',
-      unitprice:'',
-      total:'',
-      managementFee:0,
-    
-      subtotal:0,
-      ppn:0,
-      hrgtotal:0,
-    
-      TABEL:[],
-      managementFeePctg:0,
-      cb_managementFee:false,
-      
-      suratKesanggupan:'0000-00-00',	
-      namaGroupPokja:null,
-      pokja1:null,				
-      pokja2:null,				
-      pokja3:null,				
-      pokja4:null,				
-      pokja5:null,				
-      nipPokja1:null,			
-      jabatan:null,			
-    
-      tipeKontrak:'50200PL',
-    };
+    dataKontrak = getDefaultSetDataKontrak('50200PL');
   }
   componentDidMount(){
     const {data} = this.props.location;
@@ -261,20 +163,8 @@ class Form50200PL extends React.Component {
 
       validasiJadwal  : data.pembayaran!='0000-00-00'?true:false,
       isManagementFee: data.cb_managementFee == 1 ? true:false,
+      indexSatPlkPkj: data.indexSatPlkPkj||0,
     })
-    // this.validateStepTgl("suratPermintaanPPK");
-    // this.validateStepTgl("pengadaanBarJas");
-    // this.validateStepTgl("HPS");
-    // this.validateStepTgl("penawaranRKS");
-    // this.validateStepTgl("pengajuanPenawaran");
-    // this.validateStepTgl("undanganEvaluasi");
-    // this.validateStepTgl("evaluasi");
-    // this.validateStepTgl("penetapanPenyedia");
-    // this.validateStepTgl("laporanPelaksanaan");
-    // this.validateStepTgl("suratPemesanan");
-    // this.validateStepTgl("penandatangananKontrak");
-    // this.validateStepTgl("penyelesaianPekerjaan");
-    // this.validateStepTgl("pembayaran");
 
     document.getElementById("namaPekerjaan").value          = data.namaPekerjaan;
     document.getElementById("suratPermintaanPPK").value     = data.suratPermintaanPPK;
@@ -295,7 +185,7 @@ class Form50200PL extends React.Component {
     document.getElementById("alamatPerusahaan").value       = data.alamatPerusahaan;
     document.getElementById("namaDirektur").value           = data.namaDirektur;
     document.getElementById("npwpPerusahaan").value         = data.npwpPerusahaan;
-    
+
     const requestOptions = {
       method: 'POST',
       //headers: { 'Content-Type': 'application/json' },
@@ -378,62 +268,63 @@ class Form50200PL extends React.Component {
   }
   validateStepTgl(key){
     var vldt = true;
-    if(dataKontrak.pengadaanBarJas < dataKontrak.suratPermintaanPPK){
+    var tglKosong = this.state.tglKosong;
+    if(dataKontrak.pengadaanBarJas < dataKontrak.suratPermintaanPPK && dataKontrak.pengadaanBarJas != tglKosong){
       var msg = 'Tanggal yg diinput tidak boleh kurang dari tanggal sebelumnya'
       vldt = false;
       this.setState({msg_j2:msg, validasiJadwal:vldt})
     }else{this.setState({msg_j2:'', validasiJadwal:true}) }
-    if(dataKontrak.HPS < dataKontrak.pengadaanBarJas){
+    if(dataKontrak.HPS < dataKontrak.pengadaanBarJas && dataKontrak.HPS != tglKosong){
       var msg = 'Tanggal yg diinput tidak boleh kurang dari tanggal sebelumnya'
       vldt = false;
       this.setState({msg_j3:msg, validasiJadwal:vldt})
     }else{this.setState({msg_j3:'', validasiJadwal:true}) }
-    if(dataKontrak.penawaranRKS < dataKontrak.HPS){
+    if(dataKontrak.penawaranRKS < dataKontrak.HPS  && dataKontrak.penawaranRKS != tglKosong){
       var msg = 'Tanggal yg diinput tidak boleh kurang dari tanggal sebelumnya'
       vldt = false;
       this.setState({msg_j4:msg, validasiJadwal:vldt})
     }else{this.setState({msg_j4:'', validasiJadwal:true}) }
-    if(dataKontrak.pengajuanPenawaran < dataKontrak.penawaranRKS){
+    if(dataKontrak.pengajuanPenawaran < dataKontrak.penawaranRKS  && dataKontrak.pengajuanPenawaran != tglKosong){
       var msg = 'Tanggal yg diinput tidak boleh kurang dari tanggal sebelumnya'
       vldt = false;
       this.setState({msg_j5:msg, validasiJadwal:vldt})
     }else{this.setState({msg_j5:'', validasiJadwal:true}) }
-    if(dataKontrak.undanganEvaluasi < dataKontrak.pengajuanPenawaran){
+    if(dataKontrak.undanganEvaluasi < dataKontrak.pengajuanPenawaran  && dataKontrak.undanganEvaluasi != tglKosong){
       var msg = 'Tanggal yg diinput tidak boleh kurang dari tanggal sebelumnya'
       vldt = false;
       this.setState({msg_j6:msg, validasiJadwal:vldt})
     }else{this.setState({msg_j6:'', validasiJadwal:true}) }
-    if(dataKontrak.evaluasi < dataKontrak.undanganEvaluasi){
+    if(dataKontrak.evaluasi < dataKontrak.undanganEvaluasi && dataKontrak.evaluasi != tglKosong){
       var msg = 'Tanggal yg diinput tidak boleh kurang dari tanggal sebelumnya'
       vldt = false;
       this.setState({msg_j7:msg, validasiJadwal:vldt})
     }else{this.setState({msg_j7:'', validasiJadwal:true}) }
-    if(dataKontrak.penetapanPenyedia < dataKontrak.evaluasi){
+    if(dataKontrak.penetapanPenyedia < dataKontrak.evaluasi && dataKontrak.penetapanPenyedia != tglKosong){
       var msg = 'Tanggal yg diinput tidak boleh kurang dari tanggal sebelumnya'
       vldt = false;
       this.setState({msg_j8:msg, validasiJadwal:vldt})
     }else{this.setState({msg_j8:'', validasiJadwal:true}) }
-    if(dataKontrak.laporanPelaksanaan < dataKontrak.penetapanPenyedia){
+    if(dataKontrak.laporanPelaksanaan < dataKontrak.penetapanPenyedia && dataKontrak.laporanPelaksanaan != tglKosong){
       var msg = 'Tanggal yg diinput tidak boleh kurang dari tanggal sebelumnya'
       vldt = false;
       this.setState({msg_j9:msg, validasiJadwal:vldt})
     }else{this.setState({msg_j9:'', validasiJadwal:true}) }
-    if(dataKontrak.suratPemesanan < dataKontrak.laporanPelaksanaan){
+    if(dataKontrak.suratPemesanan < dataKontrak.laporanPelaksanaan && dataKontrak.suratPemesanan != tglKosong){
       var msg = 'Tanggal yg diinput tidak boleh kurang dari tanggal sebelumnya'
       vldt = false;
       this.setState({msg_j10:msg, validasiJadwal:vldt})
     }else{this.setState({msg_j10:'', validasiJadwal:true}) }
-    if(dataKontrak.penandatangananKontrak < dataKontrak.suratPemesanan){
+    if(dataKontrak.penandatangananKontrak < dataKontrak.suratPemesanan && dataKontrak.penandatangananKontrak != tglKosong){
       var msg = 'Tanggal yg diinput tidak boleh kurang dari tanggal sebelumnya'
       vldt = false;
       this.setState({msg_j11:msg, validasiJadwal:vldt})
     }else{this.setState({msg_j11:'', validasiJadwal:true}) }
-    if(dataKontrak.penyelesaianPekerjaan < dataKontrak.penandatangananKontrak){
+    if(dataKontrak.penyelesaianPekerjaan < dataKontrak.penandatangananKontrak && dataKontrak.penyelesaianPekerjaan != tglKosong){
       var msg = 'Tanggal yg diinput tidak boleh kurang dari tanggal sebelumnya'
       vldt = false;
       this.setState({msg_j13:msg, validasiJadwal:vldt})
     }else{this.setState({msg_j13:'', validasiJadwal:true}) }
-    if(dataKontrak.pembayaran < dataKontrak.penyelesaianPekerjaan){
+    if(dataKontrak.pembayaran < dataKontrak.penyelesaianPekerjaan && dataKontrak.pembayaran != tglKosong){
       var msg = 'Tanggal yg diinput tidak boleh kurang dari tanggal sebelumnya'
       vldt = false;
       this.setState({msg_j14:msg, validasiJadwal:vldt})
@@ -545,6 +436,8 @@ class Form50200PL extends React.Component {
     const target = event.target;
   }
   handleSubmit = (type) => {
+    dataKontrak.satPlkPkj = document.getElementById("chooserSatPlkPkj").value;
+    dataKontrak.indexSatPlkPkj = document.getElementById("chooserSatPlkPkj").selectedIndex;
     console.log(dataKontrak);
     var IsOK = false;
     if(type=="save"){
@@ -633,59 +526,60 @@ class Form50200PL extends React.Component {
   validation_step2(){
     var data = dataKontrak;
     var cFalse = 0;
-    if(!data.suratPermintaanPPK){
+    var tglKosong = this.state.tglKosong;
+    if(data.suratPermintaanPPK==tglKosong){
       this.setState({msg_j1: 'Harus diisi !!'});
       cFalse++;
     }
-    if(!data.pengadaanBarJas){
+    if(data.pengadaanBarJas==tglKosong){
       this.setState({msg_j2: 'Harus diisi !!'});
       cFalse++;
     }
-    if(!data.HPS){
+    if(data.HPS==tglKosong){
       this.setState({msg_j3: 'Harus diisi !!'});
       cFalse++;
     }
-    if(!data.penawaranRKS){
+    if(data.penawaranRKS==tglKosong){
       this.setState({msg_j4: 'Harus diisi !!'});
       cFalse++;
     }
-    if(!data.pengajuanPenawaran){
+    if(data.pengajuanPenawaran==tglKosong){
       this.setState({msg_j5: 'Harus diisi !!'});
       cFalse++;
     }
-    if(!data.undanganEvaluasi){
+    if(data.undanganEvaluasi==tglKosong){
       this.setState({msg_j6: 'Harus diisi !!'});
       cFalse++;
     }
-    if(!data.evaluasi){
+    if(data.evaluasi==tglKosong){
       this.setState({msg_j7: 'Harus diisi !!'});
       cFalse++;
     }
-    if(!data.penetapanPenyedia){
+    if(data.penetapanPenyedia==tglKosong){
       this.setState({msg_j8: 'Harus diisi !!'});
       cFalse++;
     }
-    if(!data.laporanPelaksanaan){
+    if(data.laporanPelaksanaan==tglKosong){
       this.setState({msg_j9: 'Harus diisi !!'});
       cFalse++;
     }
-    if(!data.suratPemesanan){
+    if(data.suratPemesanan==tglKosong){
       this.setState({msg_j10: 'Harus diisi !!'});
       cFalse++;
     }
-    if(!data.penandatangananKontrak){
+    if(data.penandatangananKontrak==tglKosong){
       this.setState({msg_j11: 'Harus diisi !!'});
       cFalse++;
     }
-    if(!data.pelaksanaanPekerjaan){
+    if(data.pelaksanaanPekerjaan==tglKosong){
       this.setState({msg_j12: 'Harus diisi !!'});
       cFalse++;
     }
-    if(!data.penyelesaianPekerjaan){
+    if(data.penyelesaianPekerjaan==tglKosong){
       this.setState({msg_j13: 'Harus diisi !!'});
       cFalse++;
     }
-    if(!data.pembayaran){
+    if(data.pembayaran==tglKosong){
       this.setState({msg_j14: 'Harus diisi !!'});
       cFalse++;
     }
@@ -1093,16 +987,16 @@ class Form50200PL extends React.Component {
                             type="number"
                             name="pelaksanaanPekerjaan"
                             id="pelaksanaanPekerjaan"
-                            placeholder="hari kalender"
+                            placeholder="durasi"
                             onChange={this.handleInputChange}
                             //onKeyUp={()=>{this.setState({msg_j12:''})}}
                             //onBlur={()=>{this.setState({msg_j12:''})}}
                           />
                           <FormText color={'danger'}>{this.state.msg_j12}</FormText>
                         </Col>
-                        <Label sm={3}>
-                          hari
-                        </Label>
+                        <Col sm={3}>
+                          {reSatPlkPkjChooser(this.state.indexSatPlkPkj)}
+                        </Col>
                       </FormGroup>
                       <FormGroup row>
                         <Label for="penyelesaianPekerjaan" sm={6}>

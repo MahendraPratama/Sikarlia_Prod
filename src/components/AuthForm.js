@@ -1,11 +1,12 @@
 import logo200Image from 'assets/img/logo/logo_login.png';
 import PropTypes from 'prop-types';
+import {modalLoading} from '../docxtemplater/element'
 import React from 'react';
-import { Button, Form, FormGroup, Input, Label, InputGroupAddon, InputGroup } from 'reactstrap';
+import { Button, Form, FormGroup, Input, Label, InputGroupAddon, InputGroup, Modal, ModalBody,ModalFooter,ModalHeader } from 'reactstrap';
 import { Redirect, withRouter } from 'react-router-dom';
 import md5 from 'md5';
 import {
-  MdDelete,MdCloudUpload,MdWarning,MdEdit,MdCheckCircle,MdSearch,MdRemoveRedEye,
+  MdDelete,MdCloudUpload,MdWarning,MdEdit,MdCheckCircle,MdSearch,MdRemoveRedEye,MdVisibilityOff,MdVisibility
 } from 'react-icons/md';
 //var {queries} = require('../server/query').default;
 class AuthForm extends React.Component {
@@ -17,8 +18,10 @@ class AuthForm extends React.Component {
         data: null,
         message: null,
         isViewPwd:false,
+        modal:false,
     };
     this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
   }
 
   get isLogin() {
@@ -49,9 +52,16 @@ class AuthForm extends React.Component {
       [target.name]: value
     });
   }
-
+  handleKeyDown(event){
+    if(event.keyCode === 13){
+      event.preventDefault();
+      //console.log(this.state.search)
+      this.handleSubmit(event);
+    }
+  }
   handleSubmit = event => {
     event.preventDefault();
+    this.setState({modal:true})
     const userid = this.state.userid;
     const password = this.state.password;
 
@@ -85,11 +95,13 @@ class AuthForm extends React.Component {
             //return <Redirect to="/dashboard" />
           }})
           .then(()=>{
-            console.log(IsLogin);
+            //console.log(IsLogin);
+            this.setState({modal:false})
             if(IsLogin){
               //this.props.history = window.location.origin;
               this.props.history.push('/dashboard');
             }
+            
           });
 
     
@@ -136,7 +148,7 @@ class AuthForm extends React.Component {
             <img
               src={logo200Image}
               className="rounded"
-              style={{ width: 210, height: 78, cursor: 'pointer' }}
+              style={{ width: 210, height: 62, cursor: 'pointer' }}
               alt="logo"
               onClick={onLogoClick}
             />
@@ -149,9 +161,10 @@ class AuthForm extends React.Component {
         <br/>
         <p style={{color:'red'}}>{this.state.message}</p>
         <hr/>
+        {modalLoading(this.state.modal)}
         <FormGroup>
           <Label for={usernameLabel}>{usernameLabel}</Label>
-          <Input name="userid" onChange={this.handleInputChange} {...usernameInputProps} />
+          <Input name="userid" onChange={this.handleInputChange} {...usernameInputProps} onKeyDown={this.handleKeyDown} />
         </FormGroup>
         <FormGroup>
           <Label for={passwordLabel}>{passwordLabel}</Label>
@@ -160,7 +173,8 @@ class AuthForm extends React.Component {
               type={this.state.isViewPwd?"text":"password"}
               name="password" 
               placeholder="your password"
-              onChange={this.handleInputChange} />
+              onChange={this.handleInputChange}
+              onKeyDown={this.handleKeyDown} />
             <InputGroupAddon addonType="append">
               <Button 
                 onClick={()=>{
@@ -169,7 +183,7 @@ class AuthForm extends React.Component {
                 }}
                 color="primary"
                 outline={this.state.isViewPwd?true:false}>
-                <MdRemoveRedEye/></Button>
+                {this.state.isViewPwd?<MdVisibilityOff/>:<MdVisibility/>}</Button>
             </InputGroupAddon>
           </InputGroup>
         </FormGroup>
@@ -191,6 +205,7 @@ class AuthForm extends React.Component {
           color="primary"
           //className="btn btn-info bg-main-sikocak"
           block
+          id="loginBtn"
           onClick={this.handleSubmit}>
           {this.renderButtonText()}
         </Button>

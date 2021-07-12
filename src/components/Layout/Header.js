@@ -3,6 +3,7 @@ import { UserCard } from 'components/Card';
 import Notifications from 'components/Notifications';
 import SearchInput from 'components/SearchInput';
 import { notificationsData } from 'demos/header';
+import { Redirect, withRouter } from 'react-router-dom';
 import withBadge from 'hocs/withBadge';
 import React from 'react';
 import {
@@ -46,11 +47,21 @@ const MdNotificationsActiveWithBadge = withBadge({
 })(MdNotificationsActive);
 
 class Header extends React.Component {
-  state = {
-    isOpenNotificationPopover: false,
-    isNotificationConfirmed: false,
-    isOpenUserCardPopover: false,
-  };
+  constructor(props){
+    super(props)
+    this.state = {
+      isOpenNotificationPopover: false,
+      isNotificationConfirmed: false,
+      isOpenUserCardPopover: false,
+    };
+    //this.handleInputChange = this.handleInputChange.bind(this);
+    //this.handleKeyDown = this.handleKeyDown.bind(this);
+  }
+  // state = {
+  //   isOpenNotificationPopover: false,
+  //   isNotificationConfirmed: false,
+  //   isOpenUserCardPopover: false,
+  // };
 
   toggleNotificationPopover = () => {
     this.setState({
@@ -147,8 +158,10 @@ class Header extends React.Component {
                 >
                   <ListGroup flush>
                     <ListGroupItem tag="button" action className="border-light" onClick={()=>{
-                      window.location.href="/profile"
+                      //window.location.href="/profile"
                       //this.props.history.push("/profile");
+                      window.location = '/profile';
+                      //return <Redirect to="/profile" />
                     }}>
                       <MdPersonPin /> Profile
                     </ListGroupItem>

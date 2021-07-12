@@ -5,11 +5,26 @@ import { Card, CardBody, CardHeader, Col, Row, Table, Button, Badge,
 import NotificationSystem from 'react-notification-system';
 import { NOTIFICATION_SYSTEM_STYLE } from 'utils/constants';
 import SearchInput from 'components/SearchInput';
+import DocViewer from "react-doc-viewer";
+import {generateDocument} from '../docxtemplater/engine';
+import loadingImg from 'assets/img/logo/loading.gif';
+import {getDefaultSetDataKontrak, modalLoading, getStatusKontrak, setupTgl} from '../docxtemplater/element';
+
 import {
-  MdDelete,MdCloudUpload,MdWarning,MdEdit,MdCheckCircle,MdSearch,
+  MdDelete,MdCloudUpload,MdWarning,MdEdit,MdCheckCircle,MdSearch,MdPageview,MdDescription,MdClose
 } from 'react-icons/md';
 import Pagination from "react-js-pagination";
+import Label from 'reactstrap/lib/Label';
 const tableTypes = ['', 'bordered', 'striped', 'hover'];
+// const docs = [
+//   { uri:  },
+//   //{ uri: window.location.origin+"/kontrak50_200.docx" }, // Local File
+// ];
+const fileMaster = {
+  '50200PL':'/kontrak50_200PL.docx',
+  '50200NonPL':'/kontrak50_200.docx',
+  '200up':'/kontrak200up.docx',
+}
 class KontrakSaya extends React.Component {
   constructor(props){
     super(props)
@@ -26,6 +41,17 @@ class KontrakSaya extends React.Component {
       search:'',
       activePage: 1,
       itemPerPage: 10,
+      modal:false,
+
+      status:null,
+      tipeKontrak:null,
+      change:'-',
+      create:'-',
+      hrgtotal:0,
+      namaPkj:'-',
+      prshnPmn:'-',
+      isPvw:false,
+      dataToGenerate:[],
     };
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleKeyDown = this.handleKeyDown.bind(this);
@@ -33,9 +59,12 @@ class KontrakSaya extends React.Component {
 
   componentDidMount(){
     this.loadData();
+    var url = '' 
+
+    // console.log(url);
   }
   loadData(){
-    this.setState({data:[]})
+    this.setState({data:[],modal:true})
     const requestOptions = {
       method: 'POST',
       //headers: { 'Content-Type': 'application/json' },
@@ -45,6 +74,7 @@ class KontrakSaya extends React.Component {
         .then(response => response.json())
         .then(respon => {
           var dataAPI = respon;
+          this.setState({modal:false})
           if(dataAPI.response_code != 200){
             this.setState({ message: dataAPI.message });
           }else{
@@ -52,6 +82,83 @@ class KontrakSaya extends React.Component {
             this.handlePageChange(1)
           }
         });
+  }
+  
+  hitungTotal(dataKontrak, dataTabel){
+    var subtot = 0;
+    //console.log(tableHPS);
+    dataTabel.map((d)=>{
+      subtot += parseInt(removeComma(d.total));
+    })
+
+    var ppn = subtot * (0.1);
+    var mgmtFee = subtot * (dataKontrak.managementFeePctg/100);
+    var isMgt = dataKontrak.cb_managementFee;
+    var hrgtotal = subtot + ppn + (isMgt?mgmtFee:0);
+
+    // this.setState({
+    //   subtotal: subtot,
+    //   ppn: ppn,
+    //   managementFee: mgmtFee,
+    //   hrgtotal: hrgtotal
+    // })
+
+    dataKontrak.subtotal = subtot;
+    dataKontrak.ppn = ppn;
+    dataKontrak.hrgtotal = hrgtotal;
+    dataKontrak.managementFee = mgmtFee;
+
+    return dataKontrak;
+  }
+  preview(idx){
+    document.getElementById("viewer").src = '';
+    var data = this.state.data[idx];
+
+    data.hrgtotal = Number.parseInt(data.hrgtotal);
+
+    var status = getStatusKontrak(data.tipeKontrak, data);
+    var tipe = getNamaTipeKontrak(data.tipeKontrak);
+    this.setState({status:status,tipeKontrak:tipe,
+      create:data.date_created,change:data.date_change||'-',
+      hrgtotal:commafy(data.hrgtotal),
+      namaPkj:data.namaPekerjaan,
+      prshnPmn:data.namaPerusahaan
+    })
+
+    var cb_mgntFee = data.cb_managementFee;
+    data.cb_managementFee = cb_mgntFee=="1"?true:false;
+
+    
+    var sat = ["hari","minggu","bulan"];
+    var indexSatPlkPkj = data.indexSatPlkPkj || 0;
+    data.satPlkPkj = sat[indexSatPlkPkj];
+    const requestOptions = {
+      method: 'POST',
+      //headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ unique_id: data.unique_id })
+    };
+    fetch(process.env.REACT_APP_URL_API+'/rest/viewKontrakDetail.php', requestOptions)
+        .then(response => response.json())
+        .then(respon => {
+          var dataAPI = respon;
+          if(dataAPI.response_code == 200){
+            console.log(dataAPI.data);
+            data.TABEL = dataAPI.data;
+            data = this.hitungTotal(data,dataAPI.data);
+          }else{
+            data.TABEL = [];
+            data.subtotal = 0;
+            data.ppn = 0;
+            //data.hrgtotal = 0;
+            data.managementFee = 0;
+          }
+          data = setupTgl(data);
+          console.log(data);
+          this.setState({dataToGenerate:data});
+          generateDocument(data,fileMaster[data.tipeKontrak],true);
+        });
+    
+    return;
   }
   gotoEdit(idx){
     var data = this.state.data[idx];
@@ -130,6 +237,7 @@ class KontrakSaya extends React.Component {
         breadcrumbs={[{ name: 'Kontrak Saya', active: true }]}
         className="TablePage"
       >
+        {modalLoading(this.state.modal)}
         <NotificationSystem
           dismissible={false}
           ref={notificationSystem =>
@@ -137,6 +245,63 @@ class KontrakSaya extends React.Component {
           }
           style={NOTIFICATION_SYSTEM_STYLE}
         />
+        <Row hidden={!this.state.isPvw}>
+          <Col>
+          <Card className="mb-3" >
+            <CardHeader className="d-flex justify-content-between">View Kontrak 
+                <Button size="sm" color="danger"
+                  onClick={()=>{this.setState({isPvw:!this.state.isPvw})}}
+                ><MdClose/></Button></CardHeader>
+            <CardBody>
+              <Row>
+                <Col xl={3} lg={12} md={12}>
+                <iframe id="viewer" 
+                height="350px"
+                src={
+                  ''
+                }
+                ></iframe>
+                </Col>
+                <Col xl={9} lg={12} md={12}>
+                  <Row>
+                    <Label size="sm"sm={2} >Nama Pekerjaan</Label><Label size="sm">:</Label>
+                    <Label size="sm"sm={9}>{this.state.namaPkj}</Label>
+                  </Row>
+                  <Row>
+                    <Label size="sm"sm={2}>Perusahaan Pemenang</Label><Label size="sm">:</Label>
+                    <Label size="sm"sm={3}>{this.state.prshnPmn}</Label>
+                    <Label size="sm"sm={2}>Tipe Kontrak</Label><Label size="sm">:</Label>
+                    <Label size="sm"sm={3}>{this.state.tipeKontrak}</Label>
+                  </Row>
+                  <Row>
+                    <Label size="sm"sm={2}>Nilai Kontrak</Label><Label size="sm">:</Label>
+                    <Label size="sm"sm={3}>{this.state.hrgtotal}</Label>
+                    <Label size="sm"sm={2}>Tanggal Input</Label><Label size="sm">:</Label>
+                    <Label size="sm"sm={3}>{this.state.create}</Label>
+                  </Row>
+                  <Row>
+                    <Label size="sm"sm={2}>Status</Label><Label size="sm">:</Label>
+                    <Label size="sm"sm={3}>{this.state.status}</Label>
+                    <Label size="sm"sm={2}>Tanggal Terakhir Diubah</Label><Label size="sm">:</Label>
+                    <Label size="sm"sm={3}>{this.state.change}</Label>
+                  </Row>
+                  <Row>
+                    <Col>
+                      <Button size="sm"
+                        onClick={()=>{
+                          var dt = this.state.dataToGenerate;
+                          generateDocument(dt,fileMaster[dt.tipeKontrak]);
+                        }}
+                      > Generate DOCX</Button>
+                    </Col>
+                  </Row>
+                </Col>
+                
+              </Row>
+            </CardBody>
+          </Card>
+          </Col>
+        </Row>
         <Row>
           <Col>
             <Card className="mb-3">
@@ -168,7 +333,7 @@ class KontrakSaya extends React.Component {
                       <th>Perusahaan Pemenang</th>
                       <th>Tipe Kontrak</th>
                       <th>Tanggal Input</th>
-                      <th style={{width:"95px"}}>Action</th>
+                      <th style={{width:"140px"}}>Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -181,6 +346,15 @@ class KontrakSaya extends React.Component {
                         <td>{getNamaTipeKontrak(dt.tipeKontrak)}</td>
                         <td>{dt.date_created}</td>
                         <td>
+                          <Button 
+                            title="View Kontrak"
+                            color="primary"
+                            onClick={()=>{
+                              this.preview(((activePage*itemPerPage)-itemPerPage) + index)
+                              this.setState({isPvw:true})
+                            }}
+                            size="sm"
+                          ><MdPageview/></Button>&nbsp;                               
                           <Button 
                             title="Edit Kontrak"
                             color="secondary"
@@ -253,5 +427,8 @@ function getNamaTipeKontrak(input){
   if(input=="200up"){
     return <Badge title="Kontrak dengan nilai daiatas 200 Juta" color="warning" pill className="mr-1">Diatas 200</Badge>;
   }
+}
+function removeComma(num){
+  return num.replace(/,/g, '');
 }
 export default KontrakSaya;

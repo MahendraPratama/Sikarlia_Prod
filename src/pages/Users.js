@@ -1,12 +1,12 @@
 import Page from 'components/Page';
 import React from 'react';
+import {modalLoading} from '../docxtemplater/element'
 import { Card, CardBody, CardHeader, Col, Row, Table, Button, Badge,
-  Input, InputGroup, InputGroupAddon, InputGroupButton, FormGroup, Label, FormText } from 'reactstrap';
+  Input, InputGroup, InputGroupAddon, InputGroupButton, FormGroup, Label, FormText,Modal,ModalBody } from 'reactstrap';
 import NotificationSystem from 'react-notification-system';
 import { NOTIFICATION_SYSTEM_STYLE } from 'utils/constants';
-import SearchInput from 'components/SearchInput';
 import {
-  MdDelete,MdCloudUpload,MdWarning,MdEdit,MdCheckCircle,MdSearch,MdRemoveRedEye,
+  MdDelete,MdCloudUpload,MdWarning,MdEdit,MdCheckCircle,MdSearch,MdRemoveRedEye,MdVisibility,MdVisibilityOff
 } from 'react-icons/md';
 import Pagination from "react-js-pagination";
 import ButtonGroup from 'reactstrap/lib/ButtonGroup';
@@ -45,6 +45,7 @@ class Users extends React.Component {
       itemPerPage:5,
       defaultPwd:'1234567890',
       isViewPwd:false,
+      modal:false
     };
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleKeyDown = this.handleKeyDown.bind(this);
@@ -55,7 +56,7 @@ class Users extends React.Component {
     this.loadData();
   }
   loadData(){
-    this.setState({data:[]})
+    this.setState({data:[],modal:true})
     const requestOptions = {
       method: 'POST',
       //headers: { 'Content-Type': 'application/json' },
@@ -65,6 +66,7 @@ class Users extends React.Component {
         .then(response => response.json())
         .then(respon => {
           var dataAPI = respon;
+          this.setState({modal:false})
           if(dataAPI.response_code != 200){
             this.setState({ message: dataAPI.message });
           }else{
@@ -320,6 +322,7 @@ class Users extends React.Component {
           }
           style={NOTIFICATION_SYSTEM_STYLE}
         />
+        {modalLoading(this.state.modal)}
         <Row style={{display:this.state.isAdd?"block":"none"}}>
           <Col>
             <Card className="mb-3">
@@ -404,7 +407,7 @@ class Users extends React.Component {
                                     this.setState({isViewPwd:!oldState});
                                   }}
                                   outline={this.state.isViewPwd?true:false}>
-                                  <MdRemoveRedEye/></Button>
+                                  {this.state.isViewPwd?<MdVisibilityOff/>:<MdVisibility/>}</Button>
                             </InputGroupAddon>
                           </InputGroup>
                           <Button color="link" size="sm" onClick={()=>{
@@ -471,7 +474,7 @@ class Users extends React.Component {
               </Col>
               </CardHeader>
               <CardBody>
-                <Table responsive>
+                <Table size="sm" responsive>
                   <thead>
                     <tr>
                       <th>No</th>

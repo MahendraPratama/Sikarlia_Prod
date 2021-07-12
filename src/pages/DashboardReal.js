@@ -44,7 +44,12 @@ import {
   Row,
 } from 'reactstrap';
 import { getColor } from 'utils/colors';
-
+import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
+import { Carousel } from 'react-responsive-carousel';
+const images = [
+  'https://sikarliaapi.000webhostapp.com/rest/slideshow/slideshow1.png',
+  'https://sikarliaapi.000webhostapp.com/rest/slideshow/slideshow2.png',
+];
 const today = new Date();
 const lastWeek = new Date(
   today.getFullYear(),
@@ -119,7 +124,7 @@ class DashboardPage extends React.Component {
             dataAPI.data.map(
               ({tipeKontrak, jml}, index)=>{
                 iconWidgetsData[index].jml = jml;
-                sumAllKontrak += jml;
+                sumAllKontrak += Number.parseInt(jml);
               });
             this.setState({Data:iconWidgetsData, sumAllKontrak:sumAllKontrak});
           }else{
@@ -153,11 +158,12 @@ class DashboardPage extends React.Component {
         className="DashboardPage"
         title="Dashboard"
         breadcrumbs={[{ name: 'Dashboard', active: true }]}
+        style={{backgroundColor:"#eff4fc"}}
       >
         <Row>
         {this.state.Data.map(
           ({ bgColor, icon, title, subtitle, jml, ...restProps }, index) => (
-            <Col key={index} lg={4} md={6} sm={6} xs={12} className="mb-3">
+            <Col key={index} lg={4} md={12} sm={12} xs={12} className="mb-3">
               {/* <IconWidget
                 bgColor={bgColor}
                 icon={icon}
@@ -172,7 +178,7 @@ class DashboardPage extends React.Component {
                 number={jml + " Kontrak"}
                 color="secondary"
                 progress={{
-                  value: jml*this.state.sumAllKontrak/100,
+                  value: jml*100/this.state.sumAllKontrak,//*100/this.state.sumAllKontrak,
                   label: '',
                 }}
               />
@@ -338,11 +344,11 @@ class DashboardPage extends React.Component {
           </Col>
         </Row> */}
        <Row>
-          <Col md="9" sm="12" xs="12">
+          <Col lg="9" md="9" sm="12" xs="12">
             <Card inverse>
               <CardHeader inverse className="bg-gradient-primary">Kontrak Terbaru</CardHeader>
               <CardBody>
-              <Table responsive {...{ ['striped' || 'default']: true }}>
+              <Table size="sm" responsive {...{ ['' || 'default']: true }}>
                   <thead>
                     <tr>
                       <th>No</th>
@@ -356,7 +362,7 @@ class DashboardPage extends React.Component {
                   </thead>
                   <tbody>
                     {this.state.dataRender.map((dt,index)=>(
-                      <tr key={index}>
+                      <tr style={{backgroundColor:(index%2==0)?"#eff4fc":"#fff", height:60}} key={index}>
                         <td scope="row">{index+1}</td>
                         <td>{dt.namaPekerjaan}</td>
                         <td>{commafy(dt.hrgtotal)}</td>
@@ -383,28 +389,30 @@ class DashboardPage extends React.Component {
             </Card>
           </Col>
         
-          <Col lg="3" md="12" sm="12" xs="12">
-            <InfiniteCalendar
-              selected={today}
-              minDate={lastWeek}
-              width="100%"
-              theme={{
-                accentColor: primaryColor,
-                floatingNav: {
-                  background: secondaryColor,
-                  chevron: primaryColor,
-                  color: '#FFF',
-                },
-                headerColor: primaryColor,
-                selectionColor: secondaryColor,
-                textColor: {
-                  active: '#FFF',
-                  default: '#333',
-                },
-                todayColor: secondaryColor,
-                weekdayColor: primaryColor,
-              }}
-            />
+          <Col lg="3" md="3" sm="12" xs="12">
+              <Carousel
+                autoPlay={true}
+                infiniteLoop={true}
+                interval={5000}
+                showThumbs={false}
+                showStatus={false}
+                style={{height:480,widht:300}}
+              >
+              {
+                images.map((each, index) => 
+                <div key={index}>
+                    <img src={each} />
+                </div>
+                )
+              }
+              </Carousel>
+            {/* <div className="slide-container">
+            <Slide>
+              {
+                images.map((each, index) => <img key={index} style={{width: "100%"}} src={each} />)
+              }
+            </Slide>
+            </div> */}
           </Col>
 
           </Row>

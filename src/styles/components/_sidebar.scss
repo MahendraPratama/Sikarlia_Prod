@@ -32,16 +32,16 @@
   }
 
   &::before {
-    background: #000;
+    background: #fff;
     opacity: 0.33;
   }
 
   &::after {
-    z-index: 3;
+    z-index: 0;
     // sublime light
-    background: #fc5c7d; /* fallback for old browsers */
-    background: linear-gradient(to bottom, #6ab5fb, #5c74fc); /*#6a82fb, #fc5c7d*/
-    opacity: 1;
+    background: #fff; /* fallback for old browsers */
+    background: linear-gradient(to bottom, #fff, #fff); /*linear-gradient(to bottom, #6ab5fb, #5c74fc) #6a82fb, #fc5c7d*/
+    opacity: 0.1;
   }
 
   &[data-image]:after {

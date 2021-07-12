@@ -6,7 +6,7 @@ import NotificationSystem from 'react-notification-system';
 import { NOTIFICATION_SYSTEM_STYLE } from 'utils/constants';
 import SearchInput from 'components/SearchInput';
 import {
-  MdDelete,MdCloudUpload,MdWarning,MdEdit,MdCheckCircle,MdSearch,MdRemoveRedEye,
+  MdDelete,MdCloudUpload,MdWarning,MdEdit,MdCheckCircle,MdSearch,MdRemoveRedEye,MdVisibility,MdVisibilityOff
 } from 'react-icons/md';
 import Pagination from "react-js-pagination";
 import ButtonGroup from 'reactstrap/lib/ButtonGroup';
@@ -342,7 +342,7 @@ class Profile extends React.Component {
                                       this.setState({isViewPwd:!oldState});
                                     }}
                                     outline={this.state.isViewPwd?true:false}>
-                                    <MdRemoveRedEye/></Button>
+                                    {this.state.isViewPwd?<MdVisibilityOff/>:<MdVisibility/>}</Button>
                               </InputGroupAddon>
                             </InputGroup>
                             <Button color="link" size="sm" onClick={()=>{
@@ -370,7 +370,8 @@ class Profile extends React.Component {
                   <Col xl={12} lg={12} md={12}>
                     <FormGroup row className="d-flex justify-content-between">
                       &nbsp;
-                      {isEdit?
+                      {localStorage.getItem("user_type")==2?
+                      (isEdit?
                       <Col sm={3}>
                         <Button color="danger" onClick={()=>{
                           this.setState({isEdit:false});
@@ -389,7 +390,9 @@ class Profile extends React.Component {
                           }}
                         >Edit</Button>
                       </Col>
-                      }
+                      )
+                      :
+                      null}
                     </FormGroup>
                   </Col>
                 </Row>

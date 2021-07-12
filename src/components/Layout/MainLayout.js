@@ -23,7 +23,9 @@ class MainLayout extends React.Component {
 
   componentDidMount() {
     this.checkBreakpoint(this.props.breakpoint);
-
+    if(localStorage.getItem("sudahPopUp")>0){
+      return;
+    }
     setTimeout(() => {
       if (!this.notificationSystem) {
         return;
@@ -34,7 +36,9 @@ class MainLayout extends React.Component {
         message: 'Selamat Datang '+localStorage.getItem('user_name')+' !',
         level: 'info',
       });
-    }, 1500);
+    }, 1500,()=>{
+      localStorage.setItem("sudahPopUp",1)
+    });
 
     // setTimeout(() => {
     //   if (!this.notificationSystem) {

@@ -28,9 +28,9 @@ const NumberWidget = ({
         <Typography tag="span" className="text-left text-muted small">
           {label}
         </Typography>
-        <Typography tag="span" className="text-right text-muted small">
+        {/* <Typography tag="span" className="text-right text-muted small">
           {value}%
-        </Typography>
+        </Typography> */}
       </CardText>
     </Card>
   );

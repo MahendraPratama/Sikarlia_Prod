@@ -1,15 +1,17 @@
 import Docxtemplater from 'docxtemplater';
 import PizZip from 'pizzip';
 import PizZipUtils from 'pizzip/utils/index.js';
+import React from 'react';
 import { saveAs } from 'file-saver';
 import { set } from 'react-ga';
 import angkaTerbilang from '@develoka/angka-terbilang-js';
 
+import DocViewer from "react-doc-viewer";
 
 function loadFile(url, callback) {
     PizZipUtils.getBinaryContent(url, callback);
 }
-export const generateDocument = (dataKontrak, namaFile) => {
+export const generateDocument = (dataKontrak, namaFile, isPreview = false) => {
   var hps2 = [
     {judul: "Sub Total", nilai: commafy(dataKontrak.subtotal)},
     {judul: "PPN 10%", nilai: commafy(dataKontrak.ppn)},
@@ -73,8 +75,58 @@ export const generateDocument = (dataKontrak, namaFile) => {
       const out = doc.getZip().generate({
         type: 'blob',
         mimeType:
+          //'application/pdf'
           'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
       }); //Output the document using Data-URI
+      if(isPreview){
+        
+        //var newurl = window.URL.createObjectURL(out);
+        //console.log("blob link: "+ newurl.substring(4,newurl.length+1));
+        //console.log(doc.getZip);
+        //var trim = newurl.substring(4,newurl.length+1);
+        
+        // setTimeout(()=>{
+        //   document.getElementById("viewer").src = src;
+        // },200)
+        
+        //document.getElementById("viewer").src = src;
+        // return <DocViewer documents={{ uri: newurl }} />;
+        var reader = new FileReader();
+        const pvw = doc.getZip().generate({
+          type: "nodebuffer",
+          compression: "DEFLATE",
+          //mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        })
+        var blob = new Blob([pvw], {
+          type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        });
+        //saveAs(blob)
+        reader.readAsDataURL(blob);
+        reader.onloadend = function() {
+          var base64data = reader.result;
+          fetch(process.env.REACT_APP_URL_API+'/rest/uploadFileViewer.php', {
+            method: 'POST',
+            body: JSON.stringify({ base64: base64data, userid: dataKontrak.userid})
+          }).then((response) => {
+            console.log(response)
+            //var src = "https://view.officeapps.live.com/op/embed.aspx?src="+"https://sikarliaapi.000webhostapp.com/rest/asu.docx";//+"&embedded=true";
+            //var src = "https://docs.google.com/viewerng/viewer?url="+"https://sikarliaapi.000webhostapp.com/rest/asu.docx"+"&embedded=true";
+            var src = 'https://docs.google.com/viewer?url=http://sikarliaapi.000webhostapp.com/rest/'+dataKontrak.userid+'.docx&embedded=true';
+            document.getElementById("viewer").src = src;
+            setTimeout(()=>{
+              document.getElementById("viewer").src = src;
+            },300)
+            setTimeout(()=>{
+              document.getElementById("viewer").src = src;
+            },300)
+            setTimeout(()=>{
+              document.getElementById("viewer").src = src;
+            },300)
+          })
+        };
+        
+        return;
+      }
       saveAs(out, dataKontrak.namaPekerjaan+'_output.docx');
     });
   };
@@ -149,10 +201,22 @@ function uppercaseFirstLetter(text){
   return text[0].toUpperCase() + text.slice(1).toLowerCase();
 }
 
+function titleCase(str) {
+  var splitStr = str.toLowerCase().split(' ');
+  for (var i = 0; i < splitStr.length; i++) {
+      // You do not need to check if i is larger than splitStr length, as your for does that for you
+      // Assign it back to the array
+      splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);     
+  }
+  // Directly return the joined string
+  return splitStr.join(' '); 
+}
+
 function getDataSet(dataKontrak, hps2){
   if(dataKontrak.tipeKontrak == '200up'){
     return {
-      namaPekerjaan: dataKontrak.namaPekerjaan,
+      namaPekerjaanCap: dataKontrak.namaPekerjaan.toUpperCase(),
+      namaPekerjaan: titleCase(dataKontrak.namaPekerjaan),
       suratPermintaanPPK: setTanggal(dataKontrak.suratPermintaanPPK),
       pengadaanBarJas: setTanggal(dataKontrak.pengadaanBarJas),
       HPS: setTanggal(dataKontrak.HPS),
@@ -241,11 +305,14 @@ function getDataSet(dataKontrak, hps2){
       datepembayaran:setTanggal(dataKontrak.pembayaran, "dd"),
       monthpembayaran:setTanggal(dataKontrak.pembayaran, "mm"),
       yearpembayaran:setTanggal(dataKontrak.pembayaran, "yy"),
+
+      satPelaksanaanPkj:dataKontrak.satPlkPkj,
     }
   }
   else{
     return {
-      namaPekerjaan: dataKontrak.namaPekerjaan,
+      namaPekerjaanCap: dataKontrak.namaPekerjaan.toUpperCase(),
+      namaPekerjaan: titleCase(dataKontrak.namaPekerjaan),
       suratPermintaanPPK: setTanggal(dataKontrak.suratPermintaanPPK),
       pengadaanBarJas: setTanggal(dataKontrak.pengadaanBarJas),
       HPS: setTanggal(dataKontrak.HPS),
@@ -329,6 +396,8 @@ function getDataSet(dataKontrak, hps2){
       datepembayaran:setTanggal(dataKontrak.pembayaran, "dd"),
       monthpembayaran:setTanggal(dataKontrak.pembayaran, "mm"),
       yearpembayaran:setTanggal(dataKontrak.pembayaran, "yy"),
+
+      satPelaksanaanPkj:dataKontrak.satPlkPkj,
     }
   }
 }
