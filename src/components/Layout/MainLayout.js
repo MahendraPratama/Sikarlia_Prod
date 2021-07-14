@@ -23,22 +23,26 @@ class MainLayout extends React.Component {
 
   componentDidMount() {
     this.checkBreakpoint(this.props.breakpoint);
-    if(localStorage.getItem("sudahPopUp")>0){
-      return;
-    }
-    setTimeout(() => {
-      if (!this.notificationSystem) {
-        return;
-      }
-
-      this.notificationSystem.addNotification({
-        title: <MdImportantDevices />,
-        message: 'Selamat Datang '+localStorage.getItem('user_name')+' !',
-        level: 'info',
+    var curLoc = window.location.href;
+    var origin = window.location.origin;
+    var curPath = curLoc.replace(origin,'');
+    var isPopUp = localStorage.getItem("sudahPopUp");
+    
+    if(curPath=="/dashboard" && isPopUp == null){
+      setTimeout(() => {
+        if (!this.notificationSystem) {
+          return;
+        }
+  
+        this.notificationSystem.addNotification({
+          title: <MdImportantDevices />,
+          message: 'Selamat Datang '+localStorage.getItem('user_name')+' !',
+          level: 'info',
+        });
+      }, 1500,()=>{
+        localStorage.setItem("sudahPopUp",1)
       });
-    }, 1500,()=>{
-      localStorage.setItem("sudahPopUp",1)
-    });
+    }
 
     // setTimeout(() => {
     //   if (!this.notificationSystem) {

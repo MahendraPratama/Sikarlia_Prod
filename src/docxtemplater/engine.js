@@ -101,30 +101,39 @@ export const generateDocument = (dataKontrak, namaFile, isPreview = false) => {
           type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
         });
         //saveAs(blob)
-        reader.readAsDataURL(blob);
-        reader.onloadend = function() {
-          var base64data = reader.result;
-          fetch(process.env.REACT_APP_URL_API+'/rest/uploadFileViewer.php', {
-            method: 'POST',
-            body: JSON.stringify({ base64: base64data, userid: dataKontrak.userid})
-          }).then((response) => {
-            console.log(response)
-            //var src = "https://view.officeapps.live.com/op/embed.aspx?src="+"https://sikarliaapi.000webhostapp.com/rest/asu.docx";//+"&embedded=true";
-            //var src = "https://docs.google.com/viewerng/viewer?url="+"https://sikarliaapi.000webhostapp.com/rest/asu.docx"+"&embedded=true";
-            var src = 'https://docs.google.com/viewer?url=http://sikarliaapi.000webhostapp.com/rest/'+dataKontrak.userid+'.docx&embedded=true';
-            document.getElementById("viewer").src = src;
-            setTimeout(()=>{
-              document.getElementById("viewer").src = src;
-            },300)
-            setTimeout(()=>{
-              document.getElementById("viewer").src = src;
-            },300)
-            setTimeout(()=>{
-              document.getElementById("viewer").src = src;
-            },300)
-          })
-        };
-        
+        try{
+          reader.readAsDataURL(blob);
+          reader.onloadend = function() {
+            var base64data = reader.result;
+            fetch(process.env.REACT_APP_URL_API+'/rest/uploadFileViewer.php', {
+              method: 'POST',
+              body: JSON.stringify({ base64: base64data, userid: dataKontrak.userid})
+            }).then((response) => {
+              console.log(response)
+              //var src = "https://view.officeapps.live.com/op/embed.aspx?src="+"https://sikarliaapi.000webhostapp.com/rest/asu.docx";//+"&embedded=true";
+              //var src = "https://docs.google.com/viewerng/viewer?url="+"https://sikarliaapi.000webhostapp.com/rest/asu.docx"+"&embedded=true";
+              var src = 'https://docs.google.com/viewer?url=http://sikarliaapi.000webhostapp.com/rest/'+dataKontrak.userid+'.docx&embedded=true';
+              try{
+                document.getElementById("viewer").src = src;
+                setTimeout(()=>{
+                  document.getElementById("viewer").src = src;
+                },300)
+                setTimeout(()=>{
+                  document.getElementById("viewer").src = src;
+                },300)
+                setTimeout(()=>{
+                  document.getElementById("viewer").src = src;
+                },300)
+              }catch(e){
+                
+              }
+              
+            })
+          };
+        }
+        catch(e){
+          console.log(e);
+        }
         return;
       }
       saveAs(out, dataKontrak.namaPekerjaan+'_output.docx');
@@ -307,6 +316,7 @@ function getDataSet(dataKontrak, hps2){
       yearpembayaran:setTanggal(dataKontrak.pembayaran, "yy"),
 
       satPelaksanaanPkj:dataKontrak.satPlkPkj,
+      jenisPengadaan:dataKontrak.jenisPengadaan,
     }
   }
   else{
@@ -369,6 +379,8 @@ function getDataSet(dataKontrak, hps2){
       alamatPerusahaanPembanding2: dataKontrak.alamatPerusahaanPembanding2!=''?dataKontrak.alamatPerusahaanPembanding2:'(alamat perusahaan pembanding 2)',
       namaDirekturPembanding1: dataKontrak.namaDirekturPembanding1!=''?dataKontrak.namaDirekturPembanding1:'Nama Direktur',
       namaDirekturPembanding2: dataKontrak.namaDirekturPembanding2!=''?dataKontrak.namaDirekturPembanding2:'Nama Direktur',
+      jabatanPmb1: dataKontrak.jabatanPmb1!=''?dataKontrak.jabatanPmb1:'Direktur Utama',
+      jabatanPmb2: dataKontrak.jabatanPmb2!=''?dataKontrak.jabatanPmb2:'Direktur Utama',
 
       hps: setTabelHPS(dataKontrak.TABEL),
       hpsSUM: hps2,

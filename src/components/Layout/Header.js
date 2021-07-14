@@ -84,6 +84,7 @@ class Header extends React.Component {
     event.stopPropagation();
 
     document.querySelector('.cr-sidebar').classList.toggle('cr-sidebar--open');
+    //document.querySelector('.cr-btnMenu').classList.toggle('cr-btnMenu--open');
   };
 
   handleSignout = () => {
@@ -95,7 +96,12 @@ class Header extends React.Component {
 
     return (
       <Navbar light expand className={bem.b('bg-white')}>
-        <Nav navbar className="mr-2">
+        <Nav 
+        style={{
+          
+        }}
+        title="Menu"
+        navbar className="mr-2 cr-btnMenu">
           <Button outline onClick={this.handleSidebarControlButton}>
             <MdClearAll size={25} />
           </Button>

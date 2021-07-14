@@ -94,7 +94,12 @@ const navItems = [
 const navKontrak = [
   { to: '/form50200PL', name: '50 - 200 PL', exact: true, Icon: MdChromeReaderMode },
   { to: '/form50200', name: '50 - 200', exact: false, Icon: MdChromeReaderMode },
-  { to: '/form200up', name: '> 200 Juta', exact: false, Icon: MdChromeReaderMode },
+  { to: '/form200up', name: 'Diatas 200 Juta', exact: false, Icon: MdChromeReaderMode },
+]
+const navKontrakKonsultasi = [
+  { to: '/form100PL', name: 'Dibawah 100 Juta PL', exact: true, Icon: MdChromeReaderMode },
+  { to: '/form100', name: 'Dibawah 100 Juta', exact: false, Icon: MdChromeReaderMode },
+  { to: '/form100up', name: 'Diatas 100 Juta', exact: false, Icon: MdChromeReaderMode },
 ]
 
 const bem = bn.create('sidebar');
@@ -106,6 +111,7 @@ class Sidebar extends React.Component {
     isOpenPages: true,
     isOpenInputKontrak: true,
     isOpenJasaLainnya: true,
+    isOpenJasaKonsultasi: true,
   };
 
   handleClick = name => () => {
@@ -126,7 +132,7 @@ class Sidebar extends React.Component {
           <BSNavLink
           style={{color:"#000"}}
             id={`navItem-${'users'}-${1}`}
-            className="text-uppercase"
+            //className="text-uppercase"
             tag={NavLink}
             to={'/users'}
             activeClassName="active"
@@ -143,14 +149,14 @@ class Sidebar extends React.Component {
           <BSNavLink
           style={{color:"#000"}}
             id={`navItem-${'kontraksaya'}-${1}`}
-            className="text-uppercase"
+            //className="text-uppercase"
             tag={NavLink}
             to={'/kontraksaya'}
             activeClassName="active"
             exact={true}
           >
             <MdRateReview style={{color:"#146df3"}} className={bem.e('nav-item-icon')} />
-            <span className="sideItm">{'kontrak saya'}</span>
+            <span className="sideItm">{'Kontrak Saya'}</span>
           </BSNavLink>
         </NavItem>
       );
@@ -168,7 +174,7 @@ class Sidebar extends React.Component {
             <SourceLink className="navbar-brand d-flex">
               <img
                 src={logo200Image}
-                style={{marginTop:65,marginBottom:10}}
+                style={{marginTop:55,marginBottom:0}}
                 width="168"
                 height="46"
                 className="pr-2"
@@ -186,14 +192,14 @@ class Sidebar extends React.Component {
               <BSNavLink
                 style={{color:"#000"}}
                 id={`navItem-${'dashboard'}-${1}`}
-                className="text-uppercase"
+                //className="text-uppercase"
                 tag={NavLink}
                 to={'/dashboard'}
                 activeClassName="active"
                 exact={true}
               >
                 <MdDashboard style={{color:"#146df3"}} className={bem.e('nav-item-icon')} />
-                <span className="sideItm">{'dashboard'}</span>
+                <span className="sideItm">{'Dashboard'}</span>
               </BSNavLink>
             </NavItem>
             {localStorage.getItem("user_type")==1||localStorage.getItem("user_type")==0?
@@ -228,7 +234,51 @@ class Sidebar extends React.Component {
                   <BSNavLink 
                     style={{color:"#000"}}
                     id={`navItem-${name}-${index}`}
-                    className="text-uppercase"
+                    //className="text-uppercase"
+                    tag={NavLink}
+                    to={to}
+                    activeClassName="active"
+                    exact={exact}
+                  >
+                    {/* <Icon className={bem.e('nav-item-icon')} /> */}
+                    
+                    <span style={{marginLeft:30}} className="sideItm">{name}</span>
+                  </BSNavLink>
+                </NavItem>
+              ))}
+              </Collapse>
+
+
+              <NavItem 
+                className={bem.e('nav-item')}
+                onClick={this.handleClick('JasaKonsultasi')}
+              >
+                <BSNavLink style={{color:"#000"}} className={bem.e('nav-item-collapse')}>
+                  <div className="d-flex">
+                    <MdDescription style={{color:"#146df3"}} className={bem.e('nav-item-icon')} />
+                    <span className="sideItm align-self-start">{'Jasa Konsultasi'}</span>
+                  </div>
+                  <MdKeyboardArrowDown
+                  style={{color:"#146df3"}}
+                    className={bem.e('nav-item-icon')}
+                    style={{
+                      padding: 0,
+                      transform: this.state.isOpenJasaKonsultasi
+                        ? 'rotate(0deg)'
+                        : 'rotate(-90deg)',
+                      transitionDuration: '0.3s',
+                      transitionProperty: 'transform',
+                    }}
+                  />
+                </BSNavLink>
+              </NavItem>
+              <Collapse isOpen={this.state.isOpenJasaKonsultasi}>
+              {navKontrakKonsultasi.map(({ to, name, exact, Icon }, index) => (
+                <NavItem key={index} className={bem.e('nav-item')}>
+                  <BSNavLink 
+                    style={{color:"#000"}}
+                    id={`navItem-${name}-${index}`}
+                    //className="text-uppercase"
                     tag={NavLink}
                     to={to}
                     activeClassName="active"

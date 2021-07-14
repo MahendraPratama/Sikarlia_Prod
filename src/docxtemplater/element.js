@@ -13,12 +13,17 @@ export const reSatPlkPkjChooser = (selectedIdx) => {
       options.push(<option selected={(i==selectedIdx?true:false)} key={i} value={data[i]}>{data[i]}</option>)
     }
     return (
+      <div>
+        <Row><Label style={{marginTop:5}}>Hari</Label></Row>
       <Input 
         type="select" name="chooserSatPlkPkj" 
         id="chooserSatPlkPkj" 
+        disabled
+        hidden
       >
         {options}
       </Input>
+      </div>
     )
   }
 
@@ -41,6 +46,10 @@ export const modalLoading = (state) =>{
 }
 
 export const getDefaultSetDataKontrak = (tipe) => {
+  var jenisPengadaan = '';
+  if(tipe=='200up'||tipe=='100up'){
+    jenisPengadaan = (tipe=='100up') ? "Jasa Konsultasi" : '';
+  }
     return {
         userid:localStorage.getItem("user_session"),
         unique_id:null,
@@ -97,8 +106,12 @@ export const getDefaultSetDataKontrak = (tipe) => {
         alamatPerusahaanPembanding2:'',
         namaDirekturPembanding1:'',
         namaDirekturPembanding2:'',
+        jabatanPmb1:'',
+        jabatanPmb2:'',
         satPlkPkj:'hari',
         indexSatPlkPkj:0,
+
+        jenisPengadaan:jenisPengadaan,
       };
 }
 
@@ -137,4 +150,36 @@ export const setupTgl = (data) =>{
   data.pembayaran = data.pembayaran == '0000-00-00'? '1900-01-01':data.pembayaran;
         
   return data;
+}
+
+export const getDashboardElmt = (tipe, elmt="") =>{
+  var data = [
+    {tipe : '200up', title: 'Diatas 200 Juta', subtitle: 'Kontrak Barang & Jasa Lainnya', jml: 0},
+    {tipe : '50200PL', title: '50-200 Juta', subtitle: 'Kontrak Barang & Jasa Lainnya', jml: 0},
+    {tipe : '50200NonPL', title: '50-200 Juta PL', subtitle: 'Kontrak Barang & Jasa Lainnya', jml: 0},
+    {tipe : '100up', title: 'Diatas 100 Juta', subtitle: 'Kontrak Jasa Konsultasi', jml: 0},
+    {tipe : '100PL', title: 'Dibawah 100 Juta PL', subtitle: 'Kontrak Jasa Konsultasi', jml: 0},
+    {tipe : '100NonPL', title: 'Dibawah 100 Juta', subtitle: 'Kontrak Jasa Konsultasi', jml: 0},
+  ]
+
+  var rtn = data.filter(function(x) {return x.tipe == tipe});
+  console.log(rtn);
+  return rtn;
+}
+
+export const autoBAPP = () => {
+  var durasiPLK = document.getElementById("pelaksanaanPekerjaan").value;
+  var SPK = document.getElementById("penandatangananKontrak").value;
+  console.log("autoBAPP: "+durasiPLK,SPK);
+  if(SPK!='' && durasiPLK!=''){
+    var arrD = SPK.split('-');
+    var d = new Date();
+    d.setFullYear(arrD[0],arrD[1]-1,arrD[2]);
+    d.setDate(d.getDate() + Number.parseInt(durasiPLK));
+    var mth = (d.getMonth()+1) < 10 ? "0"+(d.getMonth()+1) : (d.getMonth()+1); 
+    var date = d.getDate() < 10 ? "0"+(d.getDate()) : (d.getDate()); 
+    var BAPPFormated = [d.getFullYear(), mth, date].join("-");
+    console.log('BAPP: '+ BAPPFormated);
+    document.getElementById("penyelesaianPekerjaan").value = BAPPFormated;
+  }
 }

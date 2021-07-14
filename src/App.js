@@ -39,12 +39,27 @@ const getBasename = () => {
 
 class App extends React.Component {
   componentDidMount() {
+    this.cekSession();
     this.expireSession();
   }
   componentWillUpdate(){
     //this.expireSession();
+    //this.cekSession();
   }
 
+  cekSession(){
+    var curLoc = window.location.href;
+    var origin = window.location.origin;
+    var curPath = curLoc.replace(origin,'');
+    var session = localStorage.getItem("user_session");
+    if(curPath != "/"){
+      if(session==null){
+        window.location.href = "/";
+        // console.log("Redir: " + origin + curLoc)
+        // console.log(curLoc)
+      }
+    }
+  }
   expireSession(){
     var hours = 1; // Reset when storage is more than 1hours
     var now = new Date().getTime();
@@ -107,9 +122,12 @@ class App extends React.Component {
                 <Route exact path="/forms" component={FormPage} />
                 <Route exact path="/users" component={Users} />
                 <Route exact path="/profile" component={Profile} />
-                <Route exact path="/form200up" component={FormKontrak200Up} />
-                <Route exact path="/form50200" component={FormKontrak50200} />
-                <Route exact path="/form50200PL" component={FormKontrak50200PL} />
+                <Route exact path="/form100up" component={(routeProps)=> <FormKontrak200Up tipe="100up"  {...routeProps}/>} />
+                <Route exact path="/form200up" component={(routeProps)=> <FormKontrak200Up tipe="200up"  {...routeProps}/>} />
+                <Route exact path="/form100PL" component={(routeProps)=> <FormKontrak50200PL tipe="100PL"  {...routeProps}/>} />
+                <Route exact path="/form50200PL" component={(routeProps)=> <FormKontrak50200PL tipe="50200PL"  {...routeProps}/>} />
+                <Route exact path="/form100" component={(routeProps)=> <FormKontrak50200 tipe="100NonPL"  {...routeProps}/>} />
+                <Route exact path="/form50200" component={(routeProps)=> <FormKontrak50200 tipe="50200NonPL"  {...routeProps}/>} />
                 <Route exact path="/input-groups" component={InputGroupPage} />
                 <Route exact path="/charts" component={ChartPage} />
                 <Route exact path="/kontraksaya" component={KontrakSaya} />

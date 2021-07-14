@@ -124,6 +124,25 @@
   }
 }
 
+.cr-btnMenu{
+  position:fixed;
+  z-index:999;
+  background-color:white;
+  border-radius:5px;
+  //top:15px;
+  //left:160px;
+
+  &--open {
+    //left: 10px;
+    transition: left 0.2s ease-in;
+
+    + .cr-content {
+      margin: 0 0 0 $cr-sidebar-width;
+      transition: margin 0.2s ease-in;
+    }
+  }
+  //left:20;
+}
 // @include gradient-y(#02aab0, #00cdac); // green beach
 // @include gradient-y(#348f50, #56b4d3); // emerald water
 // @include gradient-y(#4CB8C4, #3CD3AD); // sea weed

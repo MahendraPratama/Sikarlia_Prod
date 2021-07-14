@@ -1,7 +1,7 @@
 import Page from 'components/Page';
 import React from 'react';
 import {generateDocument} from '../docxtemplater/engine';
-import {reSatPlkPkjChooser, getDefaultSetDataKontrak} from '../docxtemplater/element';
+import {reSatPlkPkjChooser, getDefaultSetDataKontrak, autoBAPP} from '../docxtemplater/element';
 import {pushKontrak} from '../server/API';
 import { Stepper, Step } from 'react-form-stepper';
 import NotificationSystem from 'react-notification-system';
@@ -28,7 +28,7 @@ var tableHPS = [];
 const urlFile= 'https://drive.google.com/u/0/uc?id=15uCHB-w4Xhz-pQAqwBzcil3AoRZB7f6U&export=download';
 const path = window.location.origin  + '/kontrak50_200.docx';
 const urlLocal = 'https://localhost/docxtemplate/kontrak50_200.docx';
-var dataKontrak = getDefaultSetDataKontrak('50200NonPL');
+var dataKontrak = [];
 class Form50200 extends React.Component {
   constructor(props){
     super(props)
@@ -104,14 +104,17 @@ class Form50200 extends React.Component {
         indexEditHPS:null,
         tglKosong:'0000-00-00',
         indexSatPlkPkj:0,
+        tipe:'',
     };
     //this.handleNext = this.handleNext.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
   }
   componentWillUnmount(){
-    dataKontrak = getDefaultSetDataKontrak('50200NonPL');
+    dataKontrak = getDefaultSetDataKontrak(this.props.tipe);
   }
   componentDidMount(){
+    this.setState({tipe:this.props.tipe});
+    dataKontrak = getDefaultSetDataKontrak(this.props.tipe);
     const {data} = this.props.location;
     if(!data){
       return;
@@ -120,23 +123,24 @@ class Form50200 extends React.Component {
     dataKontrak.id                    = data.id
     dataKontrak.unique_id             = data.unique_id
     dataKontrak.namaPekerjaan         = data.namaPekerjaan
-    dataKontrak.suratPermintaanPPK    = data.suratPermintaanPPK !='0000-00-00' ? data.suratPermintaanPPK : null
-    dataKontrak.pengadaanBarJas       = data.pengadaanBarJas !='0000-00-00' ? data.pengadaanBarJas : null
-    dataKontrak.HPS                   = data.HPS !='0000-00-00' ? data.HPS : null
-    dataKontrak.penawaranRKS          = data.penawaranRKS !='0000-00-00' ? data.penawaranRKS : null
-    dataKontrak.pengajuanPenawaran    = data.pengajuanPenawaran !='0000-00-00' ? data.pengajuanPenawaran : null
-    dataKontrak.undanganEvaluasi      = data.undanganEvaluasi !='0000-00-00' ? data.undanganEvaluasi : null
-    dataKontrak.evaluasi              = data.evaluasi !='0000-00-00' ? data.evaluasi : null
-    dataKontrak.penetapanPenyedia     = data.penetapanPenyedia !='0000-00-00' ? data.penetapanPenyedia : null
-    dataKontrak.laporanPelaksanaan    = data.laporanPelaksanaan !='0000-00-00' ? data.laporanPelaksanaan : null
-    dataKontrak.suratPemesanan        = data.suratPemesanan !='0000-00-00' ? data.suratPemesanan : null
-    dataKontrak.penandatangananKontrak= data.penandatangananKontrak !='0000-00-00' ? data.penandatangananKontrak : null
+    dataKontrak.suratPermintaanPPK    = data.suratPermintaanPPK //!='0000-00-00' ? data.suratPermintaanPPK : null
+    dataKontrak.pengadaanBarJas       = data.pengadaanBarJas //!='0000-00-00' ? data.pengadaanBarJas : null
+    dataKontrak.HPS                   = data.HPS //!='0000-00-00' ? data.HPS : null
+    dataKontrak.penawaranRKS          = data.penawaranRKS //!='0000-00-00' ? data.penawaranRKS : null
+    dataKontrak.pengajuanPenawaran    = data.pengajuanPenawaran //!='0000-00-00' ? data.pengajuanPenawaran : null
+    dataKontrak.undanganEvaluasi      = data.undanganEvaluasi //!='0000-00-00' ? data.undanganEvaluasi : null
+    dataKontrak.evaluasi              = data.evaluasi //!='0000-00-00' ? data.evaluasi : null
+    dataKontrak.penetapanPenyedia     = data.penetapanPenyedia //!='0000-00-00' ? data.penetapanPenyedia : null
+    dataKontrak.laporanPelaksanaan    = data.laporanPelaksanaan //!='0000-00-00' ? data.laporanPelaksanaan : null
+    dataKontrak.suratPemesanan        = data.suratPemesanan //!='0000-00-00' ? data.suratPemesanan : null
+    dataKontrak.penandatangananKontrak= data.penandatangananKontrak //!='0000-00-00' ? data.penandatangananKontrak : null
     dataKontrak.pelaksanaanPekerjaan  = data.pelaksanaanPekerjaan
-    dataKontrak.penyelesaianPekerjaan = data.penyelesaianPekerjaan !='0000-00-00' ? data.penyelesaianPekerjaan : null
-    dataKontrak.pembayaran            = data.pembayaran !='0000-00-00' ? data.pembayaran : null
+    dataKontrak.penyelesaianPekerjaan = data.penyelesaianPekerjaan //!='0000-00-00' ? data.penyelesaianPekerjaan : null
+    dataKontrak.pembayaran            = data.pembayaran //!='0000-00-00' ? data.pembayaran : null
     dataKontrak.namaPerusahaan        = data.namaPerusahaan
     dataKontrak.alamatPerusahaan      = data.alamatPerusahaan
     dataKontrak.namaDirektur          = data.namaDirektur
+    dataKontrak.jabatan               = data.jabatan
     dataKontrak.npwpPerusahaan        = data.npwpPerusahaan
 
     dataKontrak.namaPerusahaanPembanding1        = data.namaPerusahaanPembanding1
@@ -145,6 +149,8 @@ class Form50200 extends React.Component {
     dataKontrak.alamatPerusahaanPembanding2        = data.alamatPerusahaanPembanding2
     dataKontrak.namaDirekturPembanding1        = data.namaDirekturPembanding1
     dataKontrak.namaDirekturPembanding2        = data.namaDirekturPembanding2
+    dataKontrak.jabatanPmb1        = data.jabatanPmb1
+    dataKontrak.jabatanPmb2        = data.jabatanPmb2
   
     dataKontrak.hrgtotal              = data.hrgtotal;
     dataKontrak.managementFeePctg     = data.mgmtFeePctg;
@@ -204,6 +210,7 @@ class Form50200 extends React.Component {
     document.getElementById("namaPerusahaan").value         = data.namaPerusahaan;
     document.getElementById("alamatPerusahaan").value       = data.alamatPerusahaan;
     document.getElementById("namaDirektur").value           = data.namaDirektur;
+    document.getElementById("jabatan").value                = data.jabatan;
     document.getElementById("npwpPerusahaan").value         = data.npwpPerusahaan;
 
     document.getElementById("namaPerusahaanPembanding1").value         = data.namaPerusahaanPembanding1;
@@ -212,6 +219,8 @@ class Form50200 extends React.Component {
     document.getElementById("alamatPerusahaanPembanding2").value         = data.alamatPerusahaanPembanding2;
     document.getElementById("namaDirekturPembanding1").value         = data.namaDirekturPembanding1;
     document.getElementById("namaDirekturPembanding2").value         = data.namaDirekturPembanding2;
+    document.getElementById("jabatanPmb1").value         = data.jabatanPmb1;
+    document.getElementById("jabatanPmb2").value         = data.jabatanPmb2;
     
     const requestOptions = {
       method: 'POST',
@@ -244,8 +253,11 @@ class Form50200 extends React.Component {
     if(target.type == "date"){
       this.validateStepTgl(key);
     }
-    if(key=='pelaksanaanPekerjaan'){
-      this.validatePelaksanaanPkj(value);
+    if(key=='pelaksanaanPekerjaan' || key=='penandatangananKontrak'){
+      autoBAPP();
+      if(key=='pelaksanaanPekerjaan'){
+        this.validatePelaksanaanPkj(value);
+      }
     }
     if(key=='namaPerusahaan'){
       this.setState({msg_p1:''})
@@ -346,11 +358,11 @@ class Form50200 extends React.Component {
       vldt = false;
       this.setState({msg_j11:msg, validasiJadwal:vldt})
     }else{this.setState({msg_j11:'', validasiJadwal:true}) }
-    if(dataKontrak.penyelesaianPekerjaan < dataKontrak.penandatangananKontrak && dataKontrak.penyelesaianPekerjaan != tglKosong){
-      var msg = 'Tanggal yg diinput tidak boleh kurang dari tanggal sebelumnya'
-      vldt = false;
-      this.setState({msg_j13:msg, validasiJadwal:vldt})
-    }else{this.setState({msg_j13:'', validasiJadwal:true}) }
+    // if(dataKontrak.penyelesaianPekerjaan < dataKontrak.penandatangananKontrak && dataKontrak.penyelesaianPekerjaan != tglKosong){
+    //   var msg = 'Tanggal yg diinput tidak boleh kurang dari tanggal sebelumnya'
+    //   vldt = false;
+    //   this.setState({msg_j13:msg, validasiJadwal:vldt})
+    // }else{this.setState({msg_j13:'', validasiJadwal:true}) }
     if(dataKontrak.pembayaran < dataKontrak.penyelesaianPekerjaan && dataKontrak.pembayaran != tglKosong){
       var msg = 'Tanggal yg diinput tidak boleh kurang dari tanggal sebelumnya'
       vldt = false;
@@ -712,41 +724,20 @@ class Form50200 extends React.Component {
           }
           style={NOTIFICATION_SYSTEM_STYLE}
         />
-      {/* <style>{
-          `.RFS-StepCircle-d0.active {
-              background-color: #146df3;
-            }
-           .RFS-StepCircle-d0.completed {
-              background-color: #061d9e;
-            }
-            .RFS-StepCircle-d4.active {
-              background-color: #146df3;
-            }
-           .RFS-StepCircle-d4.completed {
-              background-color: #061d9e;
-            }
-            .RFS-StepCircle-d8.active {
-              background-color: #146df3;
-            }
-           .RFS-StepCircle-d8.completed {
-              background-color: #061d9e;
-            }
-            .RFS-StepCircle-d12.active {
-              background-color: #146df3;
-            }
-           .RFS-StepCircle-d12.completed {
-              background-color: #061d9e;
-            }
-          `
-          }
-      </style> */}
       <Page
         title="Input Kontrak"
-        breadcrumbs={[{ name: 'Kontrak 50 - 200 Juta', active: true }]}
+        breadcrumbs={[{ name: this.props.tipe == '50200NonPL'?
+        'Barang & Jasa Lainnya / Kontrak 50 - 200 Juta':
+        'Jasa Konsultasi / Kontrak dibawah 100 Juta', active: true }]}
       >
         <Row>
           <Col xl={12} lg={12} md={12}>
-            <Stepper activeStep={this.state.activeStep}>
+            <Stepper 
+            styleConfig={{
+              activeBgColor:"#146df3",
+              completedBgColor:"#061d9e"
+            }}
+            activeStep={this.state.activeStep}>
               <Step label="Nama Pekerjaan" onClick={()=>{this.handleNext(0)}}/>
               <Step label="Jadwal Pekerjaan" onClick={()=>{this.handleNext(1)}}/>
               <Step label="Perusahaan Pemenang" onClick={()=>{this.handleNext(2)}}/>
@@ -804,10 +795,11 @@ class Form50200 extends React.Component {
                   <Row>
                     <Col xl={6} lg={12} md={12}>
                       <FormGroup row>
+                        <Label sm={1}>1</Label>
                         <Label for="suratPermintaanPPK" sm={6}>
                           Surat Permintaan kepada PPK untuk melaksanakan Pengadaan Barang/Jasa
                         </Label>
-                        <Col sm={5}>
+                        <Col sm={4}>
                           <Input
                             type="date"
                             name="suratPermintaanPPK"
@@ -823,10 +815,11 @@ class Form50200 extends React.Component {
                         </Col>
                       </FormGroup>
                       <FormGroup row>
+                        <Label sm={1}>2</Label>
                         <Label for="pengadaanBarJas" sm={6}>
                           Pengadaan Barang dan Jasa
                         </Label>
-                        <Col sm={5}>
+                        <Col sm={4}>
                           <Input
                             disabled={this.state.j2}
                             type="date"
@@ -841,10 +834,11 @@ class Form50200 extends React.Component {
                         </Col>
                       </FormGroup>
                       <FormGroup row>
+                        <Label sm={1}>3</Label>
                         <Label for="HPS" sm={6}>
                           HPS
                         </Label>
-                        <Col sm={5}>
+                        <Col sm={4}>
                           <Input
                             disabled={this.state.j3}
                             type="date"
@@ -859,10 +853,11 @@ class Form50200 extends React.Component {
                         </Col>
                       </FormGroup>
                       <FormGroup row>
+                        <Label sm={1}>4</Label>
                         <Label for="penawaranRKS" sm={6}>
                           Permintaan Penawaran dilampiri RKS
                         </Label>
-                        <Col sm={5}>
+                        <Col sm={4}>
                           <Input
                             disabled={this.state.j4}
                             type="date"
@@ -877,10 +872,11 @@ class Form50200 extends React.Component {
                         </Col>
                       </FormGroup>
                       <FormGroup row>
+                        <Label sm={1}>5</Label>
                         <Label for="pengajuanPenawaran" sm={6}>
                           Pengajuan Penawaran (Dilampiri SIUP, Akte Notaris, NPWP, Bukti Pembayaran pajak Terakhir)
                         </Label>
-                        <Col sm={5}>
+                        <Col sm={4}>
                           <Input
                           disabled={this.state.j5}
                             type="date"
@@ -895,10 +891,11 @@ class Form50200 extends React.Component {
                         </Col>
                       </FormGroup>
                       <FormGroup row>
+                        <Label sm={1}>6</Label>
                         <Label for="undanganEvaluasi" sm={6}>
                           {'Undangan Evaluasi Klarifikasi & negosiasi'}
                         </Label>
-                        <Col sm={5}>
+                        <Col sm={4}>
                           <Input
                           disabled={this.state.j6}
                             type="date"
@@ -913,10 +910,11 @@ class Form50200 extends React.Component {
                         </Col>
                       </FormGroup>
                       <FormGroup row>
+                        <Label sm={1}>7</Label>
                         <Label for="evaluasi" sm={6}>
                           {"Evaluasi Klarifikasi & negosiasi"}
                         </Label>
-                        <Col sm={5}>
+                        <Col sm={4}>
                           <Input
                           disabled={this.state.j7}
                             type="date"
@@ -934,10 +932,11 @@ class Form50200 extends React.Component {
 
                     <Col xl={6} lg={12} md={12}>          
                       <FormGroup row>
+                        <Label sm={1}>8</Label>
                         <Label for="penetapanPenyedia" sm={6}>
                           Penetapan Penyedia Barang/Jasa (SPPBJ)
                         </Label>
-                        <Col sm={5}>
+                        <Col sm={4}>
                           <Input
                           disabled={this.state.j8}
                             type="date"
@@ -952,10 +951,11 @@ class Form50200 extends React.Component {
                         </Col>
                       </FormGroup>
                       <FormGroup row>
+                        <Label sm={1}>9</Label>
                         <Label for="laporanPelaksanaan" sm={6}>
                           Laporan Pelaksanaan Pengadaan Barang dan Jasa
                         </Label>
-                        <Col sm={5}>
+                        <Col sm={4}>
                           <Input
                           disabled={this.state.j9}
                             type="date"
@@ -970,10 +970,11 @@ class Form50200 extends React.Component {
                         </Col>
                       </FormGroup>
                       <FormGroup row>
+                        <Label sm={1}>10</Label>
                         <Label for="suratPemesanan" sm={6}>
                           Surat Pemesanan
                         </Label>
-                        <Col sm={5}>
+                        <Col sm={4}>
                           <Input
                           disabled={this.state.j10}
                             type="date"
@@ -988,10 +989,11 @@ class Form50200 extends React.Component {
                         </Col>
                       </FormGroup>
                       <FormGroup row>
+                        <Label sm={1}>11</Label>
                         <Label for="penandatangananKontrak" sm={6}>
                           Penandatanganan Kontrak SPK
                         </Label>
-                        <Col sm={5}>
+                        <Col sm={4}>
                           <Input
                           disabled={this.state.j11}
                             type="date"
@@ -1006,6 +1008,7 @@ class Form50200 extends React.Component {
                         </Col>
                       </FormGroup>
                       <FormGroup row>
+                        <Label sm={1}>12</Label>
                         <Label for="pelaksanaanPekerjaan" sm={6}>
                           Pelaksanaan Pekerjaan
                         </Label>
@@ -1027,10 +1030,11 @@ class Form50200 extends React.Component {
                         </Col>
                       </FormGroup>
                       <FormGroup row>
+                        <Label sm={1}>13</Label>
                         <Label for="penyelesaianPekerjaan" sm={6}>
                           BA Penyelesaian Pekerjaan Barang/Jasa
                         </Label>
-                        <Col sm={5}>
+                        <Col sm={4}>
                           <Input
                           disabled={this.state.j13}
                             type="date"
@@ -1045,10 +1049,11 @@ class Form50200 extends React.Component {
                         </Col>
                       </FormGroup>
                       <FormGroup row>
+                        <Label sm={1}>14</Label>
                         <Label for="pembayaran" sm={6}>
                           BA Pembayaran 
                         </Label>
-                        <Col sm={5}>
+                        <Col sm={4}>
                           <Input
                           disabled={this.state.j14}
                             type="date"
@@ -1117,17 +1122,32 @@ class Form50200 extends React.Component {
                       </FormGroup>
                       <FormGroup row>
                         <Label for="namaDirektur" sm={3}>
-                          Nama Direktur
+                          Nama Penandatangan
                         </Label>
                         <Col sm={6}>
                           <Input
                             type="text"
                             name="namaDirektur"
                             id="namaDirektur"
-                            placeholder="nama direktur"
+                            placeholder="nama penandatangan"
                             onChange={this.handleInputChange}
                           />
                           <FormText color={'danger'}>{this.state.msg_p3}</FormText>
+                        </Col>
+                      </FormGroup>
+                      <FormGroup row>
+                        <Label for="jabatan" sm={3}>
+                          Jabatan
+                        </Label>
+                        <Col sm={6}>
+                          <Input
+                            type="text"
+                            name="jabatan"
+                            id="jabatan"
+                            placeholder="jabatan penandatangan"
+                            onChange={this.handleInputChange}
+                          />
+                          <FormText color={'danger'}>{this.state.msg_p5}</FormText>
                         </Col>
                       </FormGroup>
                       <FormGroup row>
@@ -1184,14 +1204,29 @@ class Form50200 extends React.Component {
                         </FormGroup>
                         <FormGroup row>
                           <Label for="namaDirekturPembanding1" sm={3}>
-                            Nama Direktur Pembanding 1
+                            Nama Penandatangan Pembanding 1
                           </Label> 
                           <Col sm={7}>
                             <Input
                               type="text"
                               name="namaDirekturPembanding1"
                               id="namaDirekturPembanding1"
-                              placeholder="nama direktur perusahaan pembanding 1"
+                              placeholder="jabatan penandatangan perusahaan pembanding 1"
+                              onChange={this.handleInputChange}
+                              //onKeyUp={()=>{this.handleSearchPerusahaan()}}
+                            />
+                          </Col>
+                        </FormGroup>
+                        <FormGroup row>
+                          <Label for="jabatanPmb1" sm={3}>
+                            Jabatan Penandatangan Pembanding 1
+                          </Label> 
+                          <Col sm={7}>
+                            <Input
+                              type="text"
+                              name="jabatanPmb1"
+                              id="jabatanPmb1"
+                              placeholder="jabatan penandatangan perusahaan pembanding 1"
                               onChange={this.handleInputChange}
                               //onKeyUp={()=>{this.handleSearchPerusahaan()}}
                             />
@@ -1243,6 +1278,21 @@ class Form50200 extends React.Component {
                             />
                           </Col>
                         </FormGroup>
+                        <FormGroup row>
+                          <Label for="jabatanPmb2" sm={3}>
+                            Jabatan Penandatangan Pembanding 2
+                          </Label> 
+                          <Col sm={7}>
+                            <Input
+                              type="text"
+                              name="jabatanPmb2"
+                              id="jabatanPmb2"
+                              placeholder="jabatan penandatangan perusahaan pembanding 2"
+                              onChange={this.handleInputChange}
+                              //onKeyUp={()=>{this.handleSearchPerusahaan()}}
+                            />
+                          </Col>
+                        </FormGroup>
                       </CardBody>
                     </Col>
                     
@@ -1263,7 +1313,7 @@ class Form50200 extends React.Component {
                 <CardHeader>Input Tabel Penawaran</CardHeader>
                 <CardBody>
                   <Row>
-                    <Col xl={5} lg={12} md={12}>
+                    <Col xl={12} lg={12} md={12}>
                       <FormGroup row>
                         <Label for="descr" sm={3}>
                           Deskripsi
@@ -1282,25 +1332,27 @@ class Form50200 extends React.Component {
                         </Col>
                       </FormGroup>
                     </Col>
-                    <Col xl={7} lg={12} md={12}>
+                    <Col xl={12} lg={12} md={12}>
                       <Row>
-                        <Col xl={6} lg={12} md={12}>
+                        <Col xl={3} lg={12} md={12}>
                           <FormGroup row>
                             <Label for="qty" sm={4}>
-                            Jumlah
+                            Jumlah/Quantity
                             </Label>
                             <Col sm={8}>
                               <Input
                                 type="number"
                                 id="qty"
                                 name="qty"
-                                placeholder="jumlah"
+                                placeholder="kuantitas "
                                 onChange={this.handleInputChange}
                                 onKeyUp={()=>{this.setState({msg_tb2:''})}}
                               />
                               <FormText color={'danger'}>{this.state.msg_tb2}</FormText>
                             </Col>
-                          </FormGroup>
+                          </FormGroup>                          
+                        </Col>
+                        <Col xl={3} lg={12} md={12}>
                           <FormGroup row>
                             <Label for="freq" sm={4}>
                               Satuan
@@ -1318,7 +1370,7 @@ class Form50200 extends React.Component {
                             </Col>
                           </FormGroup>
                         </Col>
-                        <Col xl={6} lg={12} md={12}>
+                        <Col xl={3} lg={12} md={12}>
                           <FormGroup row>
                             <Label for="unitprice" sm={4}>
                               Harga Satuan
@@ -1335,6 +1387,8 @@ class Form50200 extends React.Component {
                               <FormText color={'danger'}>{this.state.msg_tb3}</FormText>
                             </Col>
                           </FormGroup>
+                        </Col>
+                        <Col xl={3} lg={12} md={12}>
                           <FormGroup row>
                             <Label for="total" sm={4}>
                               Total Harga
@@ -1573,8 +1627,8 @@ class Form50200 extends React.Component {
   }
   cekNominalKontrak(){
     var grandtotal = this.state.hrgtotal;
-    console.log('grandtotal:'+ grandtotal);
-    if(grandtotal > 200000000){
+    var batasMaks = this.state.tipe == '50200NonPL'? 200000000 : 100000000;
+    if(grandtotal > batasMaks){
       // if (!this.notificationSystem) {
       //   return;
       // }

@@ -6,6 +6,7 @@ import ProductMedia from 'components/ProductMedia';
 import SupportTicket from 'components/SupportTicket';
 import UserProgressTable from 'components/UserProgressTable';
 import { IconWidget, NumberWidget } from 'components/Widget';
+import {getDashboardElmt} from '../docxtemplater/element';
 import { getStackLineChart, stackLineChartOptions } from 'demos/chartjs';
 import {
   avatarsData,
@@ -120,13 +121,17 @@ class DashboardPage extends React.Component {
           var dataAPI = respon;
           if(dataAPI.response_code == 200){
             var sumAllKontrak = 0;
+            var arrData = [];
             console.log(dataAPI.data);
             dataAPI.data.map(
               ({tipeKontrak, jml}, index)=>{
-                iconWidgetsData[index].jml = jml;
+                var obj = getDashboardElmt(tipeKontrak);
+                obj[0].jml = jml;
                 sumAllKontrak += Number.parseInt(jml);
+                arrData.push(obj);
               });
-            this.setState({Data:iconWidgetsData, sumAllKontrak:sumAllKontrak});
+            this.setState({Data:arrData, sumAllKontrak:sumAllKontrak});
+            console.log(arrData)
           }else{
             
           }
@@ -158,11 +163,10 @@ class DashboardPage extends React.Component {
         className="DashboardPage"
         title="Dashboard"
         breadcrumbs={[{ name: 'Dashboard', active: true }]}
-        style={{backgroundColor:"#eff4fc"}}
       >
         <Row>
         {this.state.Data.map(
-          ({ bgColor, icon, title, subtitle, jml, ...restProps }, index) => (
+          (x,{ bgColor, icon, title, subtitle, jml, ...restProps }, index) => (
             <Col key={index} lg={4} md={12} sm={12} xs={12} className="mb-3">
               {/* <IconWidget
                 bgColor={bgColor}
@@ -173,12 +177,12 @@ class DashboardPage extends React.Component {
               >
               </IconWidget> */}
               <NumberWidget
-                title={title}
-                subtitle={subtitle}
-                number={jml + " Kontrak"}
+                title={x[0].title}
+                subtitle={x[0].subtitle}
+                number={x[0].jml + " Kontrak"}
                 color="secondary"
                 progress={{
-                  value: jml*100/this.state.sumAllKontrak,//*100/this.state.sumAllKontrak,
+                  value: x[0].jml*100/this.state.sumAllKontrak,//*100/this.state.sumAllKontrak,
                   label: '',
                 }}
               />
@@ -348,7 +352,7 @@ class DashboardPage extends React.Component {
             <Card inverse>
               <CardHeader inverse className="bg-gradient-primary">Kontrak Terbaru</CardHeader>
               <CardBody>
-              <Table size="sm" responsive {...{ ['' || 'default']: true }}>
+              <Table style={{fontSize:13}} size="sm" responsive {...{ ['' || 'default']: true }}>
                   <thead>
                     <tr>
                       <th>No</th>
@@ -356,6 +360,7 @@ class DashboardPage extends React.Component {
                       <th>Nilai Kontrak</th>
                       <th>Perusahaan Pemenang</th>
                       <th>Tipe Kontrak</th>
+                      <th>User</th>
                       <th>Tanggal Input</th>
                       {/* <th>Action</th> */}
                     </tr>
@@ -368,6 +373,7 @@ class DashboardPage extends React.Component {
                         <td>{commafy(dt.hrgtotal)}</td>
                         <td>{dt.namaPerusahaan}</td>
                         <td>{getNamaTipeKontrak(dt.tipeKontrak)}</td>
+                        <td>{dt.name}</td>
                         <td>{dt.date_created}</td>
                         {/* <td>
                           <Button 
@@ -489,13 +495,31 @@ function commafy( num ) {
 
 function getNamaTipeKontrak(input){
   if(input=="50200PL"){
-    return <Badge color="info" pill className="mr-1">50-200 PL</Badge>;
+    return <div>
+      <Badge color="link">Barang & Jasa Lainnya</Badge>
+      <Badge title="Kontrak Barang & Jasa Lainnya dengan nilai antara 50 - 200 Juta Penunjukan Langsung" 
+        color="info" pill className="mr-1">50-200 PL</Badge>
+    </div>;
   }
   if(input=="50200NonPL"){
-    return <Badge color="success" pill className="mr-1">50-200</Badge>;
+    return <div><Badge color="link">Barang & Jasa Lainnya</Badge><Badge title="Kontrak Barang & Jasa Lainnya dengan nilai 50 - 200 Juta" 
+    color="success" pill className="mr-1">50-200</Badge></div>;
   }
   if(input=="200up"){
-    return <Badge color="warning" pill className="mr-1">Diatas 200</Badge>;
+    return <div><Badge color="link">Barang & Jasa Lainnya</Badge><Badge title="Kontrak Barang & Jasa Lainnya dengan nilai diatas 200 Juta" 
+    color="warning" pill className="mr-1">Diatas 200</Badge></div>;
+  }
+  if(input=="100up"){
+    return <div><Badge color="link">Jasa Konsultasi</Badge><Badge title="Kontrak Jasa Konsultasi dengan nilai daiatas 100 Juta" 
+    style={{backgroundColor:"blue"}} pill className="mr-1">Diatas 100</Badge></div>;
+  }
+  if(input=="100PL"){
+    return <div><Badge color="link">Jasa Konsultasi</Badge><Badge title="Kontrak Jasa Konsultasi dengan nilai dibawah 100 Juta Penunjukan Langsung" 
+    style={{backgroundColor:"green"}} pill className="mr-1">Dibawah 100 PL</Badge></div>;
+  }
+  if(input=="100"){
+    return <div><Badge color="link">Jasa Konsultasi</Badge><Badge title="Kontrak Jasa Konsultasi dengan nilai dibawah 100 Juta" 
+    style={{backgroundColor:"yellow"}} pill className="mr-1">Dibawah 100</Badge></div>;
   }
 }
 export default DashboardPage;

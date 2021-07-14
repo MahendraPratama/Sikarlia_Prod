@@ -32,6 +32,7 @@ class KontrakSaya extends React.Component {
       userid:null,
       password:false,
       data: [],
+      dataToEdit:[],
       dataRender:[],
       datakontrak: {
         namaPekerjaan: null,
@@ -78,7 +79,7 @@ class KontrakSaya extends React.Component {
           if(dataAPI.response_code != 200){
             this.setState({ message: dataAPI.message });
           }else{
-            this.setState({ data: dataAPI.data, dataRender:dataAPI.data });
+            this.setState({ data: dataAPI.data, dataRender:dataAPI.data, dataToEdit: dataAPI.data });
             this.handlePageChange(1)
           }
         });
@@ -161,7 +162,7 @@ class KontrakSaya extends React.Component {
     return;
   }
   gotoEdit(idx){
-    var data = this.state.data[idx];
+    var data = this.state.dataToEdit[idx];
     var pathName = '';
     if(data.tipeKontrak=="50200PL"){
       pathName = "/form50200PL";
@@ -419,13 +420,31 @@ function commafy( num ) {
 
 function getNamaTipeKontrak(input){
   if(input=="50200PL"){
-    return <Badge title="Kontrak dengan nilai antara 50 - 200 Juta Penunjukan Langsung" color="info" pill className="mr-1">50-200 PL</Badge>;
+    return <div>
+      <Badge color="link">Barang & Jasa Lainnya</Badge>
+      <Badge title="Kontrak Barang & Jasa Lainnya dengan nilai antara 50 - 200 Juta Penunjukan Langsung" 
+        color="info" pill className="mr-1">50-200 PL</Badge>
+    </div>;
   }
   if(input=="50200NonPL"){
-    return <Badge title="Kontrak dengan nilai 50 - 200 Juta" color="success" pill className="mr-1">50-200</Badge>;
+    return <div><Badge color="link">Barang & Jasa Lainnya</Badge><Badge title="Kontrak Barang & Jasa Lainnya dengan nilai 50 - 200 Juta" 
+    color="success" pill className="mr-1">50-200</Badge></div>;
   }
   if(input=="200up"){
-    return <Badge title="Kontrak dengan nilai daiatas 200 Juta" color="warning" pill className="mr-1">Diatas 200</Badge>;
+    return <div><Badge color="link">Barang & Jasa Lainnya</Badge><Badge title="Kontrak Barang & Jasa Lainnya dengan nilai diatas 200 Juta" 
+    color="warning" pill className="mr-1">Diatas 200</Badge></div>;
+  }
+  if(input=="100up"){
+    return <div><Badge color="link">Jasa Konsultasi</Badge><Badge title="Kontrak Jasa Konsultasi dengan nilai daiatas 100 Juta" 
+    style={{backgroundColor:"blue"}} pill className="mr-1">Diatas 100</Badge></div>;
+  }
+  if(input=="100PL"){
+    return <div><Badge color="link">Jasa Konsultasi</Badge><Badge title="Kontrak Jasa Konsultasi dengan nilai dibawah 100 Juta Penunjukan Langsung" 
+    style={{backgroundColor:"green"}} pill className="mr-1">Dibawah 100 PL</Badge></div>;
+  }
+  if(input=="100"){
+    return <div><Badge color="link">Jasa Konsultasi</Badge><Badge title="Kontrak Jasa Konsultasi dengan nilai dibawah 100 Juta" 
+    style={{backgroundColor:"yellow"}} pill className="mr-1">Dibawah 100</Badge></div>;
   }
 }
 function removeComma(num){
