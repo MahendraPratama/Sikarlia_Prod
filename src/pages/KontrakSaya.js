@@ -24,6 +24,9 @@ const fileMaster = {
   '50200PL':'/kontrak50_200PL.docx',
   '50200NonPL':'/kontrak50_200.docx',
   '200up':'/kontrak200up.docx',
+  '100PL':'/kontrak50_200PL.docx',
+  '100NonPL':'/kontrak50_200.docx',
+  '100up':'/kontrak200up.docx',
 }
 class KontrakSaya extends React.Component {
   constructor(props){
@@ -164,6 +167,15 @@ class KontrakSaya extends React.Component {
   gotoEdit(idx){
     var data = this.state.dataToEdit[idx];
     var pathName = '';
+    if(data.tipeKontrak=="100PL"){
+      pathName = "/form100PL";
+    }
+    if(data.tipeKontrak=="100up"){
+      pathName = "/form100up";
+    }
+    if(data.tipeKontrak=="100NonPL"){
+      pathName = "/form100";
+    }
     if(data.tipeKontrak=="50200PL"){
       pathName = "/form50200PL";
     }
@@ -325,7 +337,7 @@ class KontrakSaya extends React.Component {
               </Col>
               </CardHeader>
               <CardBody>
-                <Table responsive {...{ ['hover' || 'default']: true }}>
+                <Table style={{fontSize:14}} size="sm" responsive {...{ ['hover' || 'default']: true }}>
                   <thead>
                     <tr>
                       <th>No</th>
@@ -339,7 +351,7 @@ class KontrakSaya extends React.Component {
                   </thead>
                   <tbody>
                     {this.state.dataRender.map((dt,index)=>(
-                      <tr key={index}>
+                      <tr style={{backgroundColor:(index%2==0)?"#eff4fc":"#fff", height:60}} key={index}>
                         <td scope="row">{((activePage*itemPerPage)-itemPerPage) + index+1}</td>
                         <td>{dt.namaPekerjaan}</td>
                         <td>{commafy(dt.hrgtotal)}</td>
@@ -440,11 +452,11 @@ function getNamaTipeKontrak(input){
   }
   if(input=="100PL"){
     return <div><Badge color="link">Jasa Konsultasi</Badge><Badge title="Kontrak Jasa Konsultasi dengan nilai dibawah 100 Juta Penunjukan Langsung" 
-    style={{backgroundColor:"green"}} pill className="mr-1">Dibawah 100 PL</Badge></div>;
+    style={{backgroundColor:"darkmagenta"}} pill className="mr-1">Dibawah 100 PL</Badge></div>;
   }
-  if(input=="100"){
+  if(input=="100NonPL"){
     return <div><Badge color="link">Jasa Konsultasi</Badge><Badge title="Kontrak Jasa Konsultasi dengan nilai dibawah 100 Juta" 
-    style={{backgroundColor:"yellow"}} pill className="mr-1">Dibawah 100</Badge></div>;
+    style={{backgroundColor:"tomato"}} pill className="mr-1">Dibawah 100</Badge></div>;
   }
 }
 function removeComma(num){

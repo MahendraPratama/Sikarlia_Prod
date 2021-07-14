@@ -287,6 +287,7 @@ function getDataSet(dataKontrak, hps2){
       pokja3: dataKontrak.pokja3,
       pokja4: dataKontrak.pokja4,
       pokja5: dataKontrak.pokja5,
+      nipPokja1: dataKontrak.nipPokja1,
 
       hps: setTabelHPS(dataKontrak.TABEL),
       hpsSUM: hps2,

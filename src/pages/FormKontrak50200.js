@@ -254,7 +254,7 @@ class Form50200 extends React.Component {
       this.validateStepTgl(key);
     }
     if(key=='pelaksanaanPekerjaan' || key=='penandatangananKontrak'){
-      autoBAPP();
+      dataKontrak.penyelesaianPekerjaan = autoBAPP();
       if(key=='pelaksanaanPekerjaan'){
         this.validatePelaksanaanPkj(value);
       }
@@ -451,7 +451,7 @@ class Form50200 extends React.Component {
         msg = 'Tanggal yg diinput tidak boleh kurang dari tanggal sebelumnya'
         vldt = false;
       }
-      this.setState({j13:false, msg_j11:msg, validasiJadwal:vldt})
+      this.setState({j13:false, j14:false, msg_j11:msg, validasiJadwal:vldt})
     }
     if(key=="penyelesaianPekerjaan"){
       var msg = '';

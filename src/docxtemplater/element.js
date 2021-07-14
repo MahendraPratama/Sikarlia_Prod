@@ -175,11 +175,14 @@ export const autoBAPP = () => {
     var arrD = SPK.split('-');
     var d = new Date();
     d.setFullYear(arrD[0],arrD[1]-1,arrD[2]);
-    d.setDate(d.getDate() + Number.parseInt(durasiPLK));
+    d.setDate(d.getDate() + Number.parseInt(durasiPLK)-1);
     var mth = (d.getMonth()+1) < 10 ? "0"+(d.getMonth()+1) : (d.getMonth()+1); 
     var date = d.getDate() < 10 ? "0"+(d.getDate()) : (d.getDate()); 
     var BAPPFormated = [d.getFullYear(), mth, date].join("-");
     console.log('BAPP: '+ BAPPFormated);
     document.getElementById("penyelesaianPekerjaan").value = BAPPFormated;
+
+    return BAPPFormated;
   }
+  return '0000-00-00';
 }

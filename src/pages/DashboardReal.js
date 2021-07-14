@@ -356,12 +356,12 @@ class DashboardPage extends React.Component {
                   <thead>
                     <tr>
                       <th>No</th>
-                      <th>Nama Pekerjaan</th>
+                      <th style={{width:350}}>Nama Pekerjaan</th>
                       <th>Nilai Kontrak</th>
                       <th>Perusahaan Pemenang</th>
                       <th>Tipe Kontrak</th>
                       <th>User</th>
-                      <th>Tanggal Input</th>
+                      <th style={{width:90}}>Tanggal Input</th>
                       {/* <th>Action</th> */}
                     </tr>
                   </thead>
@@ -515,11 +515,11 @@ function getNamaTipeKontrak(input){
   }
   if(input=="100PL"){
     return <div><Badge color="link">Jasa Konsultasi</Badge><Badge title="Kontrak Jasa Konsultasi dengan nilai dibawah 100 Juta Penunjukan Langsung" 
-    style={{backgroundColor:"green"}} pill className="mr-1">Dibawah 100 PL</Badge></div>;
+    style={{backgroundColor:"darkmagenta"}} pill className="mr-1">Dibawah 100 PL</Badge></div>;
   }
-  if(input=="100"){
+  if(input=="100NonPL"){
     return <div><Badge color="link">Jasa Konsultasi</Badge><Badge title="Kontrak Jasa Konsultasi dengan nilai dibawah 100 Juta" 
-    style={{backgroundColor:"yellow"}} pill className="mr-1">Dibawah 100</Badge></div>;
+    style={{backgroundColor:"tomato"}} pill className="mr-1">Dibawah 100</Badge></div>;
   }
 }
 export default DashboardPage;

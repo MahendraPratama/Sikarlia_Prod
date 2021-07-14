@@ -221,7 +221,7 @@ class Form50200PL extends React.Component {
       this.validateStepTgl(key);
     }
     if(key=='pelaksanaanPekerjaan' || key=='penandatangananKontrak'){
-      autoBAPP();
+      dataKontrak.penyelesaianPekerjaan = autoBAPP();
       if(key=='pelaksanaanPekerjaan'){
         this.validatePelaksanaanPkj(value);
       }
@@ -418,7 +418,7 @@ class Form50200PL extends React.Component {
         msg = 'Tanggal yg diinput tidak boleh kurang dari tanggal sebelumnya'
         vldt = false;
       }
-      this.setState({j13:false, msg_j11:msg, validasiJadwal:vldt})
+      this.setState({j13:false,j14:false, msg_j11:msg, validasiJadwal:vldt})
     }
     if(key=="penyelesaianPekerjaan"){
       var msg = '';
@@ -692,7 +692,9 @@ class Form50200PL extends React.Component {
         />
       <Page
         title="Input Kontrak"
-        breadcrumbs={[{ name: 'Kontrak 50 - 200 Juta Penunjukan Langsung', active: true }]}
+        breadcrumbs={[{ name: this.state.tipe=="50200PL"?
+        'Barang & Jasa Lainnya / Kontrak 50 - 200 Juta Penunjukan Langsung' : 
+        'Jasa Konsultasi / Kontrak dibawah 100 Juta Penunjukan Langsung', active: true }]}
       >
         <Row>
           <Col xl={12} lg={12} md={12}>
