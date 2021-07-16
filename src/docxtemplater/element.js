@@ -116,7 +116,7 @@ export const getDefaultSetDataKontrak = (tipe) => {
 }
 
 export const getStatusKontrak = (tipe, data) =>{
-  if (tipe == '200up'){
+  if (tipe == '200up' || tipe=='100up'){
     if(data.nipPokja1==null || data.nipPokja1 == '' || data.hrgtotal==null || data.hrgtotal == 0){
       return 'Draft';
     }else{
@@ -124,7 +124,7 @@ export const getStatusKontrak = (tipe, data) =>{
     }
   }
 
-  if (tipe == '50200PL' || tipe == '50200NonPL'){
+  else{
     if(data.hrgtotal==null || data.hrgtotal == 0){
       return 'Draft';
     }else{

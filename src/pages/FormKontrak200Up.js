@@ -67,20 +67,20 @@ class Form200Up extends React.Component {
         msg_j14:'',
         msg_j15:'',
 
-        j2:true,
-        j3:true,
-        j4:true,
-        j5:true,
-        j6:true,
-        j7:true,
-        j8:true,
-        j9:true,
-        j10:true,
-        j11:true,
+        j2:false,
+        j3:false,
+        j4:false,
+        j5:false,
+        j6:false,
+        j7:false,
+        j8:false,
+        j9:false,
+        j10:false,
+        j11:false,
         j12:false,
-        j13:true,
-        j14:true,
-        j15:true,
+        j13:false,
+        j14:false,
+        j15:false,
 
         msg_tb1:'',
         msg_tb2:'',
@@ -166,20 +166,20 @@ class Form200Up extends React.Component {
     }
     document.getElementById('cb_managementFee').checked = data.cb_managementFee == 1 ? true:false;
     this.setState({
-      j2   : data.suratPermintaanPPK!='0000-00-00'?false:true,
-      j3   : data.pengadaanBarJas!='0000-00-00'?false:true,
-      j4   : data.HPS!='0000-00-00'?false:true,
-      j5   : data.penawaranRKS!='0000-00-00'?false:true,
-      j6   : data.pengajuanPenawaran!='0000-00-00'?false:true,
-      j7   : data.undanganEvaluasi!='0000-00-00'?false:true,
-      j8   : data.evaluasi!='0000-00-00'?false:true,
-      j15  : data.penetapanPenyedia!='0000-00-00'?false:true,
-      j10  : data.laporanPelaksanaan!='0000-00-00'?false:true,
-      j11  : data.suratPemesanan!='0000-00-00'?false:true,
-      j13  : data.penandatangananKontrak!='0000-00-00'?false:true,
-      j14  : data.penyelesaianPekerjaan!='0000-00-00'?false:true,
-      //j14  : data.pembayaran!='0000-00-00'?false:true,
-      j9  : data.suratKesanggupan!='0000-00-00'?false:true,
+      // j2   : data.suratPermintaanPPK!='0000-00-00'?false:true,
+      // j3   : data.pengadaanBarJas!='0000-00-00'?false:true,
+      // j4   : data.HPS!='0000-00-00'?false:true,
+      // j5   : data.penawaranRKS!='0000-00-00'?false:true,
+      // j6   : data.pengajuanPenawaran!='0000-00-00'?false:true,
+      // j7   : data.undanganEvaluasi!='0000-00-00'?false:true,
+      // j8   : data.evaluasi!='0000-00-00'?false:true,
+      // j15  : data.penetapanPenyedia!='0000-00-00'?false:true,
+      // j10  : data.laporanPelaksanaan!='0000-00-00'?false:true,
+      // j11  : data.suratPemesanan!='0000-00-00'?false:true,
+      // j13  : data.penandatangananKontrak!='0000-00-00'?false:true,
+      // j14  : data.penyelesaianPekerjaan!='0000-00-00'?false:true,
+      // //j14  : data.pembayaran!='0000-00-00'?false:true,
+      // j9  : data.suratKesanggupan!='0000-00-00'?false:true,
 
       validasiJadwal  : data.pembayaran!='0000-00-00'?true:false,
       isManagementFee: data.cb_managementFee == 1 ? true:false,
@@ -304,12 +304,17 @@ class Form200Up extends React.Component {
     }
 
     if(key=='qty' || key=='unitprice'){
+      if(key=="unitprice" || key=="total"){
+        const newVal = value.replace(/\+|-|[A-Z]|\W/ig, '');///^\d*\.?\d*$/.test(value);
+        dataKontrak.unitprice = newVal;
+        document.getElementById(key).value = commafy(newVal);
+      }
       var qty = document.getElementById('qty').value || 0;
-      var unt = document.getElementById('unitprice').value || 0;
+      var unt = document.getElementById('unitprice').value || '0';
 
-      var tot = qty * unt;
+      var tot = qty * removeComma(unt);
       dataKontrak.total = tot;
-      document.getElementById('total').value = tot;
+      document.getElementById('total').value = commafy(tot);
     }
   }
   validatePelaksanaanPkj(durasi){
@@ -533,7 +538,7 @@ class Form200Up extends React.Component {
     }
     if(type=="generate"){
       generateDocument(dataKontrak,'/kontrak200up.docx');
-      return;
+      //return;
     }
     
     //var dt = pushKontrak(dataKontrak);
@@ -779,8 +784,8 @@ class Form200Up extends React.Component {
       <Page
         title="Input Kontrak"
         breadcrumbs={[{ name: this.state.tipe == '200up' ? 
-          'Barang & Jasa Lainnya / Kontrak diatas 200' : 
-          'Jasa Konsultasi / Kontrak diatas 100', active: true }]}
+          'Barang & Jasa Lainnya / Kontrak diatas 200 Juta' : 
+          'Jasa Konsultasi / Kontrak diatas 100 Juta', active: true }]}
       >
         <Row>
           <Col xl={12} lg={12} md={12}>
@@ -850,11 +855,11 @@ class Form200Up extends React.Component {
                     </Col>
                     <hr/>
                     <Col xl={12} lg={12} md={12}>
-                      <FormGroup row>
-                        <Col sm={{ offset: 8 }}>
-                          <Button color="danger" onClick={()=>{this.props.history.push('/dashboard')}}>Cancel</Button> &nbsp;
+                      <FormGroup row className="d-flex justify-content-end">
+                        <Col sm={3} className="d-flex justify-content-end">
+                          <Button color="danger" onClick={()=>{this.props.history.goBack();}}>Batal</Button> &nbsp;
                           {this.renderBtnSaveDraft()} &nbsp;
-                          <Button color="primary" onClick={()=> this.handleNext(1)}>Next</Button>
+                          <Button color="primary" onClick={()=> this.handleNext(1)}>Selanjutnya</Button>
                         </Col>
                       </FormGroup>
                     </Col>
@@ -866,13 +871,13 @@ class Form200Up extends React.Component {
                 <CardHeader>Input Jadwal Pekerjaan</CardHeader>
                 <CardBody>
                   <Row>
-                    <Col xl={6} lg={12} md={12}>
+                    <Col xl={12} lg={12} md={12}>
                       <FormGroup row>
-                        <Label sm={1}>1</Label>
+                        <Label sm={1} style={{maxWidth:'4%'}}>1</Label>
                         <Label for="suratPermintaanPPK" sm={6}>
                           Surat Permintaan kepada PPK untuk melaksanakan Pengadaan Barang/Jasa
                         </Label>
-                        <Col sm={4}>
+                        <Col sm={3}>
                           <Input
                             type="date"
                             name="suratPermintaanPPK"
@@ -888,11 +893,11 @@ class Form200Up extends React.Component {
                         </Col>
                       </FormGroup>
                       <FormGroup row>
-                        <Label sm={1}>2</Label>
+                        <Label sm={1} style={{maxWidth:'4%'}}>2</Label>
                         <Label for="pengadaanBarJas" sm={6}>
                           Pengadaan Barang dan Jasa
                         </Label>
-                        <Col sm={4}>
+                        <Col sm={3}>
                           <Input
                             disabled={this.state.j2}
                             type="date"
@@ -907,11 +912,11 @@ class Form200Up extends React.Component {
                         </Col>
                       </FormGroup>
                       <FormGroup row>
-                        <Label sm={1}>3</Label>
+                        <Label sm={1} style={{maxWidth:'4%'}}>3</Label>
                         <Label for="HPS" sm={6}>
                           HPS
                         </Label>
-                        <Col sm={4}>
+                        <Col sm={3}>
                           <Input
                             disabled={this.state.j3}
                             type="date"
@@ -926,11 +931,11 @@ class Form200Up extends React.Component {
                         </Col>
                       </FormGroup>
                       <FormGroup row>
-                        <Label sm={1}>4</Label>
+                        <Label sm={1} style={{maxWidth:'4%'}}>4</Label>
                         <Label for="penawaranRKS" sm={6}>
                           Permintaan Penawaran dilampiri RKS
                         </Label>
-                        <Col sm={4}>
+                        <Col sm={3}>
                           <Input
                             disabled={this.state.j4}
                             type="date"
@@ -945,11 +950,11 @@ class Form200Up extends React.Component {
                         </Col>
                       </FormGroup>
                       <FormGroup row>
-                        <Label sm={1}>5</Label>
+                        <Label sm={1} style={{maxWidth:'4%'}}>5</Label>
                         <Label for="pengajuanPenawaran" sm={6}>
                           Pengajuan Penawaran (Dilampiri SIUP, Akte Notaris, NPWP, Bukti Pembayaran pajak Terakhir)
                         </Label>
-                        <Col sm={4}>
+                        <Col sm={3}>
                           <Input
                           disabled={this.state.j5}
                             type="date"
@@ -964,11 +969,11 @@ class Form200Up extends React.Component {
                         </Col>
                       </FormGroup>
                       <FormGroup row>
-                        <Label sm={1}>6</Label>
+                        <Label sm={1} style={{maxWidth:'4%'}}>6</Label>
                         <Label for="undanganEvaluasi" sm={6}>
                           {'Undangan Evaluasi Klarifikasi & negosiasi'}
                         </Label>
-                        <Col sm={4}>
+                        <Col sm={3}>
                           <Input
                           disabled={this.state.j6}
                             type="date"
@@ -983,11 +988,11 @@ class Form200Up extends React.Component {
                         </Col>
                       </FormGroup>
                       <FormGroup row>
-                        <Label sm={1}>7</Label>
+                        <Label sm={1} style={{maxWidth:'4%'}}>7</Label>
                         <Label for="evaluasi" sm={6}>
                           {"Evaluasi Klarifikasi & negosiasi"}
                         </Label>
-                        <Col sm={4}>
+                        <Col sm={3}>
                           <Input
                           disabled={this.state.j7}
                             type="date"
@@ -1003,13 +1008,13 @@ class Form200Up extends React.Component {
                       </FormGroup>
                     </Col>
 
-                    <Col xl={6} lg={12} md={12}>          
+                    <Col xl={12} lg={12} md={12}>          
                       <FormGroup row>
-                        <Label sm={1}>8</Label>
+                        <Label sm={1} style={{maxWidth:'4%'}}>8</Label>
                         <Label for="penetapanPenyedia" sm={6}>
                           Penetapan Penyedia Barang/Jasa (SPPBJ)
                         </Label>
-                        <Col sm={4}>
+                        <Col sm={3}>
                           <Input
                           disabled={this.state.j8}
                             type="date"
@@ -1024,11 +1029,11 @@ class Form200Up extends React.Component {
                         </Col>
                       </FormGroup>
                       <FormGroup row>
-                        <Label sm={1}>9</Label>
+                        <Label sm={1} style={{maxWidth:'4%'}}>9</Label>
                         <Label for="suratKesanggupan" sm={6}>
                           Surat Kesanggupan
                         </Label>
-                        <Col sm={4}>
+                        <Col sm={3}>
                           <Input
                             disabled={this.state.j15}
                             type="date"
@@ -1043,11 +1048,11 @@ class Form200Up extends React.Component {
                         </Col>
                       </FormGroup>
                       <FormGroup row>
-                        <Label sm={1}>10</Label>
+                        <Label sm={1} style={{maxWidth:'4%'}}>10</Label>
                         <Label for="laporanPelaksanaan" sm={6}>
                           Laporan Pelaksanaan Pengadaan Barang dan Jasa
                         </Label>
-                        <Col sm={4}>
+                        <Col sm={3}>
                           <Input
                           disabled={this.state.j9}
                             type="date"
@@ -1062,11 +1067,11 @@ class Form200Up extends React.Component {
                         </Col>
                       </FormGroup>
                       <FormGroup row>
-                        <Label sm={1}>11</Label>
+                        <Label sm={1} style={{maxWidth:'4%'}}>11</Label>
                         <Label for="suratPemesanan" sm={6}>
                           Surat Pemesanan
                         </Label>
-                        <Col sm={4}>
+                        <Col sm={3}>
                           <Input
                           disabled={this.state.j10}
                             type="date"
@@ -1081,11 +1086,11 @@ class Form200Up extends React.Component {
                         </Col>
                       </FormGroup>
                       <FormGroup row>
-                        <Label sm={1}>12</Label>
+                        <Label sm={1} style={{maxWidth:'4%'}}>12</Label>
                         <Label for="penandatangananKontrak" sm={6}>
                           Penandatanganan Kontrak SPK
                         </Label>
-                        <Col sm={4}>
+                        <Col sm={3}>
                           <Input
                           disabled={this.state.j11}
                             type="date"
@@ -1100,7 +1105,7 @@ class Form200Up extends React.Component {
                         </Col>
                       </FormGroup>
                       <FormGroup row>
-                        <Label sm={1}>13</Label>
+                        <Label sm={1} style={{maxWidth:'4%'}}>13</Label>
                         <Label for="pelaksanaanPekerjaan" sm={6}>
                           Pelaksanaan Pekerjaan
                         </Label>
@@ -1122,11 +1127,11 @@ class Form200Up extends React.Component {
                         </Col>
                       </FormGroup>
                       <FormGroup row>
-                        <Label sm={1}>14</Label>
+                        <Label sm={1} style={{maxWidth:'4%'}}>14</Label>
                         <Label for="penyelesaianPekerjaan" sm={6}>
                           BA Penyelesaian Pekerjaan Barang/Jasa
                         </Label>
-                        <Col sm={4}>
+                        <Col sm={3}>
                           <Input
                           disabled={this.state.j13}
                             type="date"
@@ -1141,11 +1146,11 @@ class Form200Up extends React.Component {
                         </Col>
                       </FormGroup>
                       <FormGroup row>
-                        <Label sm={1}>15</Label>
+                        <Label sm={1} style={{maxWidth:'4%'}}>15</Label>
                         <Label for="pembayaran" sm={6}>
                           BA Pembayaran 
                         </Label>
-                        <Col sm={4}>
+                        <Col sm={3}>
                           <Input
                           disabled={this.state.j14}
                             type="date"
@@ -1162,11 +1167,11 @@ class Form200Up extends React.Component {
                     </Col>
                     <hr/>
                     <Col xl={12} lg={12} md={12}>
-                      <FormGroup row>
-                        <Col sm={{ offset: 8 }}>
-                          <Button color="danger" onClick={()=>this.handleNext(0)}>Back</Button> &nbsp;
+                      <FormGroup row className="d-flex justify-content-end">
+                        <Col sm={3} className="d-flex justify-content-end">
+                          <Button color="danger" onClick={()=>this.handleNext(0)}>Kembali</Button> &nbsp;
                           {this.renderBtnSaveDraft()} &nbsp;
-                          <Button color="primary" onClick={()=>this.handleNext(2)}>Next</Button>
+                          <Button color="primary" onClick={()=>this.handleNext(2)}>Selanjutnya</Button>
                         </Col>
                       </FormGroup>
                     </Col>
@@ -1261,11 +1266,11 @@ class Form200Up extends React.Component {
                     </Col>
                     <hr/>
                     <Col xl={12} lg={12} md={12}>
-                      <FormGroup row>
-                        <Col sm={{ offset: 8 }}>
-                          <Button color="danger" onClick={()=>this.handleNext(1)}>Back</Button> &nbsp;
+                      <FormGroup row className="d-flex justify-content-end">
+                        <Col sm={3} className="d-flex justify-content-end">
+                          <Button color="danger" onClick={()=>this.handleNext(1)}>Kembali</Button> &nbsp;
                           {this.renderBtnSaveDraft()} &nbsp;
-                          <Button color="primary" onClick={()=> this.handleNext(3)}>Next</Button>
+                          <Button color="primary" onClick={()=> this.handleNext(3)}>Selanjutnya</Button>
                         </Col>
                       </FormGroup>
                     </Col>
@@ -1341,7 +1346,7 @@ class Form200Up extends React.Component {
                             </Label>
                             <Col sm={8}>
                               <Input
-                                type="number"
+                                type="text"
                                 id="unitprice"
                                 name="unitprice"
                                 placeholder="harga satuan"
@@ -1359,7 +1364,7 @@ class Form200Up extends React.Component {
                             </Label>
                             <Col sm={8}>
                               <Input
-                                type="number"
+                                type="text"
                                 name="total"
                                 id="total"
                                 placeholder="total harga"
@@ -1373,9 +1378,9 @@ class Form200Up extends React.Component {
                       </Row>
                     </Col>
                     <Col xl={12} lg={12} md={12}>
-                      <FormGroup row>
-                        <Col sm={{ offset: 11 }}>
-                        <Button color="secondary" onClick={()=> this.handleAddHPS()}>{this.state.isEditHPS?"Save":"ADD"}</Button>
+                      <FormGroup row className="d-flex justify-content-end">
+                        <Col sm={2} className="d-flex justify-content-end">
+                        <Button color="secondary" onClick={()=> this.handleAddHPS()}>{this.state.isEditHPS?"Save":"Tambah"}</Button>
                         </Col>
                       </FormGroup>
                     </Col>
@@ -1466,11 +1471,11 @@ class Form200Up extends React.Component {
 
                     <hr/>
                     <Col xl={12} lg={12} md={12}>
-                      <FormGroup row>
-                        <Col sm={{ offset: 7 }}>
-                          <Button color="danger" onClick={()=>this.handleNext(2)}>Back</Button> &nbsp;
+                      <FormGroup row className="d-flex justify-content-end">
+                        <Col sm={4} className="d-flex justify-content-end">
+                          <Button color="danger" onClick={()=>this.handleNext(2)}>Kembali</Button> &nbsp;
                           {this.renderBtnSaveDraft()} &nbsp;
-                          <Button color="primary" onClick={()=> this.handleNext(4)}>Next</Button>
+                          <Button color="primary" onClick={()=> this.handleNext(4)}>Selanjutnya</Button>
                         </Col>
                       </FormGroup>
                     </Col>
@@ -1600,9 +1605,9 @@ class Form200Up extends React.Component {
                     <Col xl={12} lg={12} md={12}>
                       <FormGroup row>
                         <Col sm={{ offset: 8 }}>
-                          <Button color="danger" onClick={()=>this.handleNext(3)}>Back</Button> &nbsp;
+                          <Button color="danger" onClick={()=>this.handleNext(3)}>Kembali</Button> &nbsp;
                           {this.renderBtnSaveDraft()} &nbsp;
-                          <Button color="secondary" onClick={()=> this.handleSubmit("generate")}>Generate DOCX</Button>
+                          <Button color="secondary" onClick={()=> this.handleSubmit("generate")}>Unduh DOCX</Button>
                         </Col>
                       </FormGroup>
                     </Col>
@@ -1630,7 +1635,7 @@ class Form200Up extends React.Component {
             this.handleSubmit("save");
           }}
           >
-            Save
+            Simpan
         </Button>
     );
   }

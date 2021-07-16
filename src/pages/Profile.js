@@ -348,7 +348,7 @@ class Profile extends React.Component {
                             <Button color="link" size="sm" onClick={()=>{
                               var oldState = this.state.isChangePwd;
                               this.setState({isChangePwd:!oldState});
-                            }}>Cancel</Button>
+                            }}>Batal</Button>
                           <FormText color={'danger'}>{this.state.u4}</FormText>
                         </div>
                         :
@@ -377,7 +377,7 @@ class Profile extends React.Component {
                           this.setState({isEdit:false});
                           //this.resetField();
                           this.loadData();
-                        }}>Cancel</Button> &nbsp;
+                        }}>Batal</Button> &nbsp;
                         <Button color="success" onClick={()=>{
                           this.addUser();
                         }}>Simpan</Button>
@@ -388,7 +388,7 @@ class Profile extends React.Component {
                           onClick={()=>{
                             this.setState({isEdit:true})
                           }}
-                        >Edit</Button>
+                        >Ubah</Button>
                       </Col>
                       )
                       :

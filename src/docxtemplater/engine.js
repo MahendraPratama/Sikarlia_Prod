@@ -112,7 +112,7 @@ export const generateDocument = (dataKontrak, namaFile, isPreview = false) => {
               console.log(response)
               //var src = "https://view.officeapps.live.com/op/embed.aspx?src="+"https://sikarliaapi.000webhostapp.com/rest/asu.docx";//+"&embedded=true";
               //var src = "https://docs.google.com/viewerng/viewer?url="+"https://sikarliaapi.000webhostapp.com/rest/asu.docx"+"&embedded=true";
-              var src = 'https://docs.google.com/viewer?url=http://sikarliaapi.000webhostapp.com/rest/'+dataKontrak.userid+'.docx&embedded=true';
+              var src = 'https://docs.google.com/viewer?url=http://sikarliaapi.000webhostapp.com/rest/previewDocx/'+dataKontrak.userid+'.docx&embedded=true';
               try{
                 document.getElementById("viewer").src = src;
                 setTimeout(()=>{

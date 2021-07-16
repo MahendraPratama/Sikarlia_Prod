@@ -425,7 +425,7 @@ class Users extends React.Component {
                           <Button color="danger" onClick={()=>{
                             this.setState({isAdd:false, isEdit:false});
                             this.resetField();
-                          }}>Cancel</Button> &nbsp;
+                          }}>Batal</Button> &nbsp;
                           <Button color="success" onClick={()=>{
                             this.addUser();
                             if(!this.state.isEdit){
@@ -496,7 +496,7 @@ class Users extends React.Component {
                             color="secondary"
                             onClick={()=>{this.gotoEdit(((activePage*itemPerPage)-itemPerPage) + index)}}
                             size="sm"
-                          ><MdEdit/> Edit</Button>&nbsp;                               
+                          ><MdEdit/> Ubah</Button>&nbsp;                               
                           <Button 
                             style={{background:'rgb(230 14 20)', borderColor:'rgb(230 14 20)'}}
                             onClick={()=>{this.deleteData(((activePage*itemPerPage)-itemPerPage) + index)}}

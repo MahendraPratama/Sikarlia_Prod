@@ -56,6 +56,7 @@ class KontrakSaya extends React.Component {
       prshnPmn:'-',
       isPvw:false,
       dataToGenerate:[],
+      choosedIdx:null,
     };
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleKeyDown = this.handleKeyDown.bind(this);
@@ -115,6 +116,7 @@ class KontrakSaya extends React.Component {
     return dataKontrak;
   }
   preview(idx){
+    window.scrollTo(0, 0);
     document.getElementById("viewer").src = '';
     var data = this.state.data[idx];
 
@@ -126,7 +128,8 @@ class KontrakSaya extends React.Component {
       create:data.date_created,change:data.date_change||'-',
       hrgtotal:commafy(data.hrgtotal),
       namaPkj:data.namaPekerjaan,
-      prshnPmn:data.namaPerusahaan
+      prshnPmn:data.namaPerusahaan||'-',
+      choosedIdx:idx,
     })
 
     var cb_mgntFee = data.cb_managementFee;
@@ -261,7 +264,7 @@ class KontrakSaya extends React.Component {
         <Row hidden={!this.state.isPvw}>
           <Col>
           <Card className="mb-3" >
-            <CardHeader className="d-flex justify-content-between">View Kontrak 
+            <CardHeader className="d-flex justify-content-between">Lihat Kontrak 
                 <Button size="sm" color="danger"
                   onClick={()=>{this.setState({isPvw:!this.state.isPvw})}}
                 ><MdClose/></Button></CardHeader>
@@ -300,12 +303,18 @@ class KontrakSaya extends React.Component {
                   </Row>
                   <Row>
                     <Col>
-                      <Button size="sm"
+                      <Button size="sm" color="secondary"
+                        onClick={()=>{
+                          var id = this.state.choosedIdx;
+                          this.gotoEdit(id);
+                        }}
+                      > Ubah</Button>&nbsp;
+                      <Button size="sm" color="success"
                         onClick={()=>{
                           var dt = this.state.dataToGenerate;
                           generateDocument(dt,fileMaster[dt.tipeKontrak]);
                         }}
-                      > Generate DOCX</Button>
+                      > Unduh DOCX</Button>
                     </Col>
                   </Row>
                 </Col>
@@ -337,12 +346,12 @@ class KontrakSaya extends React.Component {
               </Col>
               </CardHeader>
               <CardBody>
-                <Table style={{fontSize:14}} size="sm" responsive {...{ ['hover' || 'default']: true }}>
+                <Table style={{fontSize:14}} size="sm" responsive {...{ ['' || 'default']: true }}>
                   <thead>
                     <tr>
                       <th>No</th>
                       <th style={{width: "450px"}}>Nama Pekerjaan</th>
-                      <th>Nilai Kontrak</th>
+                      <th align="centre">Nilai Kontrak</th>
                       <th>Perusahaan Pemenang</th>
                       <th>Tipe Kontrak</th>
                       <th>Tanggal Input</th>
@@ -360,7 +369,7 @@ class KontrakSaya extends React.Component {
                         <td>{dt.date_created}</td>
                         <td>
                           <Button 
-                            title="View Kontrak"
+                            title="Lihat Kontrak"
                             color="primary"
                             onClick={()=>{
                               this.preview(((activePage*itemPerPage)-itemPerPage) + index)
@@ -369,7 +378,7 @@ class KontrakSaya extends React.Component {
                             size="sm"
                           ><MdPageview/></Button>&nbsp;                               
                           <Button 
-                            title="Edit Kontrak"
+                            title="Ubah Kontrak"
                             color="secondary"
                             onClick={()=>{this.gotoEdit(((activePage*itemPerPage)-itemPerPage) + index)}}
                             size="sm"
