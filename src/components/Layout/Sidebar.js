@@ -139,7 +139,7 @@ class Sidebar extends React.Component {
             exact={true}
           >
             <MdAccountBox style={{color:"#146df3"}} className={bem.e('nav-item-icon')} />
-            <span className="sideItm">{'users'}</span>
+            <span className="sideItm">{'Users'}</span>
           </BSNavLink>
         </NavItem>
       );

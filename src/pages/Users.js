@@ -42,7 +42,7 @@ class Users extends React.Component {
 
       validID:false,
       activePage: 1,
-      itemPerPage:5,
+      itemPerPage:10,
       defaultPwd:'1234567890',
       isViewPwd:false,
       modal:false
@@ -234,6 +234,7 @@ class Users extends React.Component {
     //document.getElementById("password").value = '';
   }
   gotoEdit(idx){
+    window.scrollTo(0,0);
     var data = this.state.data[idx];
     this.setState({
       isEdit:true, isAdd:true,id:data.id,password:data.password,oldUserID:data.userid

@@ -1,0 +1,12 @@
+
+# HTID:17948768: DO NOT REMOVE OR MODIFY THIS LINE AND THE LINES BELOW
+# php_value display_errors 1
+# SetEnvIfNoCase Request_URI ^ / thumb.php no-gzip -vary
+# DO NOT REMOVE OR MODIFY THIS LINE AND THE LINES ABOVE HTID:17948768:
+
+  RewriteEngine On  
+  RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -f [OR]
+  RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -d
+  RewriteRule ^ - [L]
+
+  RewriteRule ^ /index.html [L]

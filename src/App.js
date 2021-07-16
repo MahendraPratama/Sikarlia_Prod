@@ -43,7 +43,7 @@ class App extends React.Component {
     this.expireSession();
   }
   componentWillUpdate(){
-    //this.expireSession();
+    this.expireSession();
     //this.cekSession();
   }
 

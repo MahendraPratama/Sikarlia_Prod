@@ -64,19 +64,19 @@ class Form50200 extends React.Component {
         msg_j13:'',
         msg_j14:'',
 
-        j2:true,
-        j3:true,
-        j4:true,
-        j5:true,
-        j6:true,
-        j7:true,
-        j8:true,
-        j9:true,
-        j10:true,
-        j11:true,
+        j2:false,
+        j3:false,
+        j4:false,
+        j5:false,
+        j6:false,
+        j7:false,
+        j8:false,
+        j9:false,
+        j10:false,
+        j11:false,
         j12:false,
-        j13:true,
-        j14:true,
+        j13:false,
+        j14:false,
 
         msg_tb1:'',
         msg_tb2:'',
@@ -255,9 +255,9 @@ class Form50200 extends React.Component {
     }
     if(key=='pelaksanaanPekerjaan' || key=='penandatangananKontrak'){
       dataKontrak.penyelesaianPekerjaan = autoBAPP();
-      if(key=='pelaksanaanPekerjaan'){
+      //if(key=='pelaksanaanPekerjaan'){
         this.validatePelaksanaanPkj(value);
-      }
+      //}
     }
     if(key=='namaPerusahaan'){
       this.setState({msg_p1:''})
@@ -307,6 +307,12 @@ class Form50200 extends React.Component {
       return false;
     }else{
       this.setState({msg_j12:""})
+      if(dataKontrak.pembayaran < dataKontrak.penyelesaianPekerjaan && dataKontrak.pembayaran != this.state.tglKosong){
+        var msg = 'Tanggal yg diinput tidak boleh kurang dari tanggal sebelumnya'
+        var vldt = false;
+        this.setState({msg_j14:msg, validasiJadwal:vldt})
+        return false;
+      }else{this.setState({msg_j14:'', validasiJadwal:true}) }
       return true;
     }
   }
@@ -541,6 +547,7 @@ class Form50200 extends React.Component {
   };
 
   handleNext=(nextStep)=>{
+    window.scrollTo(0, 0);
     if(nextStep==1){
       if(this.validation_step1()==false){
         return;
@@ -1218,7 +1225,7 @@ class Form50200 extends React.Component {
                               type="text"
                               name="namaDirekturPembanding1"
                               id="namaDirekturPembanding1"
-                              placeholder="jabatan penandatangan perusahaan pembanding 1"
+                              placeholder="nama direktur perusahaan pembanding 1"
                               onChange={this.handleInputChange}
                               //onKeyUp={()=>{this.handleSearchPerusahaan()}}
                             />
@@ -1279,7 +1286,7 @@ class Form50200 extends React.Component {
                               type="text"
                               name="namaDirekturPembanding2"
                               id="namaDirekturPembanding2"
-                              placeholder="nama direktur perusahaan pembanding 1"
+                              placeholder="nama direktur perusahaan pembanding 2"
                               onChange={this.handleInputChange}
                               //onKeyUp={()=>{this.handleSearchPerusahaan()}}
                             />
@@ -1325,7 +1332,7 @@ class Form50200 extends React.Component {
                         <Label for="descr" sm={3}>
                           Deskripsi
                         </Label>
-                        <Col sm={9}>
+                        <Col sm={7}>
                           <Input
                             type="textarea"
                             style={{height:'140px'}}
@@ -1341,12 +1348,12 @@ class Form50200 extends React.Component {
                     </Col>
                     <Col xl={12} lg={12} md={12}>
                       <Row>
-                        <Col xl={3} lg={12} md={12}>
+                        <Col xl={12} lg={12} md={12}>
                           <FormGroup row>
-                            <Label for="qty" sm={4}>
+                            <Label for="qty" sm={3}>
                             Jumlah/Quantity
                             </Label>
-                            <Col sm={8}>
+                            <Col sm={5}>
                               <Input
                                 type="number"
                                 id="qty"
@@ -1359,12 +1366,12 @@ class Form50200 extends React.Component {
                             </Col>
                           </FormGroup>                          
                         </Col>
-                        <Col xl={3} lg={12} md={12}>
+                        <Col xl={12} lg={12} md={12}>
                           <FormGroup row>
-                            <Label for="freq" sm={4}>
+                            <Label for="freq" sm={3}>
                               Satuan
                             </Label>
-                            <Col sm={8}>
+                            <Col sm={5}>
                               <Input
                                 type="text"
                                 id="freq"
@@ -1377,12 +1384,12 @@ class Form50200 extends React.Component {
                             </Col>
                           </FormGroup>
                         </Col>
-                        <Col xl={3} lg={12} md={12}>
+                        <Col xl={12} lg={12} md={12}>
                           <FormGroup row>
-                            <Label for="unitprice" sm={4}>
+                            <Label for="unitprice" sm={3}>
                               Harga Satuan
                             </Label>
-                            <Col sm={8}>
+                            <Col sm={5}>
                               <Input
                                 type="text"
                                 id="unitprice"
@@ -1395,12 +1402,12 @@ class Form50200 extends React.Component {
                             </Col>
                           </FormGroup>
                         </Col>
-                        <Col xl={3} lg={12} md={12}>
+                        <Col xl={12} lg={12} md={12}>
                           <FormGroup row>
-                            <Label for="total" sm={4}>
+                            <Label for="total" sm={3}>
                               Total Harga
                             </Label>
-                            <Col sm={8}>
+                            <Col sm={5}>
                               <Input
                                 type="text"
                                 name="total"
@@ -1415,28 +1422,29 @@ class Form50200 extends React.Component {
                         </Col>
                       </Row>
                     </Col>
-                    <Col xl={12} lg={12} md={12}>
+                    <Col xl={10} lg={12} md={12}>
                       <FormGroup row className="d-flex justify-content-end">
                         <Col sm={2} className="d-flex justify-content-end">
                           <Button color="secondary" onClick={()=> this.handleAddHPS()}>{this.state.isEditHPS?"Simpan":"Tambah"}</Button>
                         </Col>
                       </FormGroup>
                     </Col>
-                    <hr/>
-                    <Col xl={5} lg={12} md={12}>
+                    <br/>
+                    <Col xl={12} lg={12} md={12}>
+                      <hr/>
                       <FormGroup row>
                         <Label for="checkbox2" sm={3}>
                           Optional
                         </Label>
-                        <Col sm={{ size: 9 }}>
+                        <Col sm={{ size: 3 }}>
                           <FormGroup check>
                             <Label check>
-                              <Input type="checkbox" id="cb_managementFee" name="cb_managementFee"
+                              <Input  type="checkbox" id="cb_managementFee" name="cb_managementFee"
                               onChange={this.handleInputChange}
                               /> Management Fee                              
                             </Label>
                           </FormGroup>
-                          <InputGroup>
+                          <InputGroup style={{width:'100px'}}>
                             <Input
                               type='number'
                               name="managementFeePctg"
