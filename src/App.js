@@ -31,6 +31,7 @@ const TablePage = React.lazy(() => import('pages/TablePage'));
 const TypographyPage = React.lazy(() => import('pages/TypographyPage'));
 const WidgetPage = React.lazy(() => import('pages/WidgetPage'));
 const KontrakSaya = React.lazy(() => import('pages/KontrakSaya'));
+const Slider = React.lazy(() => import('pages/Slider'));
 
 const getBasename = () => {
   return `/${process.env.PUBLIC_URL.split('/').pop()}`;
@@ -122,15 +123,16 @@ class App extends React.Component {
                 <Route exact path="/forms" component={FormPage} />
                 <Route exact path="/users" component={Users} />
                 <Route exact path="/profile" component={Profile} />
-                <Route exact path="/form100up" component={(routeProps)=> <FormKontrak200Up tipe="100up"  {...routeProps}/>} />
-                <Route exact path="/form200up" component={(routeProps)=> <FormKontrak200Up tipe="200up"  {...routeProps}/>} />
-                <Route exact path="/form100PL" component={(routeProps)=> <FormKontrak50200PL tipe="100PL"  {...routeProps}/>} />
-                <Route exact path="/form50200PL" component={(routeProps)=> <FormKontrak50200PL tipe="50200PL"  {...routeProps}/>} />
+                <Route exact path="/form100up" component={(routeProps)=> <FormKontrak50200 tipe="100up"  {...routeProps}/>} />
+                <Route exact path="/form200up" component={(routeProps)=> <FormKontrak50200 tipe="200up"  {...routeProps}/>} />
+                <Route exact path="/form100PL" component={(routeProps)=> <FormKontrak50200 tipe="100PL"  {...routeProps}/>} />
+                <Route exact path="/form50200PL" component={(routeProps)=> <FormKontrak50200 tipe="50200PL"  {...routeProps}/>} />
                 <Route exact path="/form100" component={(routeProps)=> <FormKontrak50200 tipe="100NonPL"  {...routeProps}/>} />
                 <Route exact path="/form50200" component={(routeProps)=> <FormKontrak50200 tipe="50200NonPL"  {...routeProps}/>} />
                 <Route exact path="/input-groups" component={InputGroupPage} />
                 <Route exact path="/charts" component={ChartPage} />
                 <Route exact path="/kontraksaya" component={KontrakSaya} />
+                <Route exact path="/slider" component={Slider} />
               </React.Suspense>
             </MainLayout>
             <Redirect to="/dashboard" />

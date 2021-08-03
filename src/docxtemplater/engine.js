@@ -5,25 +5,101 @@ import React from 'react';
 import { saveAs } from 'file-saver';
 import { set } from 'react-ga';
 import angkaTerbilang from '@develoka/angka-terbilang-js';
-
+import Base64String from 'lz-string';
 import DocViewer from "react-doc-viewer";
-
+import ImageModule from 'docxtemplater-image-module-free'
+//import ImageModule from 'open-docxtemplater-image-module';
+//var ImageModule=require('docxtemplater-image-module');
+//var ImageModule=require('docxtemplater-image-module');
 function loadFile(url, callback) {
     PizZipUtils.getBinaryContent(url, callback);
 }
+const fixDocPrCorruptionModule = {
+  set(options) {
+      if (options.Lexer) {
+          this.Lexer = options.Lexer;
+      }
+      if (options.zip) {
+          this.zip = options.zip;
+      }
+  },
+  on(event) {
+      if (event.name === "attached") {
+          this.attached = false;
+      }
+      if (event !== "syncing-zip") {
+          return;
+      }
+      const zip = this.zip;
+      const Lexer = this.Lexer;
+      let prId = 1;
+      function setSingleAttribute(partValue, attr, attrValue) {
+          const regex = new RegExp(`(<.* ${attr}=")([^"]+)(".*)$`);
+          if (regex.test(partValue)) {
+              return partValue.replace(regex, `$1${attrValue}$3`);
+          }
+          let end = partValue.lastIndexOf("/>");
+          if (end === -1) {
+              end = partValue.lastIndexOf(">");
+          }
+          return (
+              partValue.substr(0, end) +
+              ` ${attr}="${attrValue}"` +
+              partValue.substr(end)
+          );
+      }
+      zip.file(/\.xml$/).forEach(function (f) {
+          let text = f.asText();
+          const xmllexed = Lexer.xmlparse(text, {
+              text: [],
+              other: ["wp:docPr"],
+          });
+          if (xmllexed.length > 1) {
+              text = xmllexed.reduce(function (fullText, part) {
+                  if (
+                      part.tag === "wp:docPr" &&
+                      ["start", "selfclosing"].indexOf(part.position) !== -1
+                  ) {
+                      return (
+                          fullText +
+                          setSingleAttribute(part.value, "id", prId++)
+                      );
+                  }
+                  return fullText + part.value;
+              }, "");
+          }
+          zip.file(f.name, text);
+      });
+  },
+};
 export const generateDocument = (dataKontrak, namaFile, isPreview = false) => {
   var hps2 = [
+    {judul: "Sub Total", nilai: commafy(dataKontrak.subtotalHPS)},
+    {judul: "Grand Total", nilai: commafy(dataKontrak.hrgtotalHPS)},
+  ];
+  var pnw2 = [
     {judul: "Sub Total", nilai: commafy(dataKontrak.subtotal)},
-    {judul: "PPN 10%", nilai: commafy(dataKontrak.ppn)},
     {judul: "Grand Total", nilai: commafy(dataKontrak.hrgtotal)},
   ];
 
-  var path = window.location.origin  + namaFile;
-  console.log("engine: " + path);
+  var path = window.location.origin + namaFile; //+ '/testTemplate.docx'
+  
   if(dataKontrak.cb_managementFee){
-    hps2.splice(1,0,{judul: "Management Fee", nilai: commafy(dataKontrak.managementFee)});
-  }  
+    hps2.splice(1,0,{judul: "Management Fee", nilai: commafy(dataKontrak.managementFeeHPS)});
+  }
+  var idxPPN = dataKontrak.cb_managementFee?2:1;  
+  if(dataKontrak.isPPN){
+    hps2.splice(idxPPN,0,{judul: "PPN 10%", nilai: commafy(dataKontrak.ppnHPS)});
+  }
 
+  if(dataKontrak.cb_managementFeePnw){
+    pnw2.splice(1,0,{judul: "Management Fee", nilai: commafy(dataKontrak.managementFee)});
+  }
+  var idxPPNPnw = dataKontrak.cb_managementFeePnw?2:1;  
+  if(dataKontrak.isPPN){
+    pnw2.splice(idxPPNPnw,0,{judul: "PPN 10%", nilai: commafy(dataKontrak.ppn)});
+  }
+  
 
     //event.PreventDefault();
     loadFile(path, function(
@@ -33,12 +109,55 @@ export const generateDocument = (dataKontrak, namaFile, isPreview = false) => {
       if (error) {
         throw error;
       }
+      //var ImageModule = require("open-docxtemplater-image-module");
+      var opts = {};
+      opts.centered = true;
+      opts.getImage = function (tagValue, tagName) {
+        const base64Regex = /^data:image\/(png|jpg|svg|svg\+xml);base64,/;
+        if (!base64Regex.test(tagValue)) {
+          return false;
+        }
+        const stringBase64 = tagValue.replace(base64Regex, "");
+        let binaryString;
+        if (typeof window !== "undefined") {
+          binaryString = window.atob(stringBase64);
+        } else {
+          binaryString = Buffer.from(stringBase64, "base64").toString(
+            "binary"
+          );
+        }
+        const len = binaryString.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+          const ascii = binaryString.charCodeAt(i);
+          bytes[i] = ascii;
+        }
+        return bytes.buffer;
+      };
+      opts.getSize = function (img, tagValue, tagName) {
+        var width = dataKontrak.HPSimgW;
+        var height = dataKontrak.HPSimgH;
+        const forceWidth = 620;
+        const ratio = forceWidth / width;
+        return [
+          forceWidth,
+          // calculate height taking into account aspect ratio
+          Math.round(height * ratio),
+        ];
+      };
+      
+
+      var imageModule = new ImageModule(opts);
+
       const zip = new PizZip(content);
       const doc = new Docxtemplater(zip, {
         paragraphLoop: true,
-        linebreaks: true
-      });
-      doc.setData(getDataSet(dataKontrak, hps2));
+        linebreaks: true,
+        nullGetter: nullGetter,
+        //modules: [imageModule, fixDocPrCorruptionModule],
+      }).compile();
+      doc.setData(getDataSet(dataKontrak, hps2, pnw2));
+      //console.log(hps2);
       try {
         // render the document (replace all occurences of {first_name} by John, {last_name} by Doe, ...)
         doc.render();
@@ -75,8 +194,9 @@ export const generateDocument = (dataKontrak, namaFile, isPreview = false) => {
       const out = doc.getZip().generate({
         type: 'blob',
         mimeType:
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
           //'application/pdf'
-          'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+          //'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
       }); //Output the document using Data-URI
       if(isPreview){
         
@@ -221,11 +341,11 @@ function titleCase(str) {
   return splitStr.join(' '); 
 }
 
-function getDataSet(dataKontrak, hps2){
-  if(dataKontrak.tipeKontrak == '200up'){
+function getDataSet(dataKontrak, hps2, pnw2=[]){
+  if(dataKontrak.tipeKontrak == '200up' || dataKontrak.tipeKontrak == '100up'){
     return {
       namaPekerjaanCap: dataKontrak.namaPekerjaan.toUpperCase(),
-      namaPekerjaan: titleCase(dataKontrak.namaPekerjaan),
+      namaPekerjaan: dataKontrak.namaPekerjaan,
       suratPermintaanPPK: setTanggal(dataKontrak.suratPermintaanPPK),
       pengadaanBarJas: setTanggal(dataKontrak.pengadaanBarJas),
       HPS: setTanggal(dataKontrak.HPS),
@@ -321,9 +441,9 @@ function getDataSet(dataKontrak, hps2){
     }
   }
   else{
-    return {
+    var dataSet = {
       namaPekerjaanCap: dataKontrak.namaPekerjaan.toUpperCase(),
-      namaPekerjaan: titleCase(dataKontrak.namaPekerjaan),
+      namaPekerjaan: dataKontrak.namaPekerjaan,
       suratPermintaanPPK: setTanggal(dataKontrak.suratPermintaanPPK),
       pengadaanBarJas: setTanggal(dataKontrak.pengadaanBarJas),
       HPS: setTanggal(dataKontrak.HPS),
@@ -383,8 +503,6 @@ function getDataSet(dataKontrak, hps2){
       jabatanPmb1: dataKontrak.jabatanPmb1!=''?dataKontrak.jabatanPmb1:'Direktur Utama',
       jabatanPmb2: dataKontrak.jabatanPmb2!=''?dataKontrak.jabatanPmb2:'Direktur Utama',
 
-      hps: setTabelHPS(dataKontrak.TABEL),
-      hpsSUM: hps2,
       hrgtotal: commafy(dataKontrak.hrgtotal),
       hrgtotaltb: angkaTerbilang(dataKontrak.hrgtotal),
 
@@ -411,6 +529,46 @@ function getDataSet(dataKontrak, hps2){
       yearpembayaran:setTanggal(dataKontrak.pembayaran, "yy"),
 
       satPelaksanaanPkj:dataKontrak.satPlkPkj,
+      //img:[],
+      //imgHPS:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAIAAAACUFjqAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4QIJBywfp3IOswAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAAAkUlEQVQY052PMQqDQBREZ1f/d1kUm3SxkeAF/FdIjpOcw2vpKcRWCwsRPMFPsaIQSIoMr5pXDGNUFd9j8TOn7kRW71fvO5HTq6qqtnWtzh20IqE3YXtL0zyKwAROQLQ5l/c9gHjfKK6wMZjADE6s49Dver4/smEAc2CuqgwAYI5jU9NcxhHEy60sni986H9+vwG1yDHfK1jitgAAAABJRU5ErkJggg==",
+      //imgHPS:Base64String.decompress(dataKontrak.base64HPS),
     }
+
+    //if(dataKontrak.isHPSimg==true){
+    //  dataSet.imgHPS = dataKontrak.base64HPS
+    //}else if(dataKontrak.isHPSimg==false){
+      dataSet.hdrHPS = [{no: "No", desc: "Description", qty:"Quantity", unitprice: "Unit Price", total: "Total"}];
+      dataSet.hps = setTabelHPS(dataKontrak.TABEL);
+      dataSet.hpsSUM = hps2;
+      dataSet.pnw = setTabelHPS(dataKontrak.TABELPnw);
+      dataSet.pnwSUM = pnw2;
+    //}
+    //console.log(dataSet);
+    return dataSet;
   }
+}
+
+function nullGetter(part, scopeManager) {
+  /*
+      If the template is {#users}{name}{/} and a value is undefined on the
+      name property:
+
+      - part.value will be the string "name"
+      - scopeManager.scopePath will be ["users"] (for nested loops, you would have multiple values in this array, for example one could have ["companies", "users"])
+      - scopeManager.scopePathItem will be equal to the array [2] if
+        this happens for the third user in the array.
+      - part.module would be empty in this case, but it could be "loop",
+        "rawxml", or or any other module name that you use.
+  */
+
+  if (!part.module) {
+      // part.value contains the content of the tag, eg "name" in our example
+      // By returning '{' and part.value and '}', it will actually do no replacement in reality. You could also return the empty string if you prefered.
+      //return '{' + part.value + '}';
+      return '';
+  }
+  if (part.module === "rawxml") {
+      return "";
+  }
+  return "";
 }

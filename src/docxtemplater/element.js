@@ -5,6 +5,7 @@ import {
   } from 'reactstrap';
 import React from 'react';
 import loadingImg from 'assets/img/logo/loading.gif';
+import { func } from 'prop-types';
 
 export const reSatPlkPkjChooser = (selectedIdx) => {
     var options = [];
@@ -80,14 +81,24 @@ export const getDefaultSetDataKontrak = (tipe) => {
         unitprice:'',
         total:'',
         managementFee:0,
+        managementFeeHPS:0,
       
         subtotal:0,
         ppn:0,
         hrgtotal:0,
+
+        subtotalHPS:0,
+        ppnHPS:0,
+        hrgtotalHPS:0,
       
         TABEL:[],
+        TABELPnw:[],
         managementFeePctg:0,
+        managementFeePctgPnw:0,
         cb_managementFee:false,
+        cb_managementFeePnw:false,
+        isPPN:true,
+        isPPNPnw:true,
         
         suratKesanggupan:'0000-00-00',	
         namaGroupPokja:null,
@@ -112,6 +123,9 @@ export const getDefaultSetDataKontrak = (tipe) => {
         indexSatPlkPkj:0,
 
         jenisPengadaan:jenisPengadaan,
+        isHPSimg:null,
+        isPnwimg:null,
+        base64HPS:'',
       };
 }
 
@@ -148,7 +162,12 @@ export const setupTgl = (data) =>{
   data.suratKesanggupan = data.suratKesanggupan == '0000-00-00'? '1900-01-01':data.suratKesanggupan;
   data.penyelesaianPekerjaan = data.penyelesaianPekerjaan == '0000-00-00'? '1900-01-01':data.penyelesaianPekerjaan;
   data.pembayaran = data.pembayaran == '0000-00-00'? '1900-01-01':data.pembayaran;
-        
+  data.TABELPnw = data.TABELPnw == undefined ? [] : data.TABELPnw;
+  
+  data.subtotalHPS = data.subtotalHPS == undefined ? [] : data.subtotalHPS;
+  data.ppnHPS = data.ppnHPS == undefined ? [] : data.ppnHPS;
+  data.hrgtotalHPS = data.hrgtotalHPS == undefined ? [] : data.hrgtotalHPS;
+
   return data;
 }
 
@@ -167,22 +186,98 @@ export const getDashboardElmt = (tipe, elmt="") =>{
   return rtn;
 }
 
-export const autoBAPP = () => {
+export const autoBAPP = (flag="penandatangananKontrak",dataKontrak) => {
+  //const isSPK = 'penandatangananKontrak';
   var durasiPLK = document.getElementById("pelaksanaanPekerjaan").value;
   var SPK = document.getElementById("penandatangananKontrak").value;
+  var BAPP = document.getElementById("penyelesaianPekerjaan").value;
   console.log("autoBAPP: "+durasiPLK,SPK);
-  if(SPK!='' && durasiPLK!=''){
-    var arrD = SPK.split('-');
+  console.log(dataKontrak)
+  if((SPK!='' || BAPP!='') && durasiPLK!=''){
+    var isSPK;
+    if(SPK!='' && BAPP==''){ isSPK = true; console.log(true)} 
+    else if(BAPP!='' && SPK==''){ isSPK = false; console.log(false)}
+    else if(BAPP!='' && SPK!=''){ 
+      isSPK = flag=='penandatangananKontrak'?true:(flag=='pelaksanaanPekerjaan')?true:false;
+      console.log('isSPK: '+isSPK)
+    }
+
+    var arrD = isSPK?SPK.split('-') : BAPP.split('-');
     var d = new Date();
     d.setFullYear(arrD[0],arrD[1]-1,arrD[2]);
-    d.setDate(d.getDate() + Number.parseInt(durasiPLK)-1);
-    var mth = (d.getMonth()+1) < 10 ? "0"+(d.getMonth()+1) : (d.getMonth()+1); 
-    var date = d.getDate() < 10 ? "0"+(d.getDate()) : (d.getDate()); 
-    var BAPPFormated = [d.getFullYear(), mth, date].join("-");
-    console.log('BAPP: '+ BAPPFormated);
-    document.getElementById("penyelesaianPekerjaan").value = BAPPFormated;
+    var formated;
+    var dtSPK = new Date();
+    if(isSPK){
+      dtSPK.setFullYear(arrD[0],arrD[1]-1,arrD[2]);
+      d.setDate(d.getDate() + Number.parseInt(durasiPLK)-1);
+      formated = getFormattedDate(d);
+      console.log('BAPP: '+ formated);
+      dataKontrak.penyelesaianPekerjaan = formated;
+      document.getElementById("penyelesaianPekerjaan").value = formated;
+    }else{
+      d.setDate(d.getDate() - Number.parseInt(durasiPLK)+1);
+      dtSPK = d;
+      formated = getFormattedDate(d);
+      console.log('SPK: '+ formated);
+      dataKontrak.penandatangananKontrak = formated;
+      document.getElementById("penandatangananKontrak").value = formated;
+    } 
 
-    return BAPPFormated;
+    var arrElmt = [
+      {diff:1, elmt:'suratPemesanan'},
+      {diff:1, elmt:'laporanPelaksanaan'},
+      {diff:2, elmt:'suratKesanggupan'},
+      {diff:2, elmt:'penetapanPenyedia'},
+      {diff:2, elmt:'evaluasi'},
+      {diff:3, elmt:'undanganEvaluasi'},
+      {diff:2, elmt:'pengajuanPenawaran'},
+      {diff:2, elmt:'penawaranRKS'},
+      {diff:1, elmt:'HPS'},
+      {diff:1, elmt:'pengadaanBarJas'},
+      {diff:1, elmt:'suratPermintaanPPK'},
+    ]
+    
+    for(var x=0; x<arrElmt.length; x++){
+      //var isExist = document.getElementById(arrElmt[x].elmt)==undefined?false:true;
+      var isExist = !(document.getElementById(arrElmt[x].elmt).hidden)
+      if(isExist){
+        dtSPK.setDate(dtSPK.getDate() - arrElmt[x].diff);
+        var isSaturday = (dtSPK.getDay() == 6) ? true : false;
+        var isSunday = (dtSPK.getDay() == 0) ? true : false;
+        
+        if(isSaturday){
+          dtSPK.setDate(dtSPK.getDate() - 1);
+        }else if(isSunday){
+          dtSPK.setDate(dtSPK.getDate() - 2);
+        }
+        var fmt = getFormattedDate(dtSPK);
+        document.getElementById(arrElmt[x].elmt).value = fmt;
+        dataKontrak[arrElmt[x].elmt] = fmt;
+      }
+    }
+
+    var pembayaran = getFormattedPembayaran();
+    document.getElementById('pembayaran').value = pembayaran;
+    dataKontrak.pembayaran = pembayaran;
+
+    console.log(dataKontrak);
+    return dataKontrak;
   }
-  return '0000-00-00';
+  return dataKontrak;
+}
+
+function getFormattedPembayaran(){
+  var BAPP = document.getElementById("penyelesaianPekerjaan").value;
+  var arrD = BAPP.split('-');
+  var d = new Date();
+  d.setFullYear(arrD[0],arrD[1]-1,arrD[2]);
+  d.setDate(d.getDate() + 1);
+
+  return getFormattedDate(d);
+}
+function getFormattedDate(d){
+  var mth = (d.getMonth()+1) < 10 ? "0"+(d.getMonth()+1) : (d.getMonth()+1); 
+  var date = d.getDate() < 10 ? "0"+(d.getDate()) : (d.getDate()); 
+  var Formated = [d.getFullYear(), mth, date].join("-");
+  return Formated;
 }

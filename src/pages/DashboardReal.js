@@ -48,8 +48,8 @@ import { getColor } from 'utils/colors';
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
 import { Carousel } from 'react-responsive-carousel';
 const images = [
-  {src:'http://api.sikarlia.com/rest/slideshow/slideshow1.png', link:''},
-  {src:'http://api.sikarlia.com/rest/slideshow/slideshow2.png', link:''}
+  {src:'https://sikarlia.com/api/rest/slideshow/slideshow1.png', link:''},
+  {src:'https://sikarlia.com/api/rest/slideshow/slideshow2.png', link:''}
 ];
 const today = new Date();
 const lastWeek = new Date(

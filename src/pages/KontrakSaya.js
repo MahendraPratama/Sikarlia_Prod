@@ -92,34 +92,56 @@ class KontrakSaya extends React.Component {
   hitungTotal(dataKontrak, dataTabel){
     var subtot = 0;
     //console.log(tableHPS);
-    dataTabel.map((d)=>{
-      subtot += parseInt(removeComma(d.total));
-    })
-
-    var ppn = subtot * (0.1);
-    var mgmtFee = subtot * (dataKontrak.managementFeePctg/100);
-    var isMgt = dataKontrak.cb_managementFee;
-    var hrgtotal = subtot + ppn + (isMgt?mgmtFee:0);
-
-    // this.setState({
-    //   subtotal: subtot,
-    //   ppn: ppn,
-    //   managementFee: mgmtFee,
-    //   hrgtotal: hrgtotal
+    // dataTabel.map((d)=>{
+    //   subtot += parseInt(removeComma(d.total));
     // })
-
-    dataKontrak.subtotal = subtot;
-    dataKontrak.ppn = ppn;
-    dataKontrak.hrgtotal = hrgtotal;
-    dataKontrak.managementFee = mgmtFee;
+    //var subtot = 0;
+    //console.log(tableHPS);
+    //if(flag=="HPS"){
+      dataTabel.tabel.map((d)=>{
+        subtot += parseInt(removeComma(d.total));
+      })
+  
+      var preppn = subtot * (0.1);
+      var mgmtFee = subtot * (dataKontrak.managementFeePctg/100);
+      var isMgt = this.state.isManagementFee;
+      var isppn = this.state.isPPN;
+      var ppn = isMgt?(subtot+mgmtFee)*0.1:preppn;
+      var hrgtotal = subtot + (isppn?ppn:0) + (isMgt?mgmtFee:0);
+  
+     
+      dataKontrak.subtotalHPS = subtot;
+      dataKontrak.ppnHPS = ppn;
+      dataKontrak.hrgtotalHPS = hrgtotal;
+      dataKontrak.managementFeeHPS = mgmtFee;
+    //}else{
+      dataTabel.tabelPnw.map((d)=>{
+        subtot += parseInt(removeComma(d.total));
+      })
+  
+      var preppn = subtot * (0.1);
+      var mgmtFee = subtot * (dataKontrak.managementFeePctgPnw/100);
+      var isMgt = this.state.isManagementFeePnw;
+      var isppn = this.state.isPPNPnw;
+      var ppn = isMgt?(subtot+mgmtFee)*0.1:preppn;
+      var hrgtotal = subtot + (isppn?ppn:0) + (isMgt?mgmtFee:0);
+  
+     
+      dataKontrak.subtotal = subtot;
+      dataKontrak.ppn = ppn;
+      dataKontrak.hrgtotal = hrgtotal;
+      dataKontrak.managementFee = mgmtFee;
+    //}
 
     return dataKontrak;
   }
+  
   preview(idx){
     window.scrollTo(0, 0);
     document.getElementById("viewer").src = '';
     var data = this.state.data[idx];
 
+    
     data.hrgtotal = Number.parseInt(data.hrgtotal);
 
     var status = getStatusKontrak(data.tipeKontrak, data);
@@ -135,7 +157,7 @@ class KontrakSaya extends React.Component {
     var cb_mgntFee = data.cb_managementFee;
     data.cb_managementFee = cb_mgntFee=="1"?true:false;
 
-    
+    //return;
     var sat = ["hari","minggu","bulan"];
     var indexSatPlkPkj = data.indexSatPlkPkj || 0;
     data.satPlkPkj = sat[indexSatPlkPkj];
@@ -150,7 +172,8 @@ class KontrakSaya extends React.Component {
           var dataAPI = respon;
           if(dataAPI.response_code == 200){
             console.log(dataAPI.data);
-            data.TABEL = dataAPI.data;
+            data.TABEL = dataAPI.data.tabel;
+            data.TABELPnw =  dataAPI.data.tabelPnw;
             data = this.hitungTotal(data,dataAPI.data);
           }else{
             data.TABEL = [];

@@ -7,7 +7,7 @@ import { Stepper, Step } from 'react-form-stepper';
 import NotificationSystem from 'react-notification-system';
 import { NOTIFICATION_SYSTEM_STYLE } from 'utils/constants';
 import {
-  MdDelete,MdCloudUpload,MdWarning,MdEdit
+  MdDelete,MdCloudUpload,MdWarning,MdEdit,MdInfo
 } from 'react-icons/md';
 import {
   Button,
@@ -99,6 +99,7 @@ class Form50200PL extends React.Component {
         dataPerusahaan:[],
         hideChooser: true,
         isManagementFee:false,
+        isPPN:null,
 
         isEditHPS:false,
         indexEditHPS:null,
@@ -111,9 +112,11 @@ class Form50200PL extends React.Component {
   }
   componentWillUnmount(){
     dataKontrak = getDefaultSetDataKontrak(this.props.tipe);
+    tableHPS = [];
   }
   componentDidMount(){
-    dataKontrak = getDefaultSetDataKontrak(this.props.tipe)
+    dataKontrak = getDefaultSetDataKontrak(this.props.tipe);
+    tableHPS = [];
     this.setState({tipe:this.props.tipe})
     const {data} = this.props.location;
     if(!data){
@@ -145,11 +148,13 @@ class Form50200PL extends React.Component {
   
     dataKontrak.hrgtotal              = data.hrgtotal;
     dataKontrak.managementFeePctg     = data.mgmtFeePctg;
-
+    dataKontrak.isPPN                 = data.isPPN == 1 ? true:false;
+    dataKontrak.cb_managementFee      = data.cb_managementFee == 1 ? true:false;
     if(data.mgmtFeePctg){
       document.getElementById('managementFeePctg').value = data.mgmtFeePctg;
     }
     document.getElementById('cb_managementFee').checked = data.cb_managementFee == 1 ? true:false;
+    document.getElementById('isPPN').checked = data.isPPN == 1 ? true:false;
     this.setState({
       // j1   : data.suratPermintaanPPK!='0000-00-00'?false:true,
       // j2   : data.pengadaanBarJas!='0000-00-00'?false:true,
@@ -167,6 +172,7 @@ class Form50200PL extends React.Component {
 
       validasiJadwal  : data.pembayaran!='0000-00-00'?true:false,
       isManagementFee: data.cb_managementFee == 1 ? true:false,
+      isPPN: data.isPPN == 1 ? true:false,
       indexSatPlkPkj: data.indexSatPlkPkj||0,
     })
 
@@ -242,6 +248,12 @@ class Form50200PL extends React.Component {
 
     if(key=='cb_managementFee'){
       this.setState({isManagementFee:target.checked}, ()=>{
+        this.hitungTotal();
+      });
+      
+    }
+    if(key=='isPPN'){
+      this.setState({isPPN:target.checked}, ()=>{
         this.hitungTotal();
       });
       
@@ -1314,6 +1326,17 @@ class Form50200PL extends React.Component {
                             <InputGroupAddon addonType="append">%</InputGroupAddon>
                           </InputGroup>
                         </Col>
+                        <br/>
+                        <Col sm={{ size: 3 }}>
+                          <FormGroup check>
+                            <Label check>
+                              <Input  type="checkbox" id="isPPN" name="isPPN"
+                              onChange={this.handleInputChange}
+                              /> PPN 10%                              
+                            </Label>
+                          </FormGroup>
+                          <FormText><MdInfo/> hilangkan centang untuk perusahaan non PKP</FormText>
+                        </Col>
                       </FormGroup>
                     </Col>
                     <Col xl={12} lg={12} md={12}>
@@ -1361,7 +1384,7 @@ class Form50200PL extends React.Component {
                                 <th colSpan="5">{"Management Fee"}</th>
                                 <td align="right">{commafy(this.state.managementFee)}</td>
                               </tr>
-                              <tr>
+                              <tr hidden={!this.state.isPPN}>
                                 <th colSpan="5">{"PPN 10%"}</th>
                                 <td align="right">{commafy(this.state.ppn)}</td>
                               </tr>
@@ -1539,7 +1562,8 @@ class Form50200PL extends React.Component {
     var ppn = subtot * (0.1);
     var mgmtFee = subtot * (dataKontrak.managementFeePctg/100);
     var isMgt = this.state.isManagementFee;
-    var hrgtotal = subtot + ppn + (isMgt?mgmtFee:0);
+    var isppn = this.state.isPPN;
+    var hrgtotal = subtot + (isppn?ppn:0) + (isMgt?mgmtFee:0);
 
     this.setState({
       subtotal: subtot,
