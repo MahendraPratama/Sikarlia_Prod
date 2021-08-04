@@ -413,7 +413,8 @@ function getDataSet(dataKontrak, hps2, pnw2=[]){
       hpsSUM: hps2,
       hrgtotal: commafy(dataKontrak.hrgtotal),
       hrgtotaltb: angkaTerbilang(dataKontrak.hrgtotal),
-
+      pnw: setTabelHPS(dataKontrak.TABELPnw),
+      pnwSUM: pnw2,
       dayEvaluasi:setTanggal(dataKontrak.evaluasi, "day"),
       dateEvaluasi:setTanggal(dataKontrak.evaluasi, "dd"),
       monthEvaluasi:setTanggal(dataKontrak.evaluasi, "mm"),

@@ -1,7 +1,7 @@
 import Page from 'components/Page';
 import React from 'react';
 import {generateDocument} from '../docxtemplater/engine';
-import {reSatPlkPkjChooser, getDefaultSetDataKontrak, autoBAPP} from '../docxtemplater/element';
+import {reSatPlkPkjChooser, getDefaultSetDataKontrak, autoBAPP, reMgmtFeeChooser} from '../docxtemplater/element';
 import {pushKontrak} from '../server/API';
 import { Stepper, Step } from 'react-form-stepper';
 import NotificationSystem from 'react-notification-system';
@@ -129,6 +129,8 @@ class Form50200 extends React.Component {
         tipe:'',
         isHPSimg:false,
         isPenawaranimg:false,
+        isPctgMgmtFee:1,
+        isPctgMgmtFeePnw:1,
     };
     //this.handleNext = this.handleNext.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -216,18 +218,31 @@ class Form50200 extends React.Component {
     dataKontrak.managementFeePctg     = data.mgmtFeePctg;
     dataKontrak.isPPN                 = data.isPPN == 1 ? true:false;
     dataKontrak.cb_managementFee      = data.cb_managementFee == 1 ? true:false;
+    
+    dataKontrak.isPctgMgmtFee         = data.isPctgMgmtFee;
+    dataKontrak.isPctgMgmtFeePnw      = data.isPctgMgmtFeePnw;
+    dataKontrak.mgmtFeeNmnl           = data.mgmtFeeNmnl;
+    dataKontrak.mgmtFeeNmnlPnw        = data.mgmtFeeNmnlPnw;
+
+
     //dataKontrak.isHPSimg              = data.isHPSimg == 1 ? true:false;
     if(data.mgmtFeePctg){
       document.getElementById('managementFeePctg').value = data.mgmtFeePctg;
     }
     document.getElementById('cb_managementFee').checked = data.cb_managementFee == 1 ? true:false;
+    document.getElementById('cb_managementFeePnw').checked = data.cb_managementFeePnw == 1 ? true:false;
     document.getElementById('isPPN').checked = data.isPPN == 1 ? true:false;
+    document.getElementById('isPPNPnw').checked = data.isPPNPnw == 1 ? true:false;
     //document.getElementById('chooserTipeHPS').selectedIndex = data.isHPSimg == null ? 0:(data.isHPSimg==1?2:1);
     this.setState({
 
       validasiJadwal  : data.pembayaran!='0000-00-00'?true:false,
       isManagementFee: data.cb_managementFee == 1 ? true:false,
+      isManagementFeePnw: data.cb_managementFeePnw == 1 ? true:false,
       isPPN: data.isPPN == 1 ? true:false,
+      isPPNPnw: data.isPPNPnw == 1 ? true:false,
+      isPctgMgmtFee: data.isPctgMgmtFee,
+      isPctgMgmtFeePnw: data.isPctgMgmtFeePnw,
       //isHPSimg: data.isHPSimg == 1 ? true:false,
       indexSatPlkPkj: data.indexSatPlkPkj||0,
     })
@@ -270,6 +285,11 @@ class Form50200 extends React.Component {
     document.getElementById("pokja4").value         = data.pokja4;
     document.getElementById("pokja5").value         = data.pokja5;
     document.getElementById("nipPokja1").value         = data.nipPokja1;
+
+    document.getElementById("chooserMgmtFee").selectedIndex         = data.isPctgMgmtFee;
+    document.getElementById("chooserMgmtFeePnw").selectedIndex         = data.isPctgMgmtFeePnw;
+    document.getElementById("mgmtFeeNmnl").value         = data.mgmtFeeNmnl;
+    document.getElementById("mgmtFeeNmnlPnw").value         = data.mgmtFeeNmnlPnw;
     
     if(this.props.tipe == "200up"){
       if(data.jenisPengadaan == "Barang"){
@@ -419,6 +439,21 @@ class Form50200 extends React.Component {
       this.setState({[key]:''});
       //console.log(event.target.files[0]);
       this.getFile(event.target.files[0],key);
+    }
+    if(key=='chooserMgmtFee'){
+      dataKontrak.isPctgMgmtFee = value;
+      this.setState({isPctgMgmtFee: value});
+    }
+    if(key=='chooserMgmtFeePnw'){
+      dataKontrak.isPctgMgmtFeePnw = value;
+      this.setState({isPctgMgmtFeePnw: value});
+    }
+    if(key=="mgmtFeeNmnl" || key=="mgmtFeeNmnlPnw"){
+      const newVal = value.replace(/\+|-|[A-Z]|\W/ig, '');///^\d*\.?\d*$/.test(value);
+      dataKontrak[key] = newVal;
+      document.getElementById(key).value = commafy(newVal);
+      var flag = (key=='mgmtFeeNmnl')?"HPS":"Pnw";
+      this.hitungTotal(flag);
     }
   }
   getFile(file,keyname){
@@ -670,7 +705,6 @@ class Form50200 extends React.Component {
       //return;
     }
     
-    //wexreturn;
     //var dt = pushKontrak(dataKontrak);
     const requestOptions = {
       method: 'POST',
@@ -1156,7 +1190,7 @@ class Form50200 extends React.Component {
                         </Col>
                       </FormGroup>
                       <FormGroup row 
-                        style={{display:this.props.tipe=="100up"||this.props.tipe=='200up'?'block':'none'}}
+                        hidden={this.props.tipe=="100up"||this.props.tipe=='200up'?false:true}
                       >
                         <Label sm={1} style={{maxWidth:'4%'}}>9</Label>
                         <Label for="suratKesanggupan" sm={6}>
@@ -1718,7 +1752,17 @@ class Form50200 extends React.Component {
                               /> Management Fee                              
                             </Label>
                           </FormGroup>
-                          <InputGroup style={{width:'100px'}}>
+                          <Input 
+                            type="select" name="chooserMgmtFee" 
+                            id="chooserMgmtFee" 
+                            onChange={this.handleInputChange}
+                            selectedIndex={this.state.isPctgMgmtFee}
+                          >
+                            <option value="0">Nominal</option>
+                            <option value="1">Percentage</option>
+                          </Input>
+                          <br/>
+                          <InputGroup style={{width:'100px'}} hidden={this.state.isPctgMgmtFee==0?true:false}>
                             <Input
                               type='number'
                               name="managementFeePctg"
@@ -1726,6 +1770,14 @@ class Form50200 extends React.Component {
                               onChange={this.handleInputChange}
                             />
                             <InputGroupAddon addonType="append">%</InputGroupAddon>
+                          </InputGroup>
+                          <InputGroup style={{width:'200px'}} hidden={this.state.isPctgMgmtFee==1?true:false}>
+                            <Input
+                              type='text'
+                              name="mgmtFeeNmnl"
+                              id="mgmtFeeNmnl"
+                              onChange={this.handleInputChange}
+                            />
                           </InputGroup>
                         </Col>
                         <br/>
@@ -2052,7 +2104,17 @@ class Form50200 extends React.Component {
                               /> Management Fee                              
                             </Label>
                           </FormGroup>
-                          <InputGroup style={{width:'100px'}}>
+                          <Input 
+                            type="select" name="chooserMgmtFeePnw" 
+                            id="chooserMgmtFeePnw" 
+                            onChange={this.handleInputChange}
+                          
+                          >
+                            <option value="0">Nominal</option>
+                            <option value="1">Percentage</option>
+                          </Input>
+                          <br/>
+                          <InputGroup style={{width:'100px'}} hidden={this.state.isPctgMgmtFeePnw==0?true:false}>
                             <Input
                               type='number'
                               name="managementFeePctgPnw"
@@ -2060,6 +2122,14 @@ class Form50200 extends React.Component {
                               onChange={this.handleInputChange}
                             />
                             <InputGroupAddon addonType="append">%</InputGroupAddon>
+                          </InputGroup>
+                          <InputGroup style={{width:'200px'}} hidden={this.state.isPctgMgmtFeePnw==1?true:false}>
+                            <Input
+                              type='text'
+                              name="mgmtFeeNmnlPnw"
+                              id="mgmtFeeNmnlPnw"
+                              onChange={this.handleInputChange}
+                            />
                           </InputGroup>
                         </Col>
                         <br/>
@@ -2297,7 +2367,6 @@ class Form50200 extends React.Component {
       </header>
     );
   }//endof render
-
   renderBtnSaveDraft(){
     var val = this.state.stateBtnSave;
     return(
@@ -2525,7 +2594,8 @@ class Form50200 extends React.Component {
       })
   
       var preppn = subtot * (0.1);
-      var mgmtFee = subtot * (dataKontrak.managementFeePctg/100);
+      var preMgmtFee = subtot * (dataKontrak.managementFeePctg/100);
+      var mgmtFee = this.state.isPctgMgmtFee == 1 ? preMgmtFee : parseInt(dataKontrak.mgmtFeeNmnl||0);
       var isMgt = this.state.isManagementFee;
       var isppn = this.state.isPPN;
       var ppn = isMgt?(subtot+mgmtFee)*0.1:preppn;
@@ -2548,7 +2618,8 @@ class Form50200 extends React.Component {
       })
   
       var preppn = subtot * (0.1);
-      var mgmtFee = subtot * (dataKontrak.managementFeePctgPnw/100);
+      var preMgmtFee = subtot * (dataKontrak.managementFeePctgPnw/100);
+      var mgmtFee = this.state.isPctgMgmtFeePnw == 1 ? preMgmtFee : parseInt(dataKontrak.mgmtFeeNmnlPnw||0);
       var isMgt = this.state.isManagementFeePnw;
       var isppn = this.state.isPPNPnw;
       var ppn = isMgt?(subtot+mgmtFee)*0.1:preppn;

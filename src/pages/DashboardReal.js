@@ -6,7 +6,7 @@ import ProductMedia from 'components/ProductMedia';
 import SupportTicket from 'components/SupportTicket';
 import UserProgressTable from 'components/UserProgressTable';
 import { IconWidget, NumberWidget } from 'components/Widget';
-import {getDashboardElmt} from '../docxtemplater/element';
+import {getDashboardElmt, modalInfo} from '../docxtemplater/element';
 import { getStackLineChart, stackLineChartOptions } from 'demos/chartjs';
 import {
   avatarsData,
@@ -41,7 +41,7 @@ import {
   CardTitle,
   Col,
   ListGroup,
-  ListGroupItem, Table,
+  ListGroupItem, Table,Modal,ModalBody, ModalFooter,
   Row,
 } from 'reactstrap';
 import { getColor } from 'utils/colors';
@@ -96,7 +96,8 @@ class DashboardPage extends React.Component {
       search:'',
       Data: [],
       sumAllKontrak:0,
-      dataRender:[]
+      dataRender:[],
+      modalInfo:false
     };
     
   }
@@ -106,6 +107,11 @@ class DashboardPage extends React.Component {
     }
     // this is needed, because InfiniteCalendar forces window scroll
     window.scrollTo(0, 0);
+    var isPopUp = localStorage.getItem("sudahMunculInfo");
+    if(isPopUp == null){
+      this.setState({modalInfo:true})
+      localStorage.setItem("sudahMunculInfo",1)
+    }
     this.loadDashboard();
   }
 
@@ -166,6 +172,32 @@ class DashboardPage extends React.Component {
         title="Dashboard"
         breadcrumbs={[{ name: 'Dashboard', active: true }]}
       >
+        <Modal
+          id={'modalInfo'}
+          style={{
+            position: 'absolute',
+            float: 'left',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)'
+          }}
+          isOpen={this.state.modalInfo}
+          >
+
+          <ModalBody>
+            <img 
+            style={{width:'100%'}}
+            src={'https://sikarlia.com/api/rest/pengumuman/update11.gif'}></img>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="secondary" onClick={()=>{
+              this.setState({modalInfo:false})
+              
+            }}>
+              Close
+            </Button>
+          </ModalFooter>
+        </Modal>
         <Row>
         {this.state.Data.map(
           (x,{ bgColor, icon, title, subtitle, jml, ...restProps }, index) => (

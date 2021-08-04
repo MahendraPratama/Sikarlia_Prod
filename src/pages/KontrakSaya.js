@@ -103,9 +103,10 @@ class KontrakSaya extends React.Component {
       })
   
       var preppn = subtot * (0.1);
-      var mgmtFee = subtot * (dataKontrak.managementFeePctg/100);
-      var isMgt = this.state.isManagementFee;
-      var isppn = this.state.isPPN;
+      var preMgmtFee = subtot * (dataKontrak.managementFeePctg/100);
+      var mgmtFee = dataKontrak.isPctgMgmtFee == 1 ? preMgmtFee : parseInt(dataKontrak.mgmtFeeNmnl||0);
+      var isMgt = dataKontrak.cb_managementFee==1?true:false;
+      var isppn = dataKontrak.isPPN==1?true:false;
       var ppn = isMgt?(subtot+mgmtFee)*0.1:preppn;
       var hrgtotal = subtot + (isppn?ppn:0) + (isMgt?mgmtFee:0);
   
@@ -115,19 +116,22 @@ class KontrakSaya extends React.Component {
       dataKontrak.hrgtotalHPS = hrgtotal;
       dataKontrak.managementFeeHPS = mgmtFee;
     //}else{
+      var subtotHPS = 0;
       dataTabel.tabelPnw.map((d)=>{
-        subtot += parseInt(removeComma(d.total));
+        subtotHPS += parseInt(removeComma(d.total));
       })
   
-      var preppn = subtot * (0.1);
-      var mgmtFee = subtot * (dataKontrak.managementFeePctgPnw/100);
-      var isMgt = this.state.isManagementFeePnw;
-      var isppn = this.state.isPPNPnw;
-      var ppn = isMgt?(subtot+mgmtFee)*0.1:preppn;
-      var hrgtotal = subtot + (isppn?ppn:0) + (isMgt?mgmtFee:0);
+      var preppn = subtotHPS * (0.1);
+      var preMgmtFee = subtotHPS * (dataKontrak.managementFeePctgPnw/100);
+      var mgmtFee = dataKontrak.isPctgMgmtFeePnw == 1 ? preMgmtFee : parseInt(dataKontrak.mgmtFeeNmnlPnw||0);
+      //var mgmtFee = subtotHPS * (dataKontrak.managementFeePctgPnw/100);
+      var isMgt = dataKontrak.cb_managementFeePnw==1?true:false;
+      var isppn = dataKontrak.isPPNPnw==1?true:false;
+      var ppn = isMgt?(subtotHPS+mgmtFee)*0.1:preppn;
+      var hrgtotal = subtotHPS + (isppn?ppn:0) + (isMgt?mgmtFee:0);
   
      
-      dataKontrak.subtotal = subtot;
+      dataKontrak.subtotal = subtotHPS;
       dataKontrak.ppn = ppn;
       dataKontrak.hrgtotal = hrgtotal;
       dataKontrak.managementFee = mgmtFee;
@@ -142,7 +146,7 @@ class KontrakSaya extends React.Component {
     var data = this.state.data[idx];
 
     
-    data.hrgtotal = Number.parseInt(data.hrgtotal);
+    data.hrgtotal = parseInt(data.hrgtotal||0);
 
     var status = getStatusKontrak(data.tipeKontrak, data);
     var tipe = getNamaTipeKontrak(data.tipeKontrak);
@@ -175,11 +179,17 @@ class KontrakSaya extends React.Component {
             data.TABEL = dataAPI.data.tabel;
             data.TABELPnw =  dataAPI.data.tabelPnw;
             data = this.hitungTotal(data,dataAPI.data);
-          }else{
+          }
+          else{
             data.TABEL = [];
+            data.TABELPnw = [];
             data.subtotal = 0;
             data.ppn = 0;
-            //data.hrgtotal = 0;
+            data.hrgtotal = 0;
+            data.subtotalHPS = 0;
+            data.ppnHPS = 0;
+            data.hrgtotalHPS = 0;
+            data.managementFeeHPS = 0;
             data.managementFee = 0;
           }
           data = setupTgl(data);
@@ -335,6 +345,7 @@ class KontrakSaya extends React.Component {
                       <Button size="sm" color="success"
                         onClick={()=>{
                           var dt = this.state.dataToGenerate;
+                          console.log(dt);
                           generateDocument(dt,fileMaster[dt.tipeKontrak]);
                         }}
                       > Unduh DOCX</Button>

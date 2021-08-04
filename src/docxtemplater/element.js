@@ -1,7 +1,7 @@
 import {
     Button,Card,CardBody,CardHeader,Col,
     Form,FormFeedback,FormGroup, InputGroup, InputGroupAddon,
-    FormText,Input,Label,Row,Table,Modal,ModalBody
+    FormText,Input,Label,Row,Table,Modal,ModalBody, ModalFooter
   } from 'reactstrap';
 import React from 'react';
 import loadingImg from 'assets/img/logo/loading.gif';
@@ -27,7 +27,23 @@ export const reSatPlkPkjChooser = (selectedIdx) => {
       </div>
     )
   }
-
+export const reMgmtFeeChooser = (selectedIdx) => {
+  var options = [];
+  var data = ["Nominal","Percentage"];
+  for(var i = 0; i < data.length; i++){
+    options.push(<option selected={(i==selectedIdx?true:false)} key={i} value={data[i]}>{data[i]}</option>)
+  }
+  return (
+    <div>
+    <Input 
+      type="select" name="chooserMgmtFee" 
+      id="chooserMgmtFee" 
+    >
+      {options}
+    </Input>
+    </div>
+  )
+}
 export const modalLoading = (state) =>{
   return <Modal
     style={{
@@ -43,6 +59,37 @@ export const modalLoading = (state) =>{
     <ModalBody>
       <img src={loadingImg}></img>
     </ModalBody>
+  </Modal>
+}
+
+export const modalInfo = (state) =>{
+  return <Modal
+    id={'modalInfo'}
+    style={{
+      position: 'absolute',
+      float: 'left',
+      left: '50%',
+      top: '50%',
+      transform: 'translate(-50%, -50%)'
+    }}
+    isOpen={state}
+    toggle={state}
+    >
+
+    <ModalBody>
+      <img 
+      style={{width:'100%'}}
+      src={'https://sikarlia.com/api/rest/pengumuman/update11.gif'}></img>
+    </ModalBody>
+    <ModalFooter>
+      <Button color="secondary" onClick={()=>{
+        var prt = document.getElementById("modalInfo").parentElement;
+        console.log(this)
+        //prt.style = {display:'none'}
+      }}>
+        Close
+      </Button>
+    </ModalFooter>
   </Modal>
 }
 
@@ -126,6 +173,11 @@ export const getDefaultSetDataKontrak = (tipe) => {
         isHPSimg:null,
         isPnwimg:null,
         base64HPS:'',
+
+        isPctgMgmtFee:1,
+        isPctgMgmtFeePnw:1,
+        mgmtFeeNmnl:0,
+        mgmtFeeNmnlPnw:0,
       };
 }
 

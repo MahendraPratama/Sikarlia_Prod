@@ -7,8 +7,17 @@ import {
 } from 'react-icons/md';
 import NotificationSystem from 'react-notification-system';
 import { NOTIFICATION_SYSTEM_STYLE } from 'utils/constants';
+import {modalInfo} from '../../docxtemplater/element';
 
 class MainLayout extends React.Component {
+  constructor(props){
+    super(props)
+    this.state = {
+      modalInfo:false
+    };
+    
+  }
+
   static isSidebarOpen() {
     return document
       .querySelector('.cr-sidebar')
@@ -41,6 +50,7 @@ class MainLayout extends React.Component {
         });
       }, 1500,()=>{
         localStorage.setItem("sudahPopUp",1)
+        this.setState({modalInfo:false})
       });
     }
 
@@ -104,7 +114,7 @@ class MainLayout extends React.Component {
           {children}
           <Footer />
         </Content>
-
+        
         <NotificationSystem
           dismissible={false}
           ref={notificationSystem =>
