@@ -53,7 +53,7 @@ class Slider extends React.Component {
     };
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleKeyDown = this.handleKeyDown.bind(this);
-    this.timeout =  0;
+    this.timeout = 0;
   }
 
   componentDidMount(){

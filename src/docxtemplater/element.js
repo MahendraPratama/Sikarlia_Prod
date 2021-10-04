@@ -79,7 +79,7 @@ export const modalInfo = (state) =>{
     <ModalBody>
       <img 
       style={{width:'100%'}}
-      src={'https://sikarlia.com/api/rest/pengumuman/update11.gif'}></img>
+      src={'https://sikarlia.com/api/rest/pengumuman/Update%20SIKARLIA%201_2.gif'}></img>
     </ModalBody>
     <ModalFooter>
       <Button color="secondary" onClick={()=>{
@@ -262,6 +262,18 @@ export const autoBAPP = (flag="penandatangananKontrak",dataKontrak) => {
     if(isSPK){
       dtSPK.setFullYear(arrD[0],arrD[1]-1,arrD[2]);
       d.setDate(d.getDate() + Number.parseInt(durasiPLK)-1);
+      var isSaturday = (d.getDay() == 6) ? true : false;
+      var isSunday = (d.getDay() == 0) ? true : false;
+        
+        if(isSaturday){
+          d.setDate(d.getDate() + 2);
+        }
+        else if(isSunday){
+          d.setDate(d.getDate() + 1);
+        }
+        else{
+          //d.setDate(d.getDate() + Number.parseInt(durasiPLK)-1);
+        }
       formated = getFormattedDate(d);
       console.log('BAPP: '+ formated);
       dataKontrak.penyelesaianPekerjaan = formated;
@@ -285,7 +297,7 @@ export const autoBAPP = (flag="penandatangananKontrak",dataKontrak) => {
       {diff:2, elmt:'pengajuanPenawaran'},
       {diff:2, elmt:'penawaranRKS'},
       {diff:1, elmt:'HPS'},
-      {diff:1, elmt:'pengadaanBarJas'},
+      {diff:0, elmt:'pengadaanBarJas'},
       {diff:1, elmt:'suratPermintaanPPK'},
     ]
     
@@ -324,7 +336,18 @@ function getFormattedPembayaran(){
   var d = new Date();
   d.setFullYear(arrD[0],arrD[1]-1,arrD[2]);
   d.setDate(d.getDate() + 1);
-
+  var isSaturday = (d.getDay() == 6) ? true : false;
+  var isSunday = (d.getDay() == 0) ? true : false;
+    
+    if(isSaturday){
+      d.setDate(d.getDate() + 2);
+    }
+    else if(isSunday){
+      d.setDate(d.getDate() + 1);
+    }
+    else{
+      //d.setDate(d.getDate() + Number.parseInt(durasiPLK)-1);
+    }
   return getFormattedDate(d);
 }
 function getFormattedDate(d){

@@ -33,6 +33,7 @@ class KontrakSaya extends React.Component {
     super(props)
     this.state = {
       userid:null,
+      usertype:localStorage.getItem("user_type"),
       password:false,
       data: [],
       dataToEdit:[],
@@ -69,22 +70,23 @@ class KontrakSaya extends React.Component {
     // console.log(url);
   }
   loadData(){
+    const {usertype} = this.state;
     this.setState({data:[],modal:true})
     const requestOptions = {
       method: 'POST',
       //headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userid: localStorage.getItem("user_session"), search: this.state.search })
+      body: JSON.stringify({ userid: localStorage.getItem("user_session"), usertype: usertype, search: this.state.search })
     };
     fetch(process.env.REACT_APP_URL_API+'/rest/viewKontrak.php', requestOptions)
         .then(response => response.json())
         .then(respon => {
           var dataAPI = respon;
-          this.setState({modal:false})
+          this.setState({modal:false});
           if(dataAPI.response_code != 200){
             this.setState({ message: dataAPI.message });
           }else{
             this.setState({ data: dataAPI.data, dataRender:dataAPI.data, dataToEdit: dataAPI.data });
-            this.handlePageChange(1)
+            this.handlePageChange(1);
           }
         });
   }
@@ -279,7 +281,7 @@ class KontrakSaya extends React.Component {
     }
   }
   render(){
-    const {activePage, itemPerPage} = this.state;
+    const {activePage, itemPerPage, usertype} = this.state;
     return (
       <Page
         title="Kontrak Saya"
@@ -337,6 +339,7 @@ class KontrakSaya extends React.Component {
                   <Row>
                     <Col>
                       <Button size="sm" color="secondary"
+                        hidden={usertype==2?false:true}
                         onClick={()=>{
                           var id = this.state.choosedIdx;
                           this.gotoEdit(id);
@@ -384,18 +387,21 @@ class KontrakSaya extends React.Component {
                   <thead>
                     <tr>
                       <th>No</th>
+                      <th hidden={usertype==2? true:false}>User</th>
                       <th style={{width: "450px"}}>Nama Pekerjaan</th>
                       <th align="centre">Nilai Kontrak</th>
                       <th>Perusahaan Pemenang</th>
                       <th>Tipe Kontrak</th>
                       <th>Tanggal Input</th>
                       <th style={{width:"140px"}}>Action</th>
+                      
                     </tr>
                   </thead>
                   <tbody>
                     {this.state.dataRender.map((dt,index)=>(
                       <tr style={{backgroundColor:(index%2==0)?"#eff4fc":"#fff", height:60}} key={index}>
                         <td scope="row">{((activePage*itemPerPage)-itemPerPage) + index+1}</td>
+                        <td hidden={usertype==2? true:false}>{dt.name}</td>
                         <td>{dt.namaPekerjaan}</td>
                         <td>{commafy(dt.hrgtotal)}</td>
                         <td>{dt.namaPerusahaan}</td>
@@ -412,6 +418,7 @@ class KontrakSaya extends React.Component {
                             size="sm"
                           ><MdPageview/></Button>&nbsp;                               
                           <Button 
+                            hidden={usertype==2?false:true}
                             title="Ubah Kontrak"
                             color="secondary"
                             onClick={()=>{this.gotoEdit(((activePage*itemPerPage)-itemPerPage) + index)}}

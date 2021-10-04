@@ -128,6 +128,7 @@ class Sidebar extends React.Component {
     var isAdmin = userType == 1 || userType == 0;
     if(isAdmin){
       return (
+        <div>
         <NavItem key={1} className={bem.e('nav-item')}>
           <BSNavLink
           style={{color:"#000"}}
@@ -142,12 +143,27 @@ class Sidebar extends React.Component {
             <span className="sideItm">{'Users'}</span>
           </BSNavLink>
         </NavItem>
+        <NavItem key={1} className={bem.e('nav-item')}>
+          <BSNavLink
+            style={{color:"#000"}}
+            id={`navItem-${'kontraksaya'}-${1}`}
+            //className="text-uppercase"
+            tag={NavLink}
+            to={'/kontraksaya'}
+            activeClassName="active"
+            exact={true}
+          >
+            <MdRateReview style={{color:"#146df3"}} className={bem.e('nav-item-icon')} />
+            <span className="sideItm">{'Semua Kontrak'}</span>
+          </BSNavLink>
+        </NavItem>
+        </div>
       );
     }else{
       return (
         <NavItem key={1} className={bem.e('nav-item')}>
           <BSNavLink
-          style={{color:"#000"}}
+            style={{color:"#000"}}
             id={`navItem-${'kontraksaya'}-${1}`}
             //className="text-uppercase"
             tag={NavLink}

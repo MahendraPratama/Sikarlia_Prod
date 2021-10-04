@@ -28,6 +28,7 @@ import {
 import { fstat } from 'fs';
 var tableHPS = [];
 var tablePnwrn = [];
+var tblPenampung = [];
 const urlFile= 'https://drive.google.com/u/0/uc?id=15uCHB-w4Xhz-pQAqwBzcil3AoRZB7f6U&export=download';
 const path = window.location.origin  + '/kontrak50_200.docx';
 const urlLocal = 'https://localhost/docxtemplate/kontrak50_200.docx';
@@ -129,8 +130,9 @@ class Form50200 extends React.Component {
         tipe:'',
         isHPSimg:false,
         isPenawaranimg:false,
-        isPctgMgmtFee:1,
-        isPctgMgmtFeePnw:1,
+        isPctgMgmtFee:0,
+        isPctgMgmtFeePnw:0,
+        overNilai:false,
     };
     //this.handleNext = this.handleNext.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -216,8 +218,10 @@ class Form50200 extends React.Component {
 
     dataKontrak.hrgtotal              = data.hrgtotal;
     dataKontrak.managementFeePctg     = data.mgmtFeePctg;
+    dataKontrak.managementFeePctgPnw  = data.mgmtFeePctgPnw;
     dataKontrak.isPPN                 = data.isPPN == 1 ? true:false;
     dataKontrak.cb_managementFee      = data.cb_managementFee == 1 ? true:false;
+    dataKontrak.cb_managementFeePnw   = data.cb_managementFeePnw == 1 ? true:false;
     
     dataKontrak.isPctgMgmtFee         = data.isPctgMgmtFee;
     dataKontrak.isPctgMgmtFeePnw      = data.isPctgMgmtFeePnw;
@@ -228,6 +232,9 @@ class Form50200 extends React.Component {
     //dataKontrak.isHPSimg              = data.isHPSimg == 1 ? true:false;
     if(data.mgmtFeePctg){
       document.getElementById('managementFeePctg').value = data.mgmtFeePctg;
+    }
+    if(data.mgmtFeePctgPnw){
+      document.getElementById('managementFeePctgPnw').value = data.mgmtFeePctgPnw;
     }
     document.getElementById('cb_managementFee').checked = data.cb_managementFee == 1 ? true:false;
     document.getElementById('cb_managementFeePnw').checked = data.cb_managementFeePnw == 1 ? true:false;
@@ -378,7 +385,7 @@ class Form50200 extends React.Component {
     if(key=='isPPN' || key=='isPPNPnw'){
       var flag = (key=='isPPN')?"HPS":"Pnw";
       var fState = (key=='isPPN')?"isPPN":"isPPNPnw";
-      this.setState({[fState]:target.checked}, ()=>{
+      this.setState({isPPN:target.checked,isPPNPnw:target.checked}, ()=>{
         this.hitungTotal(flag);
       });
     }
@@ -704,7 +711,7 @@ class Form50200 extends React.Component {
       generateDocument(dataKontrak,this.getnameFile());
       //return;
     }
-    
+    //return;
     //var dt = pushKontrak(dataKontrak);
     const requestOptions = {
       method: 'POST',
@@ -1256,7 +1263,7 @@ class Form50200 extends React.Component {
                         </Label>
                         <Col sm={3}>
                           <Input
-                          disabled={this.state.j11}
+                            disabled={this.state.j11}
                             type="date"
                             name="penandatangananKontrak"
                             id="penandatangananKontrak"
@@ -1862,7 +1869,7 @@ class Form50200 extends React.Component {
                         <Col sm={4} className="d-flex justify-content-end">
                           <Button color="danger" onClick={()=>this.handleNext(2)}>Kembali</Button> &nbsp;
                           {this.renderBtnSaveDraft()} &nbsp;
-                          <Button color="primary" onClick={()=> this.handleNext(4)}>Selanjutnya</Button>
+                          <Button disabled={this.state.overNilai} color="primary" onClick={()=> this.handleNext(4)}>Selanjutnya</Button>
                         </Col>
                       </FormGroup>
                     </Col>
@@ -1981,10 +1988,12 @@ class Form50200 extends React.Component {
                         <Col sm={7}>
                           <Button color="secondary" onClick={()=> 
                           {
-                            tablePnwrn = tableHPS;
-                            this.setState({TABELPnw: tablePnwrn})
-                            dataKontrak.TABELPnw = tablePnwrn;
-                            this.hitungTotal();
+                            this.handleImportdataFormHPS();
+                            // console.log("import");
+                            // tablePnwrn = tableHPS;
+                            // this.setState({TABELPnw: tablePnwrn})
+                            // dataKontrak.TABELPnw = tablePnwrn;
+                            // this.hitungTotal();
                           }}>Import dari HPS</Button>
                         </Col>
                       </FormGroup>
@@ -2214,8 +2223,8 @@ class Form50200 extends React.Component {
                         <Col sm={4} className="d-flex justify-content-end">
                           <Button color="danger" onClick={()=>this.handleNext(3)}>Kembali</Button> &nbsp;
                           {this.renderBtnSaveDraft()} &nbsp;
-                          {this.isUp200()?<Button color="primary" onClick={()=> this.handleNext(5)}>Selanjutnya</Button>:
-                          <Button color="secondary" onClick={()=> this.handleSubmit("generate")}>Unduh DOCX</Button>
+                          {this.isUp200()?<Button disabled={this.state.overNilai} color="primary" onClick={()=> this.handleNext(5)}>Selanjutnya</Button>:
+                          <Button disabled={this.state.overNilai} color="secondary" onClick={()=> this.handleSubmit("generate")}>Unduh DOCX</Button>
                           }
                           
                         </Col>
@@ -2367,6 +2376,13 @@ class Form50200 extends React.Component {
       </header>
     );
   }//endof render
+  handleImportdataFormHPS(){
+    tblPenampung = tableHPS.slice(); 
+    tablePnwrn = tblPenampung.slice();
+    this.setState({TABELPnw: tblPenampung});
+    dataKontrak.TABELPnw = tblPenampung;
+    this.hitungTotal();
+  }
   renderBtnSaveDraft(){
     var val = this.state.stateBtnSave;
     return(
@@ -2383,6 +2399,7 @@ class Form50200 extends React.Component {
   }
   handleEditRowHPS(idx, flag="Pnw"){
     var dr = (flag=="HPS")?tableHPS[idx]:tablePnwrn[idx];
+    console.log(dataKontrak);
     if(flag=="HPS"){
       document.getElementById('descr').value = dr.descr;
       document.getElementById('qty').value = dr.qty;
@@ -2486,15 +2503,16 @@ class Form50200 extends React.Component {
       total: commafy(total),
     }
 
+    console.log("iseditHPS:" + this.state.isEditHPS + " iseditPNW: " + this.state.isEditPnw)
     if(this.state.isEditHPS && flag=="HPS"){
       console.log("masuk edit hps");
       tableHPS[this.state.indexEditHPS] = rowHPS;
-      this.setState({isEditHPS:false})
+      this.setState({isEditHPS:false});
     }
     else if(this.state.isEditPnw && flag=="Pnw"){
       console.log("masuk edit pnw");
       tablePnwrn[this.state.indexEditPnw] = rowHPS;
-      this.setState({isEditPnw:false})
+      this.setState({isEditPnw:false});
     }
     else{
       if(flag=="HPS"){
@@ -2505,10 +2523,12 @@ class Form50200 extends React.Component {
     }
     
     if(flag=="HPS"){
-      this.setState({TABEL: tableHPS})
+      console.log("masuk flag HPS");
+      this.setState({TABEL: tableHPS});
       dataKontrak.TABEL = tableHPS;
-    }else{
-      this.setState({TABELPnw: tablePnwrn})
+    }else if(flag=="Pnw"){
+      console.log("masuk flag PNW");
+      this.setState({TABELPnw: tablePnwrn});
       dataKontrak.TABELPnw = tablePnwrn;
     }
     this.hitungTotal(flag);
@@ -2532,6 +2552,7 @@ class Form50200 extends React.Component {
     document.getElementById('freqPnw').value = '';
     document.getElementById('unitpricePnw').value = '';
     document.getElementById('totalPnw').value = '';
+    console.log(dataKontrak);
   }
 
   handelDeleteRowHPS(index,flag="Pnw"){
@@ -2572,17 +2593,20 @@ class Form50200 extends React.Component {
       setTimeout(() => {
         this.notificationSystem.addNotification({
           title: <MdWarning />,
-          message: 'Sistem otomatis menghapus data penawaran terakhir',
+          message: 'Batas maksimum yaitu ' + commafy(batasMaks),
           level: 'error',
         });
       }, 1000); 
       
-      if(flag=="HPS"){
-        var idx = this.state.TABEL.length;
-      }else{
-        var idx = this.state.TABELPnw.length;
-      }
-      this.handelDeleteRowHPS(idx-1,flag);
+      this.setState({overNilai:true});
+      // if(flag=="HPS"){
+      //   var idx = this.state.TABEL.length;
+      // }else{
+      //   var idx = this.state.TABELPnw.length;
+      // }
+      // this.handelDeleteRowHPS(idx-1,flag);
+    }else{
+      this.setState({overNilai:false});
     }
   }
   hitungTotal(flag="Pnw"){
@@ -2593,12 +2617,12 @@ class Form50200 extends React.Component {
         subtot += parseInt(removeComma(d.total));
       })
   
-      var preppn = subtot * (0.1);
-      var preMgmtFee = subtot * (dataKontrak.managementFeePctg/100);
+      var preppn = Math.ceil(subtot * (0.1));
+      var preMgmtFee = Math.ceil(subtot * (dataKontrak.managementFeePctg/100));
       var mgmtFee = this.state.isPctgMgmtFee == 1 ? preMgmtFee : parseInt(dataKontrak.mgmtFeeNmnl||0);
       var isMgt = this.state.isManagementFee;
       var isppn = this.state.isPPN;
-      var ppn = isMgt?(subtot+mgmtFee)*0.1:preppn;
+      var ppn = isMgt?Math.ceil((subtot+mgmtFee)*0.1):preppn;
       var hrgtotal = subtot + (isppn?ppn:0) + (isMgt?mgmtFee:0);
   
       this.setState({
@@ -2617,12 +2641,12 @@ class Form50200 extends React.Component {
         subtot += parseInt(removeComma(d.total));
       })
   
-      var preppn = subtot * (0.1);
-      var preMgmtFee = subtot * (dataKontrak.managementFeePctgPnw/100);
+      var preppn = Math.ceil(subtot * (0.1));
+      var preMgmtFee = Math.ceil(subtot * (dataKontrak.managementFeePctgPnw/100));
       var mgmtFee = this.state.isPctgMgmtFeePnw == 1 ? preMgmtFee : parseInt(dataKontrak.mgmtFeeNmnlPnw||0);
       var isMgt = this.state.isManagementFeePnw;
       var isppn = this.state.isPPNPnw;
-      var ppn = isMgt?(subtot+mgmtFee)*0.1:preppn;
+      var ppn = isMgt?Math.ceil((subtot+mgmtFee)*0.1):preppn;
       var hrgtotal = subtot + (isppn?ppn:0) + (isMgt?mgmtFee:0);
   
       this.setState({
