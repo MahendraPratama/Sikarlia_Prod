@@ -11,7 +11,7 @@ import loadingImg from 'assets/img/logo/loading.gif';
 import {getDefaultSetDataKontrak, modalLoading, getStatusKontrak, setupTgl} from '../docxtemplater/element';
 import {OutTable, ExcelRenderer} from 'react-excel-renderer';
 import {
-  MdDelete,MdCloudUpload,MdWarning,MdEdit,MdCheckCircle,MdSearch,MdPageview,MdDescription,MdClose
+  MdDelete,MdCloudUpload,MdWarning,MdEdit,MdCheckCircle,MdSearch,MdLibraryAdd,MdDescription,MdClose, MdFileDownload
 } from 'react-icons/md';
 import Pagination from "react-js-pagination";
 import Label from 'reactstrap/lib/Label';
@@ -28,7 +28,7 @@ const fileMaster = {
   '100NonPL':'/kontrak50_200.docx',
   '100up':'/kontrak200up.docx',
 }
-class KontrakSaya extends React.Component {
+class KuitansiGUPage extends React.Component {
   constructor(props){
     super(props)
     this.state = {
@@ -80,7 +80,7 @@ class KontrakSaya extends React.Component {
       //headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userid: localStorage.getItem("user_session"), usertype: usertype, search: this.state.search })
     };
-    fetch(process.env.REACT_APP_URL_API+'/rest/viewKontrak.php', requestOptions)
+    fetch(process.env.REACT_APP_URL_API+'/rest/viewDataGU.php', requestOptions)
         .then(response => response.json())
         .then(respon => {
           var dataAPI = respon;
@@ -288,8 +288,8 @@ class KontrakSaya extends React.Component {
     const {activePage, itemPerPage, usertype} = this.state;
     return (
       <Page
-        title="Kontrak Saya"
-        breadcrumbs={[{ name: 'Kontrak Saya', active: true }]}
+        title="Kuitansi GU"
+        breadcrumbs={[{ name: 'Kuitansi GU', active: true }]}
         className="TablePage"
       >
         {modalLoading(this.state.modal)}
@@ -369,34 +369,41 @@ class KontrakSaya extends React.Component {
         <Row>
           <Col>
             <Card className="mb-3">
-              <CardHeader className="d-flex justify-content-between">&nbsp;
-              <Col sm={3}>
-                <InputGroup>
-                  <Input 
-                    name="search"
-                    onKeyDown={this.handleKeyDown}
-                    onChange={this.handleInputChange}
-                    placeholder={"Search.."}/>
-                  <InputGroupAddon addonType="append">
-                    <Button id="btnSearch"
-                      onClick={()=>{this.loadData()}}
-                    >
-                      <MdSearch/>
-                    </Button>
-                  </InputGroupAddon>
-                </InputGroup>
-              </Col>
+              <CardHeader className="d-flex justify-content-between">
+                <Button
+                    title="Buat Kuitansi Baru"
+                    color="secondary"
+                    onClick={()=>{
+                        
+                    }}
+                    size="sm"
+                ><MdLibraryAdd/> Input Baru</Button>
+                &nbsp;
+                <Col sm={3}>
+                    <InputGroup>
+                    <Input 
+                        name="search"
+                        onKeyDown={this.handleKeyDown}
+                        onChange={this.handleInputChange}
+                        placeholder={"Search.."}/>
+                    <InputGroupAddon addonType="append">
+                        <Button id="btnSearch"
+                        onClick={()=>{this.loadData()}}
+                        >
+                        <MdSearch/>
+                        </Button>
+                    </InputGroupAddon>
+                    </InputGroup>
+                </Col>
               </CardHeader>
               <CardBody>
                 <Table style={{fontSize:14}} size="sm" responsive {...{ ['' || 'default']: true }}>
                   <thead>
                     <tr>
                       <th>No</th>
-                      <th hidden={usertype==2? true:false}>User</th>
-                      <th style={{width: "450px"}}>Nama Pekerjaan</th>
-                      <th align="centre">Nilai Kontrak</th>
-                      <th>Perusahaan Pemenang</th>
-                      <th>Tipe Kontrak</th>
+                      <th>MAK</th>
+                      <th>Uraian</th>
+                      <th>Nominal</th>
                       <th>Tanggal Input</th>
                       <th style={{width:"140px"}}>Action</th>
                       
@@ -406,31 +413,29 @@ class KontrakSaya extends React.Component {
                     {this.state.dataRender.map((dt,index)=>(
                       <tr style={{backgroundColor:(index%2==0)?"#eff4fc":"#fff", height:60}} key={index}>
                         <td scope="row">{((activePage*itemPerPage)-itemPerPage) + index+1}</td>
-                        <td hidden={usertype==2? true:false}>{dt.name}</td>
-                        <td>{dt.namaPekerjaan}</td>
-                        <td>{commafy(dt.hrgtotal)}</td>
-                        <td>{dt.namaPerusahaan}</td>
-                        <td>{getNamaTipeKontrak(dt.tipeKontrak)}</td>
+                        <td>{dt.mak}</td>
+                        <td>{dt.uraian_kegiatan}</td>
+                        <td>{commafy(dt.nominal)}</td>
                         <td>{dt.date_created}</td>
                         <td>
                           <Button 
-                            title="Lihat Kontrak"
-                            color="primary"
+                            title="Unduh Kuitansi"
+                            color="success"
                             onClick={()=>{
                               this.preview(((activePage*itemPerPage)-itemPerPage) + index)
                               this.setState({isPvw:true})
                             }}
                             size="sm"
-                          ><MdPageview/></Button>&nbsp;                               
+                          ><MdFileDownload/></Button>&nbsp;                               
                           <Button 
                             hidden={usertype==2?false:true}
-                            title="Ubah Kontrak"
+                            title="Ubah Kuitansi"
                             color="secondary"
                             onClick={()=>{this.gotoEdit(((activePage*itemPerPage)-itemPerPage) + index)}}
                             size="sm"
                           ><MdEdit/></Button>&nbsp;                               
                           <Button 
-                            title="Hapus Kontrak"
+                            title="Hapus Kuitansi"
                             style={{background:'rgb(230 14 20)', borderColor:'rgb(230 14 20)'}}
                             onClick={()=>{this.deleteData(((activePage*itemPerPage)-itemPerPage) + index)}}
                             size="sm"
@@ -517,4 +522,4 @@ function getNamaTipeKontrak(input){
 function removeComma(num){
   return num.replace(/,/g, '');
 }
-export default KontrakSaya;
+export default KuitansiGUPage;

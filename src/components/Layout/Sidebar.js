@@ -101,7 +101,10 @@ const navKontrakKonsultasi = [
   { to: '/form100', name: 'Dibawah 100 Juta', exact: false, Icon: MdChromeReaderMode },
   { to: '/form100up', name: 'Diatas 100 Juta', exact: false, Icon: MdChromeReaderMode },
 ]
-
+const navKuitansi = [
+  { to: '/kuitansiGU', name: 'Kuitansi GU', exact: true, Icon: MdChromeReaderMode },
+  { to: '/kuitansiPerjadin', name: 'Perjadin Jabodetabek', exact: false, Icon: MdChromeReaderMode },
+]
 const bem = bn.create('sidebar');
 
 class Sidebar extends React.Component {
@@ -110,11 +113,17 @@ class Sidebar extends React.Component {
     isOpenContents: true,
     isOpenPages: true,
     isOpenInputKontrak: true,
-    isOpenJasaLainnya: true,
-    isOpenJasaKonsultasi: true,
+    isOpenJasaLainnya: false,
+    isOpenJasaKonsultasi: false,
+    isOpenKuitansi:false,
   };
 
   handleClick = name => () => {
+    this.setState({
+      isOpenJasaLainnya: false,
+      isOpenJasaKonsultasi: false,
+      isOpenKuitansi:false,
+    });
     this.setState(prevState => {
       const isOpen = prevState[`isOpen${name}`];
 
@@ -308,7 +317,49 @@ class Sidebar extends React.Component {
               ))}
               </Collapse>
             
- 
+              <NavItem 
+                className={bem.e('nav-item')}
+                onClick={this.handleClick('Kuitansi')}
+              >
+                <BSNavLink style={{color:"#000"}} className={bem.e('nav-item-collapse')}>
+                  <div className="d-flex">
+                    <MdDescription style={{color:"#146df3"}} className={bem.e('nav-item-icon')} />
+                    <span className="sideItm align-self-start">{'Kuitansi'}</span>
+                  </div>
+                  <MdKeyboardArrowDown
+                  style={{color:"#146df3"}}
+                    className={bem.e('nav-item-icon')}
+                    style={{
+                      padding: 0,
+                      transform: this.state.isOpenKuitansi
+                        ? 'rotate(0deg)'
+                        : 'rotate(-90deg)',
+                      transitionDuration: '0.3s',
+                      transitionProperty: 'transform',
+                    }}
+                  />
+                </BSNavLink>
+              </NavItem>
+              <Collapse isOpen={this.state.isOpenKuitansi}>
+              {navKuitansi.map(({ to, name, exact, Icon }, index) => (
+                <NavItem key={index} className={bem.e('nav-item')}>
+                  <BSNavLink 
+                    style={{color:"#000"}}
+                    id={`navItem-${name}-${index}`}
+                    //className="text-uppercase"
+                    tag={NavLink}
+                    to={to}
+                    activeClassName="active"
+                    exact={exact}
+                  >
+                    {/* <Icon className={bem.e('nav-item-icon')} /> */}
+                    
+                    <span style={{marginLeft:30}} className="sideItm">{name}</span>
+                  </BSNavLink>
+                </NavItem>
+              ))}
+              </Collapse>
+            
             </div>
             }
 

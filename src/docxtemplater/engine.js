@@ -261,6 +261,134 @@ export const generateDocument = (dataKontrak, namaFile, isPreview = false) => {
   };
 
 
+// export const generateKwtPerjadin = (data, namaFile = "/Template_Perjadin.docx", isPreview = false) => {
+//   var path = window.location.origin + namaFile; //+ '/testTemplate.docx'
+  
+//     //event.PreventDefault();
+//     loadFile(path, function(
+//       error,
+//       content
+//     ) {
+//       if (error) {
+//         throw error;
+//       }
+      
+        
+
+//       var imageModule = new ImageModule(opts);
+
+//       const zip = new PizZip(content);
+//       const doc = new Docxtemplater(zip, {
+//         paragraphLoop: true,
+//         linebreaks: true,
+//         nullGetter: nullGetter,
+//         //modules: [imageModule, fixDocPrCorruptionModule],
+//       }).compile();
+//       doc.setData(getDataSet(dataKontrak, hps2, pnw2));
+//       //console.log(hps2);
+//       try {
+//         // render the document (replace all occurences of {first_name} by John, {last_name} by Doe, ...)
+//         doc.render();
+//         //console.log(dataKontrak);
+//       } catch (error) {
+//         // The error thrown here contains additional information when logged with JSON.stringify (it contains a properties object containing all suberrors).
+//         function replaceErrors(key, value) {
+//           if (value instanceof Error) {
+//             return Object.getOwnPropertyNames(value).reduce(function(
+//               error,
+//               key
+//             ) {
+//               error[key] = value[key];
+//               return error;
+//             },
+//             {});
+//           }
+//           return value;
+//         }
+//         console.log(JSON.stringify({ error: error }, replaceErrors));
+
+//         if (error.properties && error.properties.errors instanceof Array) {
+//           const errorMessages = error.properties.errors
+//             .map(function(error) {
+//               return error.properties.explanation;
+//             })
+//             .join('\n');
+//           console.log('errorMessages', errorMessages);
+//           // errorMessages is a humanly readable message looking like this :
+//           // 'The tag beginning with "foobar" is unopened'
+//         }
+//         throw error;
+//       }
+//       const out = doc.getZip().generate({
+//         type: 'blob',
+//         mimeType:
+//         'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+//           //'application/pdf'
+//           //'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+//       }); //Output the document using Data-URI
+//       if(isPreview){
+        
+//         //var newurl = window.URL.createObjectURL(out);
+//         //console.log("blob link: "+ newurl.substring(4,newurl.length+1));
+//         //console.log(doc.getZip);
+//         //var trim = newurl.substring(4,newurl.length+1);
+        
+//         // setTimeout(()=>{
+//         //   document.getElementById("viewer").src = src;
+//         // },200)
+        
+//         //document.getElementById("viewer").src = src;
+//         // return <DocViewer documents={{ uri: newurl }} />;
+//         var reader = new FileReader();
+//         const pvw = doc.getZip().generate({
+//           type: "nodebuffer",
+//           compression: "DEFLATE",
+//           //mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+//         })
+//         var blob = new Blob([pvw], {
+//           type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+//         });
+//         //saveAs(blob)
+//         try{
+//           reader.readAsDataURL(blob);
+//           reader.onloadend = function() {
+//             var base64data = reader.result;
+//             fetch(process.env.REACT_APP_URL_API+'/rest/uploadFileViewer.php', {
+//               method: 'POST',
+//               body: JSON.stringify({ base64: base64data, userid: dataKontrak.userid})
+//             }).then((response) => {
+//               console.log(response)
+//               //var src = "https://view.officeapps.live.com/op/embed.aspx?src="+"https://sikarliaapi.000webhostapp.com/rest/asu.docx";//+"&embedded=true";
+//               //var src = "https://docs.google.com/viewerng/viewer?url="+"https://sikarliaapi.000webhostapp.com/rest/asu.docx"+"&embedded=true";
+//               var src = 'https://docs.google.com/viewer?url='+process.env.REACT_APP_URL_API+'/rest/previewDocx/'+dataKontrak.userid+'.docx&embedded=true';
+//               try{
+//                 document.getElementById("viewer").src = src;
+//                 setTimeout(()=>{
+//                   document.getElementById("viewer").src = src;
+//                 },300)
+//                 setTimeout(()=>{
+//                   document.getElementById("viewer").src = src;
+//                 },300)
+//                 setTimeout(()=>{
+//                   document.getElementById("viewer").src = src;
+//                 },300)
+//               }catch(e){
+                
+//               }
+              
+//             })
+//           };
+//         }
+//         catch(e){
+//           console.log(e);
+//         }
+//         return;
+//       }
+//       saveAs(out, dataKontrak.namaPekerjaan+'_output.docx');
+//     });
+//   };
+
+
 
 function setTanggal(dateInput,type=null){
   if(dateInput==null){
@@ -439,6 +567,64 @@ function getDataSet(dataKontrak, hps2, pnw2=[]){
 
       satPelaksanaanPkj:dataKontrak.satPlkPkj,
       jenisPengadaan:dataKontrak.jenisPengadaan,
+
+      table: {
+        "data": [
+          [
+            "Age",
+            "44",
+            "33",
+            "42",
+            "19"
+          ],
+          [
+            "Address",
+            "3374 Olen Thomas Drive Frisco Texas 75034",
+            "352 Illinois Avenue Yamhill Oregon(OR) 97148",
+            "1402 Pearcy Avenue Fort Wayne  Indiana(IN) 46804",
+            "3088 Terry Lane Orlando Florida(FL) 32801"
+          ],
+          [
+            "Contoh",
+            "Ya","","",""
+          ]
+        ],
+        "fixedColumns": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "widths": [
+          80,
+          110,
+          110,
+          110,
+          110
+        ],
+        "header": [
+          "Table",
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "subheader": [
+          "Name",
+          "John",
+          "Mary",
+          "Larry",
+          "Tom"
+        ],
+        "chunkSize": {
+          "type": "dynamic",
+          "size": {
+            "min": 9000,
+            "max": 9100
+          }
+        }
+      }
     }
   }
   else{
@@ -494,6 +680,7 @@ function getDataSet(dataKontrak, hps2, pnw2=[]){
       alamatPerusahaan: dataKontrak.alamatPerusahaan,
       namaDirektur: dataKontrak.namaDirektur,
       npwpPerusahaan: dataKontrak.npwpPerusahaan,
+      jabatan: dataKontrak.jabatan,
 
       namaPerusahaanPembanding1: dataKontrak.namaPerusahaanPembanding1!=''?dataKontrak.namaPerusahaanPembanding1:'PT. XXXXXX (Perusahaan Pembanding 1)',
       alamatPerusahaanPembanding1: dataKontrak.alamatPerusahaanPembanding1!=''?dataKontrak.alamatPerusahaanPembanding1:'(Alamat Perusahaan Pembanding 1)',
@@ -530,6 +717,64 @@ function getDataSet(dataKontrak, hps2, pnw2=[]){
       yearpembayaran:setTanggal(dataKontrak.pembayaran, "yy"),
 
       satPelaksanaanPkj:dataKontrak.satPlkPkj,
+
+      table: {
+        "data": [
+          [
+            "Age",
+            "44",
+            "33",
+            "42",
+            "19"
+          ],
+          [
+            "Address",
+            "3374 Olen Thomas Drive Frisco Texas 75034",
+            "352 Illinois Avenue Yamhill Oregon(OR) 97148",
+            "1402 Pearcy Avenue Fort Wayne  Indiana(IN) 46804",
+            "3088 Terry Lane Orlando Florida(FL) 32801"
+          ],
+          [
+            "Contoh",
+            "Ya","","",""
+          ]
+        ],
+        "fixedColumns": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "widths": [
+          80,
+          110,
+          110,
+          110,
+          110
+        ],
+        "header": [
+          "Table",
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "subheader": [
+          "Name",
+          "John",
+          "Mary",
+          "Larry",
+          "Tom"
+        ],
+        "chunkSize": {
+          "type": "dynamic",
+          "size": {
+            "min": 9000,
+            "max": 9100
+          }
+        }
+      }
       //img:[],
       //imgHPS:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAIAAAACUFjqAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4QIJBywfp3IOswAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAAAkUlEQVQY052PMQqDQBREZ1f/d1kUm3SxkeAF/FdIjpOcw2vpKcRWCwsRPMFPsaIQSIoMr5pXDGNUFd9j8TOn7kRW71fvO5HTq6qqtnWtzh20IqE3YXtL0zyKwAROQLQ5l/c9gHjfKK6wMZjADE6s49Dver4/smEAc2CuqgwAYI5jU9NcxhHEy60sni986H9+vwG1yDHfK1jitgAAAABJRU5ErkJggg==",
       //imgHPS:Base64String.decompress(dataKontrak.base64HPS),
@@ -565,8 +810,8 @@ function nullGetter(part, scopeManager) {
   if (!part.module) {
       // part.value contains the content of the tag, eg "name" in our example
       // By returning '{' and part.value and '}', it will actually do no replacement in reality. You could also return the empty string if you prefered.
-      //return '{' + part.value + '}';
-      return '';
+      return '{' + part.value + '}';
+      //return '';
   }
   if (part.module === "rawxml") {
       return "";

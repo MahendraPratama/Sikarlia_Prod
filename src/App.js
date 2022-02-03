@@ -24,6 +24,8 @@ const Users = React.lazy(() => import('pages/Users'));
 const FormKontrak200Up = React.lazy(() => import('pages/FormKontrak200Up'));
 const FormKontrak50200 = React.lazy(() => import('pages/FormKontrak50200'));
 const FormKontrak50200PL = React.lazy(() => import('pages/FormKontrak50200PL'));
+const KuitansiGUPage = React.lazy(() => import('pages/KuitansiGUPage'));
+const KuitansiPerjadin = React.lazy(() => import('pages/KuitansiPerjadin'));
 const InputGroupPage = React.lazy(() => import('pages/InputGroupPage'));
 const ModalPage = React.lazy(() => import('pages/ModalPage'));
 const ProgressPage = React.lazy(() => import('pages/ProgressPage'));
@@ -129,6 +131,8 @@ class App extends React.Component {
                 <Route exact path="/form50200PL" component={(routeProps)=> <FormKontrak50200 tipe="50200PL"  {...routeProps}/>} />
                 <Route exact path="/form100" component={(routeProps)=> <FormKontrak50200 tipe="100NonPL"  {...routeProps}/>} />
                 <Route exact path="/form50200" component={(routeProps)=> <FormKontrak50200 tipe="50200NonPL"  {...routeProps}/>} />
+                <Route exact path="/kuitansiGU" component={KuitansiGUPage} />
+                <Route exact path="/kuitansiPerjadin" component={KuitansiPerjadin} />
                 <Route exact path="/input-groups" component={InputGroupPage} />
                 <Route exact path="/charts" component={ChartPage} />
                 <Route exact path="/kontraksaya" component={KontrakSaya} />

@@ -38,8 +38,8 @@ class Form50200 extends React.Component {
     super(props)
     this.state = {
       dtProps: [
-        {tipe:'50200NonPL',name:'Barang & Jasa Lainnya / Kontrak 50 - 200 Juta', filename:'/kontrak50_200.docx'},
-        {tipe:'100NonPL',name:'Jasa Konsultasi / Kontrak dibawah 100 Juta', filename:'/kontrak50_200.docx'},
+        {tipe:'50200NonPL',name:'Barang & Jasa Lainnya / Kontrak 50 - 200 Juta', filename:'/kontrak50_200_test.docx'},
+        {tipe:'100NonPL',name:'Jasa Konsultasi / Kontrak dibawah 100 Juta', filename:'/kontrak50_200_test.docx'},
         {tipe:'50200PL',name:'Barang & Jasa Lainnya / Kontrak 50 - 200 Juta Penunjukan Langsung', filename:'/kontrak50_200PL.docx'},
         {tipe:'100PL',name:'Jasa Konsultasi / Kontrak dibawah 100 Juta Penunjukan Langsung', filename:'/kontrak50_200PL.docx'},
         {tipe:'200up',name:'Barang & Jasa Lainnya / Kontrak diatas 200 Juta', filename:'/kontrak200up.docx'},
