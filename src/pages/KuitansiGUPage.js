@@ -289,7 +289,7 @@ class KuitansiGUPage extends React.Component {
     return (
       <Page
         title="Kuitansi GU"
-        breadcrumbs={[{ name: 'Kuitansi GU', active: true }]}
+        breadcrumbs={[{ name: 'Menu Kuitansi GU ini sedang diperbaiki !!', active: true }]}
         className="TablePage"
       >
         {modalLoading(this.state.modal)}
@@ -300,22 +300,16 @@ class KuitansiGUPage extends React.Component {
           }
           style={NOTIFICATION_SYSTEM_STYLE}
         />
-        <Row hidden={!this.state.isPvw}>
+        <Row hidden={false}>
           <Col>
           <Card className="mb-3" >
-            <CardHeader className="d-flex justify-content-between">Lihat Kontrak 
+            <CardHeader className="d-flex justify-content-between">Input Baru 
                 <Button size="sm" color="danger"
                   onClick={()=>{this.setState({isPvw:!this.state.isPvw})}}
                 ><MdClose/></Button></CardHeader>
             <CardBody>
               <Row>
                 <Col xl={3} lg={12} md={12}>
-                <iframe id="viewer" 
-                height="350px"
-                src={
-                  ''
-                }
-                ></iframe>
                 </Col>
                 <Col xl={9} lg={12} md={12}>
                   <Row>

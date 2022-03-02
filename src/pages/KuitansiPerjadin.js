@@ -6,7 +6,7 @@ import NotificationSystem from 'react-notification-system';
 import { NOTIFICATION_SYSTEM_STYLE } from 'utils/constants';
 import SearchInput from 'components/SearchInput';
 import DocViewer from "react-doc-viewer";
-import {generateDocument} from '../docxtemplater/engine';
+import {generateDocument, generateKwtPerjadin} from '../docxtemplater/engine';
 import loadingImg from 'assets/img/logo/loading.gif';
 import {getDefaultSetDataKontrak, modalLoading, getStatusKontrak, setupTgl} from '../docxtemplater/element';
 import {OutTable, ExcelRenderer} from 'react-excel-renderer';
@@ -74,6 +74,9 @@ class KuitansiPerjadin extends React.Component {
       dataRenderPerjadin:[],
       editNominal:false,
       inputBaru:false,
+      isEdit:false,
+      editedID:'',
+      editedUID:'',
     };
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleKeyDown = this.handleKeyDown.bind(this);
@@ -158,126 +161,6 @@ class KuitansiPerjadin extends React.Component {
     return dataKontrak;
   }
   
-  preview(idx){
-    window.scrollTo(0, 0);
-    document.getElementById("viewer").src = '';
-    var data = this.state.data[idx];
-
-    
-    data.hrgtotal = parseInt(data.hrgtotal||0);
-
-    var status = getStatusKontrak(data.tipeKontrak, data);
-    var tipe = getNamaTipeKontrak(data.tipeKontrak);
-    this.setState({status:status,tipeKontrak:tipe,
-      create:data.date_created,change:data.date_change||'-',
-      hrgtotal:commafy(data.hrgtotal),
-      namaPkj:data.namaPekerjaan,
-      prshnPmn:data.namaPerusahaan||'-',
-      choosedIdx:idx,
-    })
-
-    var cb_mgntFee = data.cb_managementFee;
-    data.cb_managementFee = cb_mgntFee=="1"?true:false;
-
-    //return;
-    var sat = ["hari","minggu","bulan"];
-    var indexSatPlkPkj = data.indexSatPlkPkj || 0;
-    data.satPlkPkj = sat[indexSatPlkPkj];
-    const requestOptions = {
-      method: 'POST',
-      //headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ unique_id: data.unique_id })
-    };
-    fetch(process.env.REACT_APP_URL_API+'/rest/viewKontrakDetail.php', requestOptions)
-        .then(response => response.json())
-        .then(respon => {
-          var dataAPI = respon;
-          if(dataAPI.response_code == 200){
-            console.log(dataAPI.data);
-            data.TABEL = dataAPI.data.tabel;
-            data.TABELPnw =  dataAPI.data.tabelPnw;
-            data = this.hitungTotal(data,dataAPI.data);
-          }
-          else{
-            data.TABEL = [];
-            data.TABELPnw = [];
-            data.subtotal = 0;
-            data.ppn = 0;
-            data.hrgtotal = 0;
-            data.subtotalHPS = 0;
-            data.ppnHPS = 0;
-            data.hrgtotalHPS = 0;
-            data.managementFeeHPS = 0;
-            data.managementFee = 0;
-          }
-          data = setupTgl(data);
-          console.log(data);
-          this.setState({dataToGenerate:data});
-          generateDocument(data,fileMaster[data.tipeKontrak],true);
-        });
-    
-    return;
-  }
-  gotoEdit(idx){
-    var data = this.state.dataToEdit[idx];
-    var pathName = '';
-    if(data.tipeKontrak=="100PL"){
-      pathName = "/form100PL";
-    }
-    if(data.tipeKontrak=="100up"){
-      pathName = "/form100up";
-    }
-    if(data.tipeKontrak=="100NonPL"){
-      pathName = "/form100";
-    }
-    if(data.tipeKontrak=="50200PL"){
-      pathName = "/form50200PL";
-    }
-    if(data.tipeKontrak=="200up"){
-      pathName = "/form200up";
-    }
-    if(data.tipeKontrak=="50200NonPL"){
-      pathName = "/form50200";
-    }
-    this.props.history.push({
-      pathname: pathName,
-      data : data
-    })
-  }
-  deleteData(idx){
-    var result = window.confirm("Apakah anda yakin ingin menghapus data?");
-    if (result) {
-      const requestOptions = {
-        method: 'POST',
-        //headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ unique_id: this.state.data[idx].unique_id })
-      };
-      fetch(process.env.REACT_APP_URL_API+'/rest/deleteKontrak.php', requestOptions)
-      .then(response => response.json())
-      .then(respon => {
-        var dataAPI = respon;
-        if(dataAPI.response_code != 200){
-          //this.setState({ message: dataAPI.message });
-          this.notificationSystem.addNotification({
-            title: <MdWarning />,
-            message: dataAPI.message,
-            level: 'error',
-          });
-        }else{
-          //this.setState({ data: dataAPI.data });
-          this.notificationSystem.addNotification({
-            title: <MdCheckCircle />,
-            message: 'Data Berhasil Dihapus!!',
-            level: 'success',
-          });
-          var tbl = this.state.data;
-          tbl.splice(idx,1);
-          this.setState({data:tbl})
-          this.loadData();
-        }
-      });
-    }
-  }
   handleInputChange(event) {
     const target = event.target;
     const value = target.type === 'checkbox' ? target.checked : target.value;
@@ -313,6 +196,7 @@ class KuitansiPerjadin extends React.Component {
     var data = this.state.dataPegawai;
     
     if(!data){
+        //this.setState({hideChooser:true})
       return null;
     }
 
@@ -347,19 +231,19 @@ class KuitansiPerjadin extends React.Component {
       var nmPeg = document.getElementById('namaPenerima').value;
       var nip = document.getElementById('nip').value;
       var nominal = document.getElementById('nominal').value;
-      
+      var idpeg;
       if(nmPeg==""){
         this.sendErrorNotif("Harap isi Nama Penerima terlebih dahulu");
         return;
       }
-      if(this.state.hideChooser==false){
+      if(this.state.dataPegawai!=null && !dataPeg.id){
         this.sendErrorNotif("Pilih salah satu dari database");
         return;
       }
-      if(nip==""){
-        this.sendErrorNotif("Harap isi NIP Penerima terlebih dahulu");
-        return;
-      }
+    //   if(nip==""){
+    //     this.sendErrorNotif("Harap isi NIP Penerima terlebih dahulu");
+    //     return;
+    //   }
       
       
       if(!dataPeg.id){
@@ -371,23 +255,32 @@ class KuitansiPerjadin extends React.Component {
           fetch(process.env.REACT_APP_URL_API+'/rest/insertPegawai.php', requestOptions)
           .then(response => response.json())
           .then(respon => {
-              dataPeg.id = respon.data;
+              var row = {
+                id: respon.data,
+                nama: nmPeg,
+                nip: nip,
+                nominal: this.state.nominal
+            }
+            dataPerjadin.push(row);
+            this.setState({nominal:'', dataRenderPerjadin: dataPerjadin})
           });
+      }else{
+        var row = {
+            id: dataPeg.id,
+            nama: nmPeg,
+            nip: nip,
+            nominal: this.state.nominal
+        }
+        dataPerjadin.push(row);
+        this.setState({nominal:'', dataRenderPerjadin: dataPerjadin})
       }
-      var row = {
-          id: dataPeg.id,
-          nama: dataPeg.nama,
-          nip: dataPeg.nip,
-          nominal: this.state.nominal
-      }
-      dataPerjadin.push(row);
-      console.log("id=>"+dataPeg.id);
+      
       console.log(dataPerjadin);
       dataPeg = [];
       document.getElementById('namaPenerima').value = "";
       document.getElementById('nip').value = "";
       document.getElementById('nominal').value = "";
-      this.setState({nominal:'', dataRenderPerjadin: dataPerjadin})
+      
   }
   simpanKuitansi(){
     var nmKeg = document.getElementById('namaKegiatan').value;    
@@ -419,6 +312,10 @@ class KuitansiPerjadin extends React.Component {
         tujuan: tujuan,
         TABEL: dataPerjadin
     }
+    if(this.state.isEdit){
+        body.id = this.state.editedID;
+        body.unique_id = this.state.editedUID;
+    }
     const requestOptions = {
         method: 'POST',
         //headers: { 'Content-Type': 'application/json' },
@@ -434,10 +331,95 @@ class KuitansiPerjadin extends React.Component {
                 message: "Data berhasil disimpan",
                 level: 'success',
               });
+            this.loadData();
+            var dtHead = {
+                nama_kegiatan: nmKeg, tgl_kegiatan: tglKeg, asal:asal, tujuan: tujuan
+            }
+            var dtBody = dataPerjadin;
+            var dt = {head: dtHead, body: dtBody};
+            generateKwtPerjadin(dt, "/Template_Perjadin.docx");
           }else{
             this.sendErrorNotif(respon.message)
           }
       });
+  }
+  downloadKwt(idx){
+      var dtHead = this.state.dataRender[idx];
+      var dtBody = [];
+
+      const requestOptions = {
+        method: 'POST',
+        //headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({userid:'', unique_id: dtHead.unique_id})
+      };
+      fetch(process.env.REACT_APP_URL_API+'/rest/getDetailPerjadin.php', requestOptions)
+      .then(response => response.json())
+      .then(respon => {
+          if(respon.response_code==200){
+            var dt = {head: dtHead, body: respon.data};
+            generateKwtPerjadin(dt, "/Template_Perjadin.docx");
+          }else{
+            this.sendErrorNotif(respon.message)
+          }
+      });
+      
+  }
+  gotoEdit(idx){
+    this.setState({isEdit: true, inputBaru: true})
+    var dtHead = this.state.dataRender[idx];
+    document.getElementById('namaKegiatan').value = dtHead.nama_kegiatan;    
+    document.getElementById('tglKegiatan').value = dtHead.tgl_kegiatan;    
+    document.getElementById('asal').value = dtHead.asal;    
+    document.getElementById('tujuan').value = dtHead.tujuan;
+    
+    this.setState({editedID: dtHead.id, editedUID: dtHead.unique_id});
+    const requestOptions = {
+        method: 'POST',
+        //headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({userid:'', unique_id: dtHead.unique_id})
+      };
+      fetch(process.env.REACT_APP_URL_API+'/rest/getDetailPerjadin.php', requestOptions)
+      .then(response => response.json())
+      .then(respon => {
+          if(respon.response_code==200){
+            dataPerjadin = respon.data;
+            this.setState({dataRenderPerjadin: dataPerjadin})
+          }else{
+            this.sendErrorNotif(respon.message)
+          }
+      });
+    
+  }
+  deleteData(idx){
+    var result = window.confirm("Apakah anda yakin ingin menghapus data?");
+    if (result) {
+      const requestOptions = {
+        method: 'POST',
+        //headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ unique_id: this.state.dataRender[idx].unique_id })
+      };
+      fetch(process.env.REACT_APP_URL_API+'/rest/deletePerjadin.php', requestOptions)
+      .then(response => response.json())
+      .then(respon => {
+        var dataAPI = respon;
+        if(dataAPI.response_code != 200){
+          //this.setState({ message: dataAPI.message });
+          this.notificationSystem.addNotification({
+            title: <MdWarning />,
+            message: dataAPI.message,
+            level: 'error',
+          });
+        }else{
+          //this.setState({ data: dataAPI.data });
+          this.notificationSystem.addNotification({
+            title: <MdCheckCircle />,
+            message: 'Data Berhasil Dihapus!!',
+            level: 'success',
+          });
+          this.loadData();
+        }
+      });
+    }
   }
   render(){
     const {activePage, itemPerPage, usertype} = this.state;
@@ -540,6 +522,7 @@ class KuitansiPerjadin extends React.Component {
                             onKeyUp={()=>{this.handleSrcPegawai()}}
                           />
                           {this.renderChooserPegawai()}
+                          <Label style={{fontSize:10}}>ket: jika tidak muncul pilihan maka akan ditambahkan sebagai data baru</Label>
                         </Col>
                       </FormGroup>
                       <FormGroup row>
@@ -648,7 +631,7 @@ class KuitansiPerjadin extends React.Component {
                     title="Buat Kuitansi Baru"
                     color="secondary"
                     onClick={()=>{
-                        this.setState({inputBaru:true});
+                        this.setState({inputBaru:true, isEdit: false});
                     }}
                     size="sm"
                 ><MdLibraryAdd/> Input Baru</Button>
@@ -698,8 +681,8 @@ class KuitansiPerjadin extends React.Component {
                             title="Unduh Kuitansi"
                             color="success"
                             onClick={()=>{
-                              this.preview(((activePage*itemPerPage)-itemPerPage) + index)
-                              this.setState({isPvw:true})
+                              this.downloadKwt(((activePage*itemPerPage)-itemPerPage) + index)
+                              //this.setState({isPvw:true})
                             }}
                             size="sm"
                           ><MdFileDownload/></Button>&nbsp;                               

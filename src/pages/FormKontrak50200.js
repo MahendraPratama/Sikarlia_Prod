@@ -220,6 +220,7 @@ class Form50200 extends React.Component {
     dataKontrak.managementFeePctg     = data.mgmtFeePctg;
     dataKontrak.managementFeePctgPnw  = data.mgmtFeePctgPnw;
     dataKontrak.isPPN                 = data.isPPN == 1 ? true:false;
+    dataKontrak.isPPNPnw              = data.isPPNPnw == 1 ? true:false;
     dataKontrak.cb_managementFee      = data.cb_managementFee == 1 ? true:false;
     dataKontrak.cb_managementFeePnw   = data.cb_managementFeePnw == 1 ? true:false;
     
@@ -385,8 +386,11 @@ class Form50200 extends React.Component {
     if(key=='isPPN' || key=='isPPNPnw'){
       var flag = (key=='isPPN')?"HPS":"Pnw";
       var fState = (key=='isPPN')?"isPPN":"isPPNPnw";
+      dataKontrak["isPPNPnw"] = value;
+      dataKontrak["isPPN"] = value;
       this.setState({isPPN:target.checked,isPPNPnw:target.checked}, ()=>{
-        this.hitungTotal(flag);
+        this.hitungTotal("isPPN");
+        this.hitungTotal("isPPNPnw");
       });
     }
     if(key=='managementFeePctg' || key=='managementFeePctgPnw'){

@@ -7,7 +7,7 @@ import { set } from 'react-ga';
 import angkaTerbilang from '@develoka/angka-terbilang-js';
 import Base64String from 'lz-string';
 import DocViewer from "react-doc-viewer";
-import ImageModule from 'docxtemplater-image-module-free'
+import ImageModule from 'docxtemplater-image-module-free';
 //import ImageModule from 'open-docxtemplater-image-module';
 //var ImageModule=require('docxtemplater-image-module');
 //var ImageModule=require('docxtemplater-image-module');
@@ -261,134 +261,95 @@ export const generateDocument = (dataKontrak, namaFile, isPreview = false) => {
   };
 
 
-// export const generateKwtPerjadin = (data, namaFile = "/Template_Perjadin.docx", isPreview = false) => {
-//   var path = window.location.origin + namaFile; //+ '/testTemplate.docx'
+export const generateKwtPerjadin = (data, namaFile = "/Template_Perjadin.docx", isPreview = false) => {
+  var path = window.location.origin + namaFile; //+ '/testTemplate.docx'
   
-//     //event.PreventDefault();
-//     loadFile(path, function(
-//       error,
-//       content
-//     ) {
-//       if (error) {
-//         throw error;
-//       }
+    //event.PreventDefault();
+    loadFile(path, function(
+      error,
+      content
+    ) {
+      if (error) {
+        throw error;
+      }
       
         
+      const zip = new PizZip(content);
+      const doc = new Docxtemplater(zip, {
+        paragraphLoop: true,
+        linebreaks: true,
+        nullGetter: nullGetter,
+        //modules: [imageModule, fixDocPrCorruptionModule],
+      }).compile();
+      doc.setData(setDataKwtPerjadin(data));
+      //console.log(hps2);
+      try {
+        // render the document (replace all occurences of {first_name} by John, {last_name} by Doe, ...)
+        doc.render();
+        //console.log(dataKontrak);
+      } catch (error) {
+        // The error thrown here contains additional information when logged with JSON.stringify (it contains a properties object containing all suberrors).
+        function replaceErrors(key, value) {
+          if (value instanceof Error) {
+            return Object.getOwnPropertyNames(value).reduce(function(
+              error,
+              key
+            ) {
+              error[key] = value[key];
+              return error;
+            },
+            {});
+          }
+          return value;
+        }
+        console.log(JSON.stringify({ error: error }, replaceErrors));
 
-//       var imageModule = new ImageModule(opts);
-
-//       const zip = new PizZip(content);
-//       const doc = new Docxtemplater(zip, {
-//         paragraphLoop: true,
-//         linebreaks: true,
-//         nullGetter: nullGetter,
-//         //modules: [imageModule, fixDocPrCorruptionModule],
-//       }).compile();
-//       doc.setData(getDataSet(dataKontrak, hps2, pnw2));
-//       //console.log(hps2);
-//       try {
-//         // render the document (replace all occurences of {first_name} by John, {last_name} by Doe, ...)
-//         doc.render();
-//         //console.log(dataKontrak);
-//       } catch (error) {
-//         // The error thrown here contains additional information when logged with JSON.stringify (it contains a properties object containing all suberrors).
-//         function replaceErrors(key, value) {
-//           if (value instanceof Error) {
-//             return Object.getOwnPropertyNames(value).reduce(function(
-//               error,
-//               key
-//             ) {
-//               error[key] = value[key];
-//               return error;
-//             },
-//             {});
-//           }
-//           return value;
-//         }
-//         console.log(JSON.stringify({ error: error }, replaceErrors));
-
-//         if (error.properties && error.properties.errors instanceof Array) {
-//           const errorMessages = error.properties.errors
-//             .map(function(error) {
-//               return error.properties.explanation;
-//             })
-//             .join('\n');
-//           console.log('errorMessages', errorMessages);
-//           // errorMessages is a humanly readable message looking like this :
-//           // 'The tag beginning with "foobar" is unopened'
-//         }
-//         throw error;
-//       }
-//       const out = doc.getZip().generate({
-//         type: 'blob',
-//         mimeType:
-//         'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-//           //'application/pdf'
-//           //'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-//       }); //Output the document using Data-URI
-//       if(isPreview){
-        
-//         //var newurl = window.URL.createObjectURL(out);
-//         //console.log("blob link: "+ newurl.substring(4,newurl.length+1));
-//         //console.log(doc.getZip);
-//         //var trim = newurl.substring(4,newurl.length+1);
-        
-//         // setTimeout(()=>{
-//         //   document.getElementById("viewer").src = src;
-//         // },200)
-        
-//         //document.getElementById("viewer").src = src;
-//         // return <DocViewer documents={{ uri: newurl }} />;
-//         var reader = new FileReader();
-//         const pvw = doc.getZip().generate({
-//           type: "nodebuffer",
-//           compression: "DEFLATE",
-//           //mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-//         })
-//         var blob = new Blob([pvw], {
-//           type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-//         });
-//         //saveAs(blob)
-//         try{
-//           reader.readAsDataURL(blob);
-//           reader.onloadend = function() {
-//             var base64data = reader.result;
-//             fetch(process.env.REACT_APP_URL_API+'/rest/uploadFileViewer.php', {
-//               method: 'POST',
-//               body: JSON.stringify({ base64: base64data, userid: dataKontrak.userid})
-//             }).then((response) => {
-//               console.log(response)
-//               //var src = "https://view.officeapps.live.com/op/embed.aspx?src="+"https://sikarliaapi.000webhostapp.com/rest/asu.docx";//+"&embedded=true";
-//               //var src = "https://docs.google.com/viewerng/viewer?url="+"https://sikarliaapi.000webhostapp.com/rest/asu.docx"+"&embedded=true";
-//               var src = 'https://docs.google.com/viewer?url='+process.env.REACT_APP_URL_API+'/rest/previewDocx/'+dataKontrak.userid+'.docx&embedded=true';
-//               try{
-//                 document.getElementById("viewer").src = src;
-//                 setTimeout(()=>{
-//                   document.getElementById("viewer").src = src;
-//                 },300)
-//                 setTimeout(()=>{
-//                   document.getElementById("viewer").src = src;
-//                 },300)
-//                 setTimeout(()=>{
-//                   document.getElementById("viewer").src = src;
-//                 },300)
-//               }catch(e){
-                
-//               }
-              
-//             })
-//           };
-//         }
-//         catch(e){
-//           console.log(e);
-//         }
-//         return;
-//       }
-//       saveAs(out, dataKontrak.namaPekerjaan+'_output.docx');
-//     });
-//   };
+        if (error.properties && error.properties.errors instanceof Array) {
+          const errorMessages = error.properties.errors
+            .map(function(error) {
+              return error.properties.explanation;
+            })
+            .join('\n');
+          console.log('errorMessages', errorMessages);
+          // errorMessages is a humanly readable message looking like this :
+          // 'The tag beginning with "foobar" is unopened'
+        }
+        throw error;
+      }
+      const out = doc.getZip().generate({
+        type: 'blob',
+        mimeType:
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+          //'application/pdf'
+          //'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      }); //Output the document using Data-URI
+      saveAs(out, data.head.nama_kegiatan+'_output.docx');
+    });
+  };
 
 
+function setDataKwtPerjadin(data){
+  var items = [], dataJadi = {};
+  var h = data.head;
+  console.log(data);
+  var uraian = "Transport darat " + h.asal + " - " + h.tujuan + " dalam rangka " + h.nama_kegiatan + " pada tanggal " + h.tgl_kegiatan;
+  data.body.map(x=>{
+    var row = {
+      nama: x.nama,
+      nip: x.nip,
+      nominal: commafy(parseInt(x.nominal)),
+      terbilang: angkaTerbilang(parseInt(x.nominal)) + " rupiah",
+      uraian_kegiatan: uraian + " a.n " + x.nama
+    }
+    items.push(row);
+  })
+  dataJadi = {
+    uraian_kegiatan: uraian,
+    items: items
+  }
+  console.log(dataJadi);
+  return dataJadi;
+}
 
 function setTanggal(dateInput,type=null){
   if(dateInput==null){
