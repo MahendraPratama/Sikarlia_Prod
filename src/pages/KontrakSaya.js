@@ -183,11 +183,13 @@ class KontrakSaya extends React.Component {
             console.log(dataAPI.data);
             data.TABEL = dataAPI.data.tabel;
             data.TABELPnw =  dataAPI.data.tabelPnw;
+            data.TABELNego =  dataAPI.data.tabelNego;
             data = this.hitungTotal(data,dataAPI.data);
           }
           else{
             data.TABEL = [];
             data.TABELPnw = [];
+            data.TABELNego = [];
             data.subtotal = 0;
             data.ppn = 0;
             data.hrgtotal = 0;

@@ -7,9 +7,8 @@ import { Stepper, Step } from 'react-form-stepper';
 import NotificationSystem from 'react-notification-system';
 import { NOTIFICATION_SYSTEM_STYLE } from 'utils/constants';
 import Base64String from 'lz-string';
-import NumberFormat from 'react-number-format';
 import {
-  MdDelete,MdCloudUpload,MdWarning,MdEdit,MdInfo, MdAdd
+  MdDelete,MdCloudUpload,MdWarning,MdEdit,MdInfo
 } from 'react-icons/md';
 import {
   Button,
@@ -34,7 +33,6 @@ const urlFile= 'https://drive.google.com/u/0/uc?id=15uCHB-w4Xhz-pQAqwBzcil3AoRZB
 const path = window.location.origin  + '/kontrak50_200.docx';
 const urlLocal = 'https://localhost/docxtemplate/kontrak50_200.docx';
 var dataKontrak = [];
-var dataNegosiasi = [{uraianNego:"",hasilNego:"Ada perubahan harga, semula Rp xxx.xxx,- menjadi Rp. xxx.xxx,-"}];
 class Form50200 extends React.Component {
   constructor(props){
     super(props)
@@ -109,7 +107,6 @@ class Form50200 extends React.Component {
         ppn:0,
         managementFee:0,
         hrgtotal:0,
-        hrgtotalPNW:0,
 
         msg_p1:'',
         msg_p2:'',
@@ -118,7 +115,6 @@ class Form50200 extends React.Component {
 
         validasiJadwal:false,
         dataPerusahaan:[],
-        dataRenderNegosiasi:[{uraianNego:"", hasilNego:"Ada perubahan harga, semula Rp xxx.xxx,- menjadi Rp. xxx.xxx,-"}],
         hideChooser: true,
         isManagementFee:false,
         isPPN:true,
@@ -221,7 +217,6 @@ class Form50200 extends React.Component {
     dataKontrak.nipPokja1             = data.nipPokja1
 
     dataKontrak.hrgtotal              = data.hrgtotal;
-    dataKontrak.hrgtotalPNW           = data.hrgtotalPNW;
     dataKontrak.managementFeePctg     = data.mgmtFeePctg;
     dataKontrak.managementFeePctgPnw  = data.mgmtFeePctgPnw;
     dataKontrak.isPPN                 = data.isPPN == 1 ? true:false;
@@ -236,18 +231,16 @@ class Form50200 extends React.Component {
 
 
     //dataKontrak.isHPSimg              = data.isHPSimg == 1 ? true:false;
-    
-    // if(data.mgmtFeePctg){
-    //   document.getElementById('managementFeePctg').value = data.mgmtFeePctg;
-    // }
-    // if(data.mgmtFeePctgPnw){
-    //   document.getElementById('managementFeePctgPnw').value = data.mgmtFeePctgPnw;
-    // }
-    // document.getElementById('cb_managementFee').checked = data.cb_managementFee == 1 ? true:false;
-    // document.getElementById('cb_managementFeePnw').checked = data.cb_managementFeePnw == 1 ? true:false;
-    // document.getElementById('isPPN').checked = data.isPPN == 1 ? true:false;
-    // document.getElementById('isPPNPnw').checked = data.isPPNPnw == 1 ? true:false;
-
+    if(data.mgmtFeePctg){
+      document.getElementById('managementFeePctg').value = data.mgmtFeePctg;
+    }
+    if(data.mgmtFeePctgPnw){
+      document.getElementById('managementFeePctgPnw').value = data.mgmtFeePctgPnw;
+    }
+    document.getElementById('cb_managementFee').checked = data.cb_managementFee == 1 ? true:false;
+    document.getElementById('cb_managementFeePnw').checked = data.cb_managementFeePnw == 1 ? true:false;
+    document.getElementById('isPPN').checked = data.isPPN == 1 ? true:false;
+    document.getElementById('isPPNPnw').checked = data.isPPNPnw == 1 ? true:false;
     //document.getElementById('chooserTipeHPS').selectedIndex = data.isHPSimg == null ? 0:(data.isHPSimg==1?2:1);
     this.setState({
 
@@ -260,8 +253,6 @@ class Form50200 extends React.Component {
       isPctgMgmtFeePnw: data.isPctgMgmtFeePnw,
       //isHPSimg: data.isHPSimg == 1 ? true:false,
       indexSatPlkPkj: data.indexSatPlkPkj||0,
-      hrgtotal: data.hrgtotal,
-      hrgtotalPNW: data.hrgtotalPNW
     })
 
     document.getElementById("namaPekerjaan").value          = data.namaPekerjaan;
@@ -303,10 +294,10 @@ class Form50200 extends React.Component {
     document.getElementById("pokja5").value         = data.pokja5;
     document.getElementById("nipPokja1").value         = data.nipPokja1;
 
-    // document.getElementById("chooserMgmtFee").selectedIndex         = data.isPctgMgmtFee;
-    // document.getElementById("chooserMgmtFeePnw").selectedIndex         = data.isPctgMgmtFeePnw;
-    // document.getElementById("mgmtFeeNmnl").value         = data.mgmtFeeNmnl;
-    // document.getElementById("mgmtFeeNmnlPnw").value         = data.mgmtFeeNmnlPnw;
+    document.getElementById("chooserMgmtFee").selectedIndex         = data.isPctgMgmtFee;
+    document.getElementById("chooserMgmtFeePnw").selectedIndex         = data.isPctgMgmtFeePnw;
+    document.getElementById("mgmtFeeNmnl").value         = data.mgmtFeeNmnl;
+    document.getElementById("mgmtFeeNmnlPnw").value         = data.mgmtFeeNmnlPnw;
     
     if(this.props.tipe == "200up"){
       if(data.jenisPengadaan == "Barang"){
@@ -337,24 +328,18 @@ class Form50200 extends React.Component {
             this.setState({ TABELPnw: dataAPI.data.tabelPnw });
             this.hitungTotal("Pnw");
 
-            if(dataAPI.data.tabelNego.length !== 0){
-              var dtNego = setTabelNego(dataAPI.data.tabelNego);
-              dataKontrak.TABELNego = dtNego;
-              dataNegosiasi = dtNego;
-              this.setState({ dataRenderNegosiasi: dtNego });
+            if(dataAPI.data.img.length !== 0){
+              dataKontrak.base64HPS = dataAPI.data.img[0].base64HPS;
+              var img = document.getElementById("viewerHPSimg");
+              img.src =  dataAPI.data.img[0].base64HPS;
+              setTimeout(()=>{
+                var width = img.naturalWidth;
+                var height = img.naturalHeight;
+                dataKontrak.HPSimgW = width;
+                dataKontrak.HPSimgH = height;
+                console.log("allowed : " +width+","+height);
+              },500)
             }
-            // if(dataAPI.data.img.length !== 0){
-            //   dataKontrak.base64HPS = dataAPI.data.img[0].base64HPS;
-            //   var img = document.getElementById("viewerHPSimg");
-            //   img.src =  dataAPI.data.img[0].base64HPS;
-            //   setTimeout(()=>{
-            //     var width = img.naturalWidth;
-            //     var height = img.naturalHeight;
-            //     dataKontrak.HPSimgW = width;
-            //     dataKontrak.HPSimgH = height;
-            //     console.log("allowed : " +width+","+height);
-            //   },500)
-            // }
           }else{
             
           }
@@ -456,10 +441,10 @@ class Form50200 extends React.Component {
       dataKontrak.isPenawaranimg = map[val];
       this.setState({isPenawaranimg:map[val]});
     }
-    if(key=="hrgtotal" || key == "hrgtotalPNW"){
+    if(key=="hrgtotal"){
       const newVal = value.replace(/\+|-|[A-Z]|\W/ig, '');///^\d*\.?\d*$/.test(value);
-      dataKontrak[key] = newVal;
-      //document.getElementById(key).value = commafy(newVal);
+      dataKontrak.hrgtotal = newVal;
+      document.getElementById(key).value = commafy(newVal);
     }
     if(target.type=="file"){
       this.setState({[key]:''});
@@ -711,25 +696,7 @@ class Form50200 extends React.Component {
         dataKontrak.jenisPengadaan = radio.value;
       }
     }
-    dataKontrak.TABELNego = dataNegosiasi;
-    dataKontrak.TABEL = [{
-      descr: "descr",
-      qty: 1,
-      freq: 1,
-      unitprice: commafy(this.state.hrgtotal),
-      total: commafy(this.state.hrgtotal),
-    }]
-    dataKontrak.TABELPnw = [{
-      descr: "descr",
-      qty: 1,
-      freq: 1,
-      unitprice: commafy(this.state.hrgtotal),
-      total: commafy(this.state.hrgtotal),
-    }]
-    dataKontrak.isPPN     = 0;
-    dataKontrak.isPPNPnw  = 0;
     console.log(dataKontrak);
-    
     var IsOK = false;
     if(type=="save"){
       if(dataKontrak.namaPekerjaan == '' || dataKontrak.namaPekerjaan == null){
@@ -1001,9 +968,9 @@ class Form50200 extends React.Component {
               <Step label="Nama Pekerjaan" onClick={()=>{this.handleNext(0)}}/>
               <Step label="Jadwal Pekerjaan" onClick={()=>{this.handleNext(1)}}/>
               <Step label="Perusahaan Pemenang" onClick={()=>{this.handleNext(2)}}/>
-              <Step label="BAEKN" onClick={()=>{this.handleNext(3)}}/>
-              {/* <Step label="Tabel SPK" onClick={()=>{this.handleNext(4)}}/> */}
-              {this.isUp200()?<Step label="Pokja" onClick={()=>{this.handleNext(4)}}/>:null}
+              <Step label="Tabel HPS" onClick={()=>{this.handleNext(3)}}/>
+              <Step label="Tabel SPK" onClick={()=>{this.handleNext(4)}}/>
+              {this.isUp200()?<Step label="Pokja" onClick={()=>{this.handleNext(5)}}/>:null}
               
             </Stepper>
           </Col>
@@ -1614,156 +1581,655 @@ class Form50200 extends React.Component {
                 </CardBody>
               </Card>
 
+              {/* style={{display:this.state.step[3]}} */}
+              
               <Card style={{display:this.state.step[3]}}>
-                <CardHeader>BERITA ACARA EVALUASI, KLARIFIKASI, DAN NEGOSIASI</CardHeader>
+                <CardHeader>Input Tabel HPS</CardHeader>
                 <CardBody>
-                  <Row>
-                    <Col xl={12} lg={12} md={12}>
+                  <Row style={{display:'none'}}>
+                    <Col sm={12}>
                       <FormGroup row>
-                        <Label for="hrgtotalPNW" sm={3}>
-                          Harga Penawaran
+                        <Label for="metodHPS" sm={3}>
+                          Metode Input
                         </Label>
-                        <Col sm={4}>
-                          <NumberFormat
-                            className="form-control"
-                            id={"hrgtotalPNW"} name={"hrgtotalPNW"}
-                            thousandSeparator={true} 
-                            prefix={'Rp. '} 
-                            value={this.state.hrgtotalPNW}
-                            onValueChange={(values) => {
-                                const { formattedValue, value } = values;
-                                dataKontrak.hrgtotalPNW = value;
-                                this.setState({ hrgtotalPNW: value });
-                            }}
-                            />
-                          <FormText color={'danger'}>{this.state.msg_p1}</FormText>
-                        </Col>
-                      </FormGroup>
-                      <FormGroup row>
-                        <Label for="hrgtotal" sm={3}>
-                          Harga SPK
-                        </Label>
-                        <Col sm={4}>
-                          <NumberFormat
-                            className="form-control"
-                            id={"hrgtotal"} name={"hrgtotal"}
-                            thousandSeparator={true} 
-                            prefix={'Rp. '} 
-                            value={this.state.hrgtotal}
-                            onValueChange={(values) => {
-                                const { formattedValue, value } = values;
-                                dataKontrak.hrgtotal = value;
-                                this.setState({ hrgtotal: value });
-                            }}
-                            />
-                          <FormText color={'danger'}>{this.state.msg_p1}</FormText>
+                        <Col sm={7}>
+                          <Input 
+                            type="select" name="chooserTipeHPS" 
+                            id="chooserTipeHPS"
+                            onChange={this.handleInputChange}
+                          >
+                            <option value="0">-Pilih salah satu-</option>
+                            <option value="1">Input Manual</option>
+                            <option value="2">Upload Gambar</option>
+                          </Input>
+                          <FormText color={'danger'}>{this.state.msg_select}</FormText>
                         </Col>
                       </FormGroup>
                       <hr/>
                     </Col>
+                  </Row>
+                  {/* row input Gambar */}
+                  <Row style={{display:this.state.isHPSimg==null?'none':(this.state.isHPSimg?'block':'none')}}>
+                    <Col sm={12}>
+                      <FormGroup row>
+                        <Label for="metodHPS" sm={3}>
+                          Upload Gambar HPS
+                        </Label>
+                        <Col sm={7}>
+                          <Input 
+                            type="file" name="HPSimg" 
+                            id="HPSimg"
+                            onChange={this.handleInputChange}
+                          />
+                          <img id="viewerHPSimg" 
+                          style={{width:"100%"}}
+                          src={''}
+                          ></img>
+                          <FormText color={'danger'}>{this.state.HPSimg}</FormText>
+                        </Col>
+                      </FormGroup>
+                    </Col>
+                    {/* <Col sm={12}>
+                    <FormGroup row>
+                        <Label for="grandTotal" sm={3}>
+                          Grand Total
+                        </Label>
+                        <Col sm={5}>
+                          <Input 
+                            type="text" name="hrgtotal" 
+                            id="hrgtotal"
+                            onChange={this.handleInputChange}
+                          />
+                          <FormText color={'danger'}>{this.state.msg_hrgtot}</FormText>
+                        </Col>
+                      </FormGroup>
+                    </Col> */}
+                  </Row>
+                  {/* row input manual */}
+                  <Row style={{display:this.state.isHPSimg==null?'none':(!this.state.isHPSimg?'block':'none')}}>
                     <Col xl={12} lg={12} md={12}>
-                      <Table style={{fontSize:14}} size="sm" responsive {...{ ['' || 'default']: true }}>
+                      <FormGroup row>
+                        <Label for="descr" sm={3}>
+                          Deskripsi
+                        </Label>
+                        <Col sm={7}>
+                          <Input
+                            type="textarea"
+                            style={{height:'140px'}}
+                            id="descr"
+                            name="descr"
+                            placeholder="uraian kegiatan/barang"
+                            onChange={this.handleInputChange}
+                            onKeyUp={()=>{this.setState({msg_tb1:''})}}
+                          />
+                          <FormText color={'danger'}>{this.state.msg_tb1}</FormText>
+                        </Col>
+                      </FormGroup>
+                    </Col>
+                    <Col xl={12} lg={12} md={12}>
+                      <Row>
+                        <Col xl={12} lg={12} md={12}>
+                          <FormGroup row>
+                            <Label for="qty" sm={3}>
+                            Jumlah/Quantity
+                            </Label>
+                            <Col sm={5}>
+                              <Input
+                                type="number"
+                                id="qty"
+                                name="qty"
+                                placeholder="kuantitas "
+                                onChange={this.handleInputChange}
+                                onKeyUp={()=>{this.setState({msg_tb2:''})}}
+                              />
+                              <FormText color={'danger'}>{this.state.msg_tb2}</FormText>
+                            </Col>
+                          </FormGroup>                          
+                        </Col>
+                        <Col xl={12} lg={12} md={12}>
+                          <FormGroup row>
+                            <Label for="freq" sm={3}>
+                              Satuan
+                            </Label>
+                            <Col sm={5}>
+                              <Input
+                                type="text"
+                                id="freq"
+                                name="freq"
+                                placeholder="paket, bulan, OH, OK, OB, dll"
+                                onChange={this.handleInputChange}
+                                onKeyUp={()=>{this.setState({msg_tb4:''})}}
+                              />
+                              <FormText color={'danger'}>{this.state.msg_tb4}</FormText>
+                            </Col>
+                          </FormGroup>
+                        </Col>
+                        <Col xl={12} lg={12} md={12}>
+                          <FormGroup row>
+                            <Label for="unitprice" sm={3}>
+                              Harga Satuan
+                            </Label>
+                            <Col sm={5}>
+                              <Input
+                                type="text"
+                                id="unitprice"
+                                name="unitprice"
+                                placeholder="harga satuan"
+                                onChange={this.handleInputChange}
+                                onKeyUp={()=>{this.setState({msg_tb3:''})}}
+                              />
+                              <FormText color={'danger'}>{this.state.msg_tb3}</FormText>
+                            </Col>
+                          </FormGroup>
+                        </Col>
+                        <Col xl={12} lg={12} md={12}>
+                          <FormGroup row>
+                            <Label for="total" sm={3}>
+                              Total Harga
+                            </Label>
+                            <Col sm={5}>
+                              <Input
+                                type="text"
+                                name="total"
+                                id="total"
+                                placeholder="total harga"
+                                onChange={this.handleInputChange}
+                                onKeyUp={()=>{this.setState({msg_tb5:''})}}
+                              />
+                              <FormText color={'danger'}>{this.state.msg_tb5}</FormText>
+                            </Col>
+                          </FormGroup>
+                        </Col>
+                      </Row>
+                    </Col>
+                    <Col xl={10} lg={12} md={12}>
+                      <FormGroup row className="d-flex justify-content-end">
+                        <Col sm={2} className="d-flex justify-content-end">
+                          <Button color="secondary" onClick={()=> this.handleAddHPS("HPS")}>{this.state.isEditHPS?"Simpan":"Tambah"}</Button>
+                        </Col>
+                      </FormGroup>
+                    </Col>
+                    <br/>
+                    <Col xl={12} lg={12} md={12}>
+                      <hr/>
+                      <FormGroup row>
+                        <Label for="checkbox2" sm={3}>
+                          Optional
+                        </Label>
+                        <Col sm={{ size: 3 }}>
+                          <FormGroup check>
+                            <Label check>
+                              <Input  type="checkbox" id="cb_managementFee" name="cb_managementFee"
+                              onChange={this.handleInputChange}
+                              /> Management Fee                              
+                            </Label>
+                          </FormGroup>
+                          <Input 
+                            type="select" name="chooserMgmtFee" 
+                            id="chooserMgmtFee" 
+                            onChange={this.handleInputChange}
+                            selectedIndex={this.state.isPctgMgmtFee}
+                          >
+                            <option value="0">Nominal</option>
+                            <option value="1">Percentage</option>
+                          </Input>
+                          <br/>
+                          <InputGroup style={{width:'100px'}} hidden={this.state.isPctgMgmtFee==0?true:false}>
+                            <Input
+                              type='number'
+                              name="managementFeePctg"
+                              id="managementFeePctg"
+                              onChange={this.handleInputChange}
+                            />
+                            <InputGroupAddon addonType="append">%</InputGroupAddon>
+                          </InputGroup>
+                          <InputGroup style={{width:'200px'}} hidden={this.state.isPctgMgmtFee==1?true:false}>
+                            <Input
+                              type='text'
+                              name="mgmtFeeNmnl"
+                              id="mgmtFeeNmnl"
+                              onChange={this.handleInputChange}
+                            />
+                          </InputGroup>
+                        </Col>
+                        <br/>
+                        <Col sm={{ size: 3 }}>
+                          <FormGroup check>
+                            <Label check>
+                              <Input  type="checkbox" id="isPPN" name="isPPN" checked={this.state.isPPN}
+                              onChange={this.handleInputChange}
+                              /> PPN 10%                              
+                            </Label>
+                          </FormGroup>
+                          <FormText><MdInfo/> hilangkan centang untuk perusahaan non PKP</FormText>
+                        </Col>
+                      </FormGroup>
+                    </Col>
+                    <Col xl={12} lg={12} md={12}>
+                      <Card body>
+                        <Table responsive {...{ ['hover' || 'default']: true }}>
                           <thead>
-                              <tr>
+                            <tr>
                               <th>No</th>
-                              <th>Uraian Negosiasi dan Klarifikasi</th>
-                              <th>Hasil Negosiasi</th>
-                              <th style={{width:"140px"}}>Action</th>
-                              
-                              </tr>
+                              <th>Deskripsi</th>
+                              <th>Jumlah</th>
+                              <th>Satuan</th>
+                              <th align="right">Harga Satuan</th>
+                              <th align="right">Total Harga</th>
+                              <th>Action</th>
+                            </tr>
                           </thead>
                           <tbody>
-                              {this.state.dataRenderNegosiasi.map((dt,index)=>(
-                              <tr style={{backgroundColor:(index%2==0)?"#eff4fc":"#fff", height:60}} key={index}>
-                                  <td scope="row" style={{width:50}}>{index+1}</td>
-                                  <td style={{width:400}}>
-                                    <Input
-                                      style={{height:'100px'}}
-                                      type="textarea"
-                                      name="uraianNego"
-                                      id="uraianNego"
-                                      placeholder="Item / nama pekerjaan yang dinegosiasi"
-                                      value={this.state.dataRenderNegosiasi[index].uraianNego}
-                                      onChange={(v)=>{
-                                        dataNegosiasi[index].uraianNego = v.target.value;
-                                        this.setState({ dataRenderNegosiasi: dataNegosiasi });
-                                      }}
-                                      //onKeyUp={()=>{this.handleSearchPerusahaan()}}
-                                    />
-                                  </td>
-                                  <td style={{width:400}}>
-                                    <Input
-                                      style={{height:'100px'}}
-                                      type="textarea"
-                                      name="hasilNego"
-                                      id="hasilNego"
-                                      placeholder=""
-                                      value={this.state.dataRenderNegosiasi[index].hasilNego}
-                                      onChange={(v)=>{
-                                        dataNegosiasi[index].hasilNego = v.target.value;
-                                        this.setState({ dataRenderNegosiasi: dataNegosiasi });
-                                      }}
-                                      //onKeyUp={()=>{this.handleSearchPerusahaan()}}
-                                    />
-                                  </td>
-                                  {/* <td style={{width:250}}>
-                                      <NumberFormat
-                                          className="form-control"
-                                          id={"nominal"} name={"nominal"}
-                                          thousandSeparator={true} 
-                                          prefix={'Rp. '} 
-                                          value={dt.nominal==undefined?'':dt.nominal}
-                                          onValueChange={(values) => {
-                                              const { formattedValue, value } = values;
-                                              dataNegosiasi[index].nominal = value;
-                                              this.setState({ dataRenderNegosiasi: dataPerjadin, editNominal: true });
-                                          }}
-                                      />
-                                      
-                                  </td> */}
-                                  <td>                                                           
-                                  {index!==0?
-                                    <Button 
-                                        title="Hapus Item"
-                                        style={{background:'rgb(230 14 20)', borderColor:'rgb(230 14 20)'}}
-                                        onClick={()=>{
-                                            dataNegosiasi.splice(index,1);
-                                            this.setState({dataRenderNegosiasi:dataNegosiasi})
-                                        }}
-                                        size="sm"
-                                    ><MdDelete/></Button>:null
-                                  }
-                                  &nbsp;  
-                                  {index==dataNegosiasi.length - 1 ?
+                            {this.state.TABEL.map((dt,index)=>(
+                              <tr key={index}>
+                                <td scope="row">{index+1}</td>
+                                <td>{dt.descr}</td>
+                                <td>{dt.qty}</td>
+                                <td>{dt.freq}</td>
+                                <td align="right">{dt.unitprice}</td>
+                                <td align="right">{dt.total}</td>
+                                <td>
                                   <Button 
-                                      title="Tambah item"
-                                      color="primary"
-                                      //style={{background:'rgb(230 14 20)', borderColor:'rgb(230 14 20)'}}
-                                      onClick={()=>{
-                                          dataNegosiasi.push({uraianNego:"",hasilNego:"Ada perubahan harga, semula Rp xxx.xxx,- menjadi Rp. xxx.xxx,-"});
-                                          this.setState({dataRenderNegosiasi:dataNegosiasi});
-                                          console.log(this.state.dataRenderNegosiasi)
-                                      }}
-                                      size="sm"
-                                  ><MdAdd/></Button>:null
-                                  }              
-                                  </td>
+                                    color="secondary"
+                                    onClick={()=>{this.handleEditRowHPS(index,"HPS")}}
+                                    size="sm"
+                                  ><MdEdit/></Button>&nbsp;
+                                  <Button 
+                                    style={{background:'rgb(230 14 20)', borderColor:'rgb(230 14 20)'}}
+                                    onClick={()=>{this.handelDeleteRowHPS(index,"HPS")}}
+                                    size="sm"
+                                  ><MdDelete/></Button>                                
+                                </td>
                               </tr>
-                              ))}
+                            ))}
+                              <tr>
+                                <th colSpan="5">Sub Total</th>
+                                <td align="right">{commafy(this.state.subtotalHPS||0)}</td>
+                              </tr>
+                              <tr hidden={!this.state.isManagementFee}>
+                                <th colSpan="5">{"Management Fee"}</th>
+                                <td align="right">{commafy(this.state.managementFeeHPS||0)}</td>
+                              </tr>
+                              <tr hidden={!this.state.isPPN}>
+                                <th colSpan="5">{"PPN 10%"}</th>
+                                <td align="right">{commafy(this.state.ppnHPS||0)}</td>
+                              </tr>
+                              <tr>
+                                <th colSpan="5">{"Grand Total"}</th>
+                                <td align="right">{commafy(this.state.hrgtotalHPS||0)}</td>
+                              </tr>
                           </tbody>
                         </Table>
-                        <hr/>
-                      </Col>
+                      </Card>
+                    </Col>
                     
 
+                    <hr/>
+                    
+                  </Row>
+                  {/*end row input manual */}
+                  <Row>
                     <Col xl={12} lg={12} md={12}>
                       <FormGroup row className="d-flex justify-content-end">
                         <Col sm={4} className="d-flex justify-content-end">
                           <Button color="danger" onClick={()=>this.handleNext(2)}>Kembali</Button> &nbsp;
                           {this.renderBtnSaveDraft()} &nbsp;
-                          {this.isUp200()?<Button disabled={this.state.overNilai} color="primary" onClick={()=> this.handleNext(4)}>Selanjutnya</Button>:
-                          // <Button disabled={this.state.overNilai} color="secondary" onClick={()=> this.handleSubmit("generate")}>Unduh DOCX</Button>
-                          null
+                          <Button disabled={this.state.overNilai} color="primary" onClick={()=> this.handleNext(4)}>Selanjutnya</Button>
+                        </Col>
+                      </FormGroup>
+                    </Col>
+                  </Row>
+                </CardBody>
+              </Card>
+      
+
+              <Card style={{display:this.state.step[4]}}>
+                <CardHeader>Input Tabel SPK</CardHeader>
+                <CardBody>
+                  <Row style={{display:'none'}}>
+                    <Col sm={12}>
+                      <FormGroup row>
+                        <Label for="metodPenawaran" sm={3}>
+                          Metode Input
+                        </Label>
+                        <Col sm={7}>
+                          <Input 
+                            type="select" name="chooserTipePenawaran" 
+                            id="chooserTipePenawaran"
+                            onChange={this.handleInputChange}
+                          >
+                            <option value="0">-Pilih salah satu-</option>
+                            <option value="1">Input Manual</option>
+                            <option value="2">Upload Gambar</option>
+                          </Input>
+                          <FormText color={'danger'}>{this.state.msg_selectP}</FormText>
+                        </Col>
+                      </FormGroup>
+                      <hr/>
+                    </Col>
+                  </Row>
+                  {/* row input Gambar */}
+                  <Row style={{display:this.state.isPenawaranimg==null?'none':(this.state.isPenawaranimg?'block':'none')}}>
+                    <Col sm={12}>
+                      <FormGroup row>
+                        <Label for="metodHPS" sm={3}>
+                          Upload Gambar Tabel Permintaan Penawaran
+                        </Label>
+                        <Col sm={7}>
+                          <Input 
+                            type="file" name="Penawaranimg" 
+                            id="Penawaranimg"
+                            onChange={this.handleInputChange}
+                          />
+                          <img id="viewerPenawaranimg" 
+                          style={{width:"100%"}}
+                          src={''}
+                          ></img>
+                          <FormText color={'danger'}>{this.state.Penawaranimg}</FormText>
+                        </Col>
+                      </FormGroup>
+                    </Col>
+                    <Col sm={12}>
+                      <FormGroup row>
+                        <Label for="metodHPS" sm={3}>
+                          Upload Gambar Tabel SPK
+                        </Label>
+                        <Col sm={7}>
+                          <Input 
+                            type="file" name="Pemenangimg" 
+                            id="Pemenangimg"
+                            onChange={this.handleInputChange}
+                          />
+                          <img id="viewerPemenangimg" 
+                          style={{width:"100%"}}
+                          src={''}
+                          ></img>
+                          <FormText color={'danger'}>{this.state.Pemenangimg}</FormText>
+                        </Col>
+                      </FormGroup>
+                    </Col>
+                    <Col sm={12}>
+                      <FormGroup row>
+                        <Label for="metodHPS" sm={3}>
+                          Upload Gambar Tabel BAPP
+                        </Label>
+                        <Col sm={7}>
+                          <Input 
+                            type="file" name="BAPPimg" 
+                            id="BAPPimg"
+                            onChange={this.handleInputChange}
+                          />
+                          <img id="viewerBAPPimg" 
+                          style={{width:"100%"}}
+                          src={''}
+                          ></img>
+                          <FormText color={'danger'}>{this.state.BAPPimg}</FormText>
+                        </Col>
+                      </FormGroup>
+                    </Col>
+                    {/* <Col sm={12}>
+                    <FormGroup row>
+                        <Label for="grandTotal" sm={3}>
+                          Grand Total
+                        </Label>
+                        <Col sm={5}>
+                          <Input 
+                            type="text" name="hrgtotal" 
+                            id="hrgtotal"
+                            onChange={this.handleInputChange}
+                          />
+                          <FormText color={'danger'}>{this.state.msg_hrgtot}</FormText>
+                        </Col>
+                      </FormGroup>
+                    </Col> */}
+                  </Row>
+                  {/* row input manual */}
+                  <Row style={{display:this.state.isPenawaranimg==null?'none':(!this.state.isPenawaranimg?'block':'none')}}>
+                    <Col xl={12} lg={12} md={12}>
+                      <FormGroup row>
+                        <Label for="descr" sm={3}>
+                          Import Data
+                        </Label>
+                        <Col sm={7}>
+                          <Button color="secondary" onClick={()=> 
+                          {
+                            this.handleImportdataFormHPS();
+                            // console.log("import");
+                            // tablePnwrn = tableHPS;
+                            // this.setState({TABELPnw: tablePnwrn})
+                            // dataKontrak.TABELPnw = tablePnwrn;
+                            // this.hitungTotal();
+                          }}>Import dari HPS</Button>
+                        </Col>
+                      </FormGroup>
+                      <FormGroup row>
+                        <Label for="descr" sm={3}>
+                          Deskripsi
+                        </Label>
+                        <Col sm={7}>
+                          <Input
+                            type="textarea"
+                            style={{height:'140px'}}
+                            id="descrPnw"
+                            name="descrPnw"
+                            placeholder="uraian kegiatan/barang"
+                            onChange={this.handleInputChange}
+                            onKeyUp={()=>{this.setState({msg_tb1:''})}}
+                          />
+                          <FormText color={'danger'}>{this.state.msg_tb1}</FormText>
+                        </Col>
+                      </FormGroup>
+                    </Col>
+                    <Col xl={12} lg={12} md={12}>
+                      <Row>
+                        <Col xl={12} lg={12} md={12}>
+                          <FormGroup row>
+                            <Label for="qtyPnw" sm={3}>
+                            Jumlah/Quantity
+                            </Label>
+                            <Col sm={5}>
+                              <Input
+                                type="number"
+                                id="qtyPnw"
+                                name="qtyPnw"
+                                placeholder="kuantitas "
+                                onChange={this.handleInputChange}
+                                onKeyUp={()=>{this.setState({msg_tb2:''})}}
+                              />
+                              <FormText color={'danger'}>{this.state.msg_tb2}</FormText>
+                            </Col>
+                          </FormGroup>                          
+                        </Col>
+                        <Col xl={12} lg={12} md={12}>
+                          <FormGroup row>
+                            <Label for="freq" sm={3}>
+                              Satuan
+                            </Label>
+                            <Col sm={5}>
+                              <Input
+                                type="text"
+                                id="freqPnw"
+                                name="freqPnw"
+                                placeholder="paket, bulan, OH, OK, OB, dll"
+                                onChange={this.handleInputChange}
+                                onKeyUp={()=>{this.setState({msg_tb4:''})}}
+                              />
+                              <FormText color={'danger'}>{this.state.msg_tb4}</FormText>
+                            </Col>
+                          </FormGroup>
+                        </Col>
+                        <Col xl={12} lg={12} md={12}>
+                          <FormGroup row>
+                            <Label for="unitprice" sm={3}>
+                              Harga Satuan
+                            </Label>
+                            <Col sm={5}>
+                              <Input
+                                type="text"
+                                id="unitpricePnw"
+                                name="unitpricePnw"
+                                placeholder="harga satuan"
+                                onChange={this.handleInputChange}
+                                onKeyUp={()=>{this.setState({msg_tb3:''})}}
+                              />
+                              <FormText color={'danger'}>{this.state.msg_tb3}</FormText>
+                            </Col>
+                          </FormGroup>
+                        </Col>
+                        <Col xl={12} lg={12} md={12}>
+                          <FormGroup row>
+                            <Label for="total" sm={3}>
+                              Total Harga
+                            </Label>
+                            <Col sm={5}>
+                              <Input
+                                type="text"
+                                name="totalPnw"
+                                id="totalPnw"
+                                placeholder="total harga"
+                                onChange={this.handleInputChange}
+                                onKeyUp={()=>{this.setState({msg_tb5:''})}}
+                              />
+                              <FormText color={'danger'}>{this.state.msg_tb5}</FormText>
+                            </Col>
+                          </FormGroup>
+                        </Col>
+                      </Row>
+                    </Col>
+                    <Col xl={10} lg={12} md={12}>
+                      <FormGroup row className="d-flex justify-content-end">
+                        <Col sm={2} className="d-flex justify-content-end">
+                          <Button color="secondary" onClick={()=> this.handleAddHPS("Pnw")}>{this.state.isEditPnw?"Simpan":"Tambah"}</Button>
+                        </Col>
+                      </FormGroup>
+                    </Col>
+                    <br/>
+                    <Col xl={12} lg={12} md={12}>
+                      <hr/>
+                      <FormGroup row>
+                        <Label for="checkbox2" sm={3}>
+                          Optional
+                        </Label>
+                        <Col sm={{ size: 3 }}>
+                          <FormGroup check>
+                            <Label check>
+                              <Input  type="checkbox" id="cb_managementFeePnw" name="cb_managementFeePnw"
+                              onChange={this.handleInputChange}
+                              /> Management Fee                              
+                            </Label>
+                          </FormGroup>
+                          <Input 
+                            type="select" name="chooserMgmtFeePnw" 
+                            id="chooserMgmtFeePnw" 
+                            onChange={this.handleInputChange}
+                          
+                          >
+                            <option value="0">Nominal</option>
+                            <option value="1">Percentage</option>
+                          </Input>
+                          <br/>
+                          <InputGroup style={{width:'100px'}} hidden={this.state.isPctgMgmtFeePnw==0?true:false}>
+                            <Input
+                              type='number'
+                              name="managementFeePctgPnw"
+                              id="managementFeePctgPnw"
+                              onChange={this.handleInputChange}
+                            />
+                            <InputGroupAddon addonType="append">%</InputGroupAddon>
+                          </InputGroup>
+                          <InputGroup style={{width:'200px'}} hidden={this.state.isPctgMgmtFeePnw==1?true:false}>
+                            <Input
+                              type='text'
+                              name="mgmtFeeNmnlPnw"
+                              id="mgmtFeeNmnlPnw"
+                              onChange={this.handleInputChange}
+                            />
+                          </InputGroup>
+                        </Col>
+                        <br/>
+                        <Col sm={{ size: 3 }}>
+                          <FormGroup check>
+                            <Label check>
+                              <Input  type="checkbox" id="isPPNPnw" name="isPPNPnw" checked={this.state.isPPNPnw}
+                              onChange={this.handleInputChange}
+                              /> PPN 10%                              
+                            </Label>
+                          </FormGroup>
+                          <FormText><MdInfo/> hilangkan centang untuk perusahaan non PKP</FormText>
+                        </Col>
+                      </FormGroup>
+                    </Col>
+                    <Col xl={12} lg={12} md={12}>
+                      <Card body>
+                        <Table responsive {...{ ['hover' || 'default']: true }}>
+                          <thead>
+                            <tr>
+                              <th>No</th>
+                              <th>Deskripsi</th>
+                              <th>Jumlah</th>
+                              <th>Satuan</th>
+                              <th align="right">Harga Satuan</th>
+                              <th align="right">Total Harga</th>
+                              <th>Action</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {this.state.TABELPnw.map((dt,index)=>(
+                              <tr key={index}>
+                                <td scope="row">{index+1}</td>
+                                <td>{dt.descr}</td>
+                                <td>{dt.qty}</td>
+                                <td>{dt.freq}</td>
+                                <td align="right">{dt.unitprice}</td>
+                                <td align="right">{dt.total}</td>
+                                <td>
+                                  <Button 
+                                    color="secondary"
+                                    onClick={()=>{this.handleEditRowHPS(index,"Pnw")}}
+                                    size="sm"
+                                  ><MdEdit/></Button>&nbsp;
+                                  <Button 
+                                    style={{background:'rgb(230 14 20)', borderColor:'rgb(230 14 20)'}}
+                                    onClick={()=>{this.handelDeleteRowHPS(index)}}
+                                    size="sm"
+                                  ><MdDelete/></Button>                                
+                                </td>
+                              </tr>
+                            ))}
+                              <tr>
+                                <th colSpan="5">Sub Total</th>
+                                <td align="right">{commafy(this.state.subtotal)}</td>
+                              </tr>
+                              <tr hidden={!this.state.isManagementFeePnw}>
+                                <th colSpan="5">{"Management Fee"}</th>
+                                <td align="right">{commafy(this.state.managementFee)}</td>
+                              </tr>
+                              <tr hidden={!this.state.isPPNPnw}>
+                                <th colSpan="5">{"PPN 10%"}</th>
+                                <td align="right">{commafy(this.state.ppn)}</td>
+                              </tr>
+                              <tr>
+                                <th colSpan="5">{"Grand Total"}</th>
+                                <td align="right">{commafy(this.state.hrgtotal)}</td>
+                              </tr>
+                          </tbody>
+                        </Table>
+                      </Card>
+                    </Col>
+                    
+
+                    <hr/>
+                    
+                  </Row>
+                  {/*end row input manual */}
+                  <Row>
+                    <Col xl={12} lg={12} md={12}>
+                      <FormGroup row className="d-flex justify-content-end">
+                        <Col sm={4} className="d-flex justify-content-end">
+                          <Button color="danger" onClick={()=>this.handleNext(3)}>Kembali</Button> &nbsp;
+                          {this.renderBtnSaveDraft()} &nbsp;
+                          {this.isUp200()?<Button disabled={this.state.overNilai} color="primary" onClick={()=> this.handleNext(5)}>Selanjutnya</Button>:
+                          <Button disabled={this.state.overNilai} color="secondary" onClick={()=> this.handleSubmit("generate")}>Unduh DOCX</Button>
                           }
                           
                         </Col>
@@ -1772,8 +2238,8 @@ class Form50200 extends React.Component {
                   </Row>
                 </CardBody>
               </Card>
-
-              <Card style={{display:this.state.step[4]}}>
+               
+              <Card style={{display:this.state.step[5]}}>
                 <CardHeader>Input Data Pokja</CardHeader>
                 <CardBody>
                   <Row>
@@ -2215,17 +2681,5 @@ function commafy( num ) {
 function removeComma(num){
   return num.replace(/,/g, '');
 }
-function setTabelNego(dtTabel){
-  var tblFIX = [];
-  dtTabel.map((d,index)=>{
-    var row = {
-      no: index+1,
-      uraianNego: d.uraian_nego,
-      hasilNego: d.hasil_nego,
-    }
-    tblFIX.push(row);
-  })
 
-  return tblFIX;
-}
 export default Form50200;

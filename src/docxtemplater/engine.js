@@ -403,6 +403,19 @@ function setTabelHPS(dtTabel){
 
   return tblFIX;
 }
+function setTabelNego(dtTabel){
+  var tblFIX = [];
+  dtTabel.map((d,index)=>{
+    var row = {
+      no: index+1,
+      uraianNego: d.uraian_nego,
+      hasilNego: d.hasil_nego,
+    }
+    tblFIX.push(row);
+  })
+
+  return tblFIX;
+}
 
 function commafy( num ) {
   var str = num.toString().split('.');
@@ -499,11 +512,14 @@ function getDataSet(dataKontrak, hps2, pnw2=[]){
       nipPokja1: dataKontrak.nipPokja1,
 
       hps: setTabelHPS(dataKontrak.TABEL),
+      nego: setTabelNego(dataKontrak.TABELNego),
       hpsSUM: hps2,
       hrgtotal: commafy(dataKontrak.hrgtotal),
       hrgtotaltb: angkaTerbilang(dataKontrak.hrgtotal),
       pnw: setTabelHPS(dataKontrak.TABELPnw),
       pnwSUM: pnw2,
+      hrgtotalPnw: commafy(dataKontrak.hrgtotalPNW),
+      hrgtotalPnwtb: angkaTerbilang(dataKontrak.hrgtotalPNW),
       dayEvaluasi:setTanggal(dataKontrak.evaluasi, "day"),
       dateEvaluasi:setTanggal(dataKontrak.evaluasi, "dd"),
       monthEvaluasi:setTanggal(dataKontrak.evaluasi, "mm"),
@@ -654,6 +670,8 @@ function getDataSet(dataKontrak, hps2, pnw2=[]){
 
       hrgtotal: commafy(dataKontrak.hrgtotal),
       hrgtotaltb: angkaTerbilang(dataKontrak.hrgtotal),
+      hrgtotalPnw: commafy(dataKontrak.hrgtotalPNW),
+      hrgtotalPnwtb: angkaTerbilang(dataKontrak.hrgtotalPNW),
 
       dayEvaluasi:setTanggal(dataKontrak.evaluasi, "day"),
       dateEvaluasi:setTanggal(dataKontrak.evaluasi, "dd"),
@@ -749,6 +767,7 @@ function getDataSet(dataKontrak, hps2, pnw2=[]){
       dataSet.hpsSUM = hps2;
       dataSet.pnw = setTabelHPS(dataKontrak.TABELPnw);
       dataSet.pnwSUM = pnw2;
+      dataSet.nego = setTabelNego(dataKontrak.TABELNego);
     //}
     //console.log(dataSet);
     return dataSet;
