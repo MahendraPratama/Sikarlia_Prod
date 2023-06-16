@@ -32,6 +32,7 @@ const fileMaster = {
   '100NonPL':'/kontrak50_200.docx',
   '100up':'/kontrak200up.docx',
 }
+const ttdDef = "data:image/jpeg;base64,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AQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD9/KKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAGQyGQcjH40+mou1adQAUUUUAFFFFABRRQaACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKazqp5PXpTqguXxMuOTjlc0AT0VHFceZ1+VumKkFAAzbR/8AWpiMS5+Vunen0UAFFI7bEJ9KSOTeTwRj1oAdRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAU07gxJ27eo9adQw3DBoAb5oz/nijzVFHlrnpQYlI6UAKrb1yKWhV2jiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP/Z";
 var dataPeg = [];
 var dataPerjadin = [];
 class KuitansiPerjadin extends React.Component {
@@ -165,13 +166,52 @@ class KuitansiPerjadin extends React.Component {
     const target = event.target;
     const value = target.type === 'checkbox' ? target.checked : target.value;
     const key = target.name;
-
+    if(target.type=="file"){
+      this.setState({[key]:''});
+      this.getFile(event.target.files[0],key);
+    }
     console.log(value);
     this.setState({
       [key]: value
     })
   }
-
+  getFile(file,keyname){
+    var allowedFileTypes = ["image/png", "image/jpeg", "image/jpg"];
+    
+    //console.log("namafile: "+ file.name);
+    if(file==undefined){
+      return;
+    }
+    
+    if (allowedFileTypes.indexOf(file.type) > -1) {
+      // file type matched is one of allowed file types. Do something here.
+      var reader = new FileReader();
+      var blob = new Blob([file], {
+        type: file.type
+      });
+      reader.readAsDataURL(blob);
+      reader.onloadend = function() {
+        var base64data = reader.result;
+        //document.getElementById("viewerHPS").src = base64data;
+        var img = document.getElementById('viewttd'); 
+        img.src = base64data;
+        // setTimeout(()=>{
+        //   var width = img.naturalWidth;
+        //   var height = img.naturalHeight;
+        //   dataKontrak[keyname+"W"] = width;
+        //   dataKontrak[keyname+"H"] = height;
+        //   console.log("allowed : " +width+","+height);
+        // },500)
+        console.log(base64data)
+        //dataKontrak["base64"+keyname.replace("img","")] = base64data;
+      }
+      
+    }else{
+      console.log("not allowed");
+      this.setState({[keyname]:'format file tidak diijinkan'});
+      document.getElementById('viewttd').src = ttdDef;
+    }
+  }
   handleKeyDown(event){
     if(event.keyCode === 13){
       event.preventDefault();
@@ -189,7 +229,7 @@ class KuitansiPerjadin extends React.Component {
     .then(response => response.json())
     .then(respon => {
         this.setState({dataPegawai: respon.data, hideChooser:false})
-        //console.log(this.state.dataPerusahaan)
+        console.log(respon.data)
     });
   }
   renderChooserPegawai(){
@@ -217,6 +257,7 @@ class KuitansiPerjadin extends React.Component {
           var dtChoosed = this.state.dataPegawai[idx];
           document.getElementById('namaPenerima').value = dtChoosed.nama;
           document.getElementById('nip').value = dtChoosed.nip;
+          document.getElementById('viewttd').src = dtChoosed.base64ttd==null?ttdDef:dtChoosed.base64ttd;
           
           dataPeg.id   = dtChoosed.id;
           dataPeg.nama = dtChoosed.nama;
@@ -259,7 +300,8 @@ class KuitansiPerjadin extends React.Component {
                 id: respon.data,
                 nama: nmPeg,
                 nip: nip,
-                nominal: this.state.nominal
+                nominal: this.state.nominal,
+                base64ttd: document.getElementById('viewttd').src
             }
             dataPerjadin.push(row);
             this.setState({nominal:'', dataRenderPerjadin: dataPerjadin})
@@ -269,8 +311,22 @@ class KuitansiPerjadin extends React.Component {
             id: dataPeg.id,
             nama: nmPeg,
             nip: nip,
-            nominal: this.state.nominal
+            nominal: this.state.nominal,
+            base64ttd: document.getElementById('viewttd').src
         }
+        const requestOptions = {
+          method: 'POST',
+          //headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({userid:"",
+              id: dataPeg.id,
+              nama: nmPeg,
+              nip: nip,
+              nominal: this.state.nominal,
+              base64ttd: document.getElementById('viewttd').src})
+        };
+        console.log(requestOptions);
+        fetch(process.env.REACT_APP_URL_API+'/rest/insertPegawai.php', requestOptions)
+          .then(response => response.json());
         dataPerjadin.push(row);
         this.setState({nominal:'', dataRenderPerjadin: dataPerjadin})
       }
@@ -280,6 +336,7 @@ class KuitansiPerjadin extends React.Component {
       document.getElementById('namaPenerima').value = "";
       document.getElementById('nip').value = "";
       document.getElementById('nominal').value = "";
+      document.getElementById('viewttd').src = ttdDef;
       
   }
   simpanKuitansi(){
@@ -425,8 +482,8 @@ class KuitansiPerjadin extends React.Component {
     const {activePage, itemPerPage, usertype} = this.state;
     return (
       <Page
-        title="Kuitansi GU"
-        breadcrumbs={[{ name: 'Kuitansi GU', active: true }]}
+        title="Kuitansi Perjadin"
+        breadcrumbs={[{ name: 'Kuitansi Perjadin Jabodetabek', active: true }]}
         className="TablePage"
       >
         {modalLoading(this.state.modal)}
@@ -556,6 +613,23 @@ class KuitansiPerjadin extends React.Component {
                                 this.setState({ nominal: value });
                             }}
                             />
+                          <FormText color={'danger'}>{this.state.msg_p3}</FormText>
+                        </Col>
+                      </FormGroup>
+                      <FormGroup row>
+                        <Label for="nominal" sm={3}>
+                          Tanda Tangan
+                        </Label>
+                        <Col sm={3}>
+                          <img id="viewttd" 
+                            style={{width:"250px", border:"ridge"}}
+                            src={ttdDef}
+                          ></img>
+                          <Input 
+                            type="file" name="ttdimg" 
+                            id="ttdimg"
+                            onChange={this.handleInputChange}
+                          />
                           <FormText color={'danger'}>{this.state.msg_p3}</FormText>
                         </Col>
                       </FormGroup>

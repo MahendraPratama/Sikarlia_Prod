@@ -137,6 +137,8 @@ class Form50200 extends React.Component {
         isPctgMgmtFee:0,
         isPctgMgmtFeePnw:0,
         overNilai:false,
+
+        toglehidePmb:true,
     };
     //this.handleNext = this.handleNext.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -153,6 +155,9 @@ class Form50200 extends React.Component {
     }else{
       return 'none';
     }
+  }
+  hideOptional(type){
+    return type?'none':'block';
   }
   isUp200(){
     return this.props.tipe=="100up"||this.props.tipe=='200up'?true:false;
@@ -234,6 +239,8 @@ class Form50200 extends React.Component {
     dataKontrak.mgmtFeeNmnl           = data.mgmtFeeNmnl;
     dataKontrak.mgmtFeeNmnlPnw        = data.mgmtFeeNmnlPnw;
 
+    dataKontrak.nmr                   = data.nmr;
+
 
     //dataKontrak.isHPSimg              = data.isHPSimg == 1 ? true:false;
     
@@ -302,6 +309,8 @@ class Form50200 extends React.Component {
     document.getElementById("pokja4").value         = data.pokja4;
     document.getElementById("pokja5").value         = data.pokja5;
     document.getElementById("nipPokja1").value         = data.nipPokja1;
+
+    document.getElementById("nmr").value         = data.nmr;
 
     // document.getElementById("chooserMgmtFee").selectedIndex         = data.isPctgMgmtFee;
     // document.getElementById("chooserMgmtFeePnw").selectedIndex         = data.isPctgMgmtFeePnw;
@@ -373,7 +382,15 @@ class Form50200 extends React.Component {
     }
     if(key=='pelaksanaanPekerjaan' || key=='penandatangananKontrak' || key=='penyelesaianPekerjaan'){
       dataKontrak = autoBAPP(key,dataKontrak);
-      
+      if(dataKontrak.message && dataKontrak.message != ""){
+        console.log(dataKontrak.message); 
+        this.notificationSystem.addNotification({
+          title: <MdWarning />,
+          message: dataKontrak.message,
+          level: 'error',
+          autoDismiss: 10,
+        });
+      }
       if(key=='pelaksanaanPekerjaan'){
         this.validatePelaksanaanPkj(value);
       }
@@ -729,7 +746,7 @@ class Form50200 extends React.Component {
     dataKontrak.isPPN     = 0;
     dataKontrak.isPPNPnw  = 0;
     console.log(dataKontrak);
-    
+    //return;
     var IsOK = false;
     if(type=="save"){
       if(dataKontrak.namaPekerjaan == '' || dataKontrak.namaPekerjaan == null){
@@ -1035,6 +1052,22 @@ class Form50200 extends React.Component {
                             onKeyUp={()=>{this.setState({message_step1:''})}}
                           />
                           <FormText color={'danger'}>{this.state.message_step1}</FormText>
+                        </Col>
+                      </FormGroup>
+                      <FormGroup row>
+                        <Label for="namaPekerjaan" sm={2}>
+                          Nomor Kontrak
+                        </Label>
+                        <Col sm={4}>
+                          <Input
+                            type="text"
+                            id="nmr"
+                            name="nmr"
+                            placeholder="nomor kontrak"
+                            onChange={this.handleInputChange}
+                            onKeyUp={()=>{this.setState({message_step1:''})}}
+                          />
+                          <FormText style={{fontSize:12}}>kalo belom ada nomor kontrak dari PPBJ kosongin aja yah, nanti bisa diedit di menu 'Kontrak Saya'</FormText>
                         </Col>
                       </FormGroup>
                       {this.props.tipe == "200up"?
@@ -1475,8 +1508,17 @@ class Form50200 extends React.Component {
                     
                     <Col xl={12} lg={12} md={12} style={{display:this.hidePembanding(this.props.tipe)}}>
                     <hr/>
-                      <CardHeader>Perusahaan Pembanding (Optional)</CardHeader>
-                      <CardBody>
+                      <CardHeader>Perusahaan Pembanding (Optional) &nbsp;&nbsp;&nbsp;
+                        <Button size="sm"
+                          onClick={()=>{
+                            var temp = this.state.toglehidePmb;
+                            this.setState({toglehidePmb: !temp});
+                          }}
+                        >{this.state.toglehidePmb?'Show':'Hide'}</Button>
+                      </CardHeader>
+                      <CardBody style={{
+                        display:this.hideOptional(this.state.toglehidePmb) 
+                      }}>
                         <FormGroup row>
                           <Label for="namaPerusahaanPembanding1" sm={3}>
                             Nama Perusahaan Pembanding 1

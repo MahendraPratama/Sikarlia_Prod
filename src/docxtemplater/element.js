@@ -262,17 +262,27 @@ export const autoBAPP = (flag="penandatangananKontrak",dataKontrak) => {
     if(isSPK){
       dtSPK.setFullYear(arrD[0],arrD[1]-1,arrD[2]);
       d.setDate(d.getDate() + Number.parseInt(durasiPLK)-1);
+      
+      var isFriday = (d.getDay() == 5) ? true : false;
       var isSaturday = (d.getDay() == 6) ? true : false;
       var isSunday = (d.getDay() == 0) ? true : false;
         
-        if(isSaturday){
-          d.setDate(d.getDate() + 2);
+        // if(isSaturday){
+        //   d.setDate(d.getDate() + 2);
+        // }
+        // else if(isSunday){
+        //   d.setDate(d.getDate() + 1);
+        // }
+        // else{
+        //   //d.setDate(d.getDate() + Number.parseInt(durasiPLK)-1);
+        // }
+        if(isFriday){
+          dataKontrak.message = "BAP jatuh di hari Sabtu/Minggu. Apakah anda yakin ingin melanjutkan?";
         }
-        else if(isSunday){
-          d.setDate(d.getDate() + 1);
-        }
-        else{
-          //d.setDate(d.getDate() + Number.parseInt(durasiPLK)-1);
+        else if(isSaturday || isSunday){
+          dataKontrak.message = "BAPP jatuh di hari Sabtu/Minggu. Apakah anda yakin ingin melanjutkan?";
+        }else{
+          dataKontrak.message = "";
         }
       formated = getFormattedDate(d);
       console.log('BAPP: '+ formated);
@@ -280,7 +290,13 @@ export const autoBAPP = (flag="penandatangananKontrak",dataKontrak) => {
       document.getElementById("penyelesaianPekerjaan").value = formated;
     }else{
       d.setDate(d.getDate() - Number.parseInt(durasiPLK)+1);
-      dtSPK = d;
+      var isSaturday = (d.getDay() == 6) ? true : false;
+      var isSunday = (d.getDay() == 0) ? true : false;
+      if(isSaturday || isSunday){
+        dataKontrak.message = "SPK jatuh di hari Sabtu/Minggu. Apakah anda yakin ingin melanjutkan?";
+      }else{
+        dataKontrak.message = "";
+      }
       formated = getFormattedDate(d);
       console.log('SPK: '+ formated);
       dataKontrak.penandatangananKontrak = formated;
@@ -339,15 +355,15 @@ function getFormattedPembayaran(){
   var isSaturday = (d.getDay() == 6) ? true : false;
   var isSunday = (d.getDay() == 0) ? true : false;
     
-    if(isSaturday){
-      d.setDate(d.getDate() + 2);
-    }
-    else if(isSunday){
-      d.setDate(d.getDate() + 1);
-    }
-    else{
-      //d.setDate(d.getDate() + Number.parseInt(durasiPLK)-1);
-    }
+    // if(isSaturday){
+    //   d.setDate(d.getDate() + 2);
+    // }
+    // else if(isSunday){
+    //   d.setDate(d.getDate() + 1);
+    // }
+    // else{
+    //   //d.setDate(d.getDate() + Number.parseInt(durasiPLK)-1);
+    // }
   return getFormattedDate(d);
 }
 function getFormattedDate(d){

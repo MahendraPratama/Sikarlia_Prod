@@ -22,6 +22,7 @@ import {
   ListGroup,
   ListGroupItem,
   // NavbarToggler,
+  Input,
   Nav,
   Navbar,
   NavItem,
@@ -53,9 +54,14 @@ class Header extends React.Component {
       isOpenNotificationPopover: false,
       isNotificationConfirmed: false,
       isOpenUserCardPopover: false,
+      yearFilter: localStorage.getItem("yearFilter"),
     };
     //this.handleInputChange = this.handleInputChange.bind(this);
     //this.handleKeyDown = this.handleKeyDown.bind(this);
+  }
+
+  componentDidMount(){
+    //console.log("year Filter : "+localStorage.getItem("yearFilter"))
   }
   // state = {
   //   isOpenNotificationPopover: false,
@@ -91,6 +97,14 @@ class Header extends React.Component {
     localStorage.clear();
     window.location.href = "/";
   }
+  handleYearFilter(event){
+    const target = event.target;
+    const value = target.type === 'checkbox' ? target.checked : target.value;
+    const key = target.name;
+    localStorage.setItem("yearFilter", value);
+    
+    window.location.href = window.location.pathname;
+  }
   render() {
     const { isNotificationConfirmed } = this.state;
 
@@ -102,9 +116,32 @@ class Header extends React.Component {
         }}
         title="Menu"
         navbar className="mr-2 cr-btnMenu">
-          <Button outline onClick={this.handleSidebarControlButton}>
-            <MdClearAll size={25} />
+          <Button 
+              outline onClick={this.handleSidebarControlButton}
+            >
+            <MdClearAll size={20} />
           </Button>
+
+          <NavItem className="d-inline-flex">
+            <Input 
+                style={{fontSize:14, marginLeft:10,}}
+                type={"select"}
+                //name={x.id}
+                //id={x.id}
+                //placeholder={x.placeholder}
+                value={this.state.yearFilter}
+                onChange={this.handleYearFilter}
+            >
+              {/* {x.type=="select"?
+                x.options.map(y=>(
+                  <option value={y.value}>{y.label}</option>
+                ))
+              :null} */}
+              <option value={2021}>2021</option>
+              <option value={2022}>2022</option>
+              <option value={2023}>2023</option>
+            </Input>
+          </NavItem>
         </Nav>
         {/* <Nav navbar>
           <SearchInput />

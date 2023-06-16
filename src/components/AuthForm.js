@@ -88,6 +88,7 @@ class AuthForm extends React.Component {
             localStorage.setItem("password", dataAPI.data.password);
             localStorage.setItem("email", dataAPI.data.email);
 
+            localStorage.setItem("yearFilter", 2023);
             var now = new Date().getTime();
             localStorage.setItem('setupTime', now);
             IsLogin = true;

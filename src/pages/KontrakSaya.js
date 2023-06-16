@@ -11,7 +11,7 @@ import loadingImg from 'assets/img/logo/loading.gif';
 import {getDefaultSetDataKontrak, modalLoading, getStatusKontrak, setupTgl} from '../docxtemplater/element';
 import {OutTable, ExcelRenderer} from 'react-excel-renderer';
 import {
-  MdDelete,MdCloudUpload,MdWarning,MdEdit,MdCheckCircle,MdSearch,MdPageview,MdDescription,MdClose
+  MdDelete,MdCloudUpload,MdWarning,MdEdit,MdCheckCircle,MdSearch,MdPageview,MdDescription,MdClose,MdRefresh, MdSave, MdCheck
 } from 'react-icons/md';
 import Pagination from "react-js-pagination";
 import Label from 'reactstrap/lib/Label';
@@ -61,6 +61,12 @@ class KontrakSaya extends React.Component {
       rows_test:[["Abc","","EFG","iaoh"]],
       cols_test:[{name: 'A', key: 0},{name: 'B', key: 1},{name: 'C', key: 2},{name: 'D', key: 3},{name: 'E', key: 4}],
       isFormInvalid: false,
+
+      keyIframe: 0,
+      urlIFrame: '',
+      nmr:'',
+      tgEdtNmr:true,
+      yearFilter: localStorage.getItem("yearFilter"),
     };
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleKeyDown = this.handleKeyDown.bind(this);
@@ -78,7 +84,9 @@ class KontrakSaya extends React.Component {
     const requestOptions = {
       method: 'POST',
       //headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userid: localStorage.getItem("user_session"), usertype: usertype, search: this.state.search })
+      body: JSON.stringify({ userid: localStorage.getItem("user_session"), 
+                              usertype: usertype, search: this.state.search, 
+                              yearFilter: this.state.yearFilter })
     };
     fetch(process.env.REACT_APP_URL_API+'/rest/viewKontrak.php', requestOptions)
         .then(response => response.json())
@@ -161,6 +169,7 @@ class KontrakSaya extends React.Component {
       namaPkj:data.namaPekerjaan,
       prshnPmn:data.namaPerusahaan||'-',
       choosedIdx:idx,
+      nmr: data.nmr
     })
 
     var cb_mgntFee = data.cb_managementFee;
@@ -203,6 +212,9 @@ class KontrakSaya extends React.Component {
           console.log(data);
           this.setState({dataToGenerate:data});
           generateDocument(data,fileMaster[data.tipeKontrak],true);
+          this.setState({
+            urlIFrame: 'https://docs.google.com/viewer?url='+process.env.REACT_APP_URL_API+'/rest/previewDocx/'+localStorage.user_session+'.docx&embedded=true'
+          })
         });
     
     return;
@@ -285,7 +297,30 @@ class KontrakSaya extends React.Component {
       this.loadData();
     }
   }
-
+  saveNomor(){
+    var nmr = document.getElementById("inpNmr").value;
+    var choosedIdx = this.state.data[this.state.choosedIdx].id;
+    var t_dataToGenerate = this.state.dataToGenerate;
+    this.setState({nmr: nmr, modal:true});
+    const requestOptions = {
+      method: 'POST',
+      //headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userid: localStorage.getItem("user_session"), id: choosedIdx, nmr: nmr })
+    };
+    fetch(process.env.REACT_APP_URL_API+'/rest/updateNomorKontrak.php', requestOptions)
+        .then(response => response.json())
+        .then(respon => {
+          var dataAPI = respon;
+          this.setState({modal:false});
+          if(dataAPI.response_code != 200){
+            this.setState({ message: dataAPI.message });
+          }else{
+            t_dataToGenerate.nmr = nmr;
+            this.setState({dataToGenerate: t_dataToGenerate});
+            this.loadData();
+          }
+        });
+  }
   render(){
     const {activePage, itemPerPage, usertype} = this.state;
     return (
@@ -312,12 +347,21 @@ class KontrakSaya extends React.Component {
             <CardBody>
               <Row>
                 <Col xl={3} lg={12} md={12}>
+                <Button 
+                  style={{position:'absolute'}}
+                  size = "sm"
+                  onClick={()=>{
+                    this.setState({keyIframe: this.state.keyIframe + 1});
+                  }}
+                ><MdRefresh/></Button>
                 <iframe id="viewer" 
-                height="350px"
-                src={
-                  ''
+                  height="350px"
+                  key={this.state.keyIframe}
+                  src={
+                    this.state.urlIFrame
                 }
-                ></iframe>
+                >
+                </iframe>
                 </Col>
                 <Col xl={9} lg={12} md={12}>
                   <Row>
@@ -337,10 +381,27 @@ class KontrakSaya extends React.Component {
                     <Label size="sm"sm={3}>{this.state.create}</Label>
                   </Row>
                   <Row>
-                    <Label size="sm"sm={2}>Status</Label><Label size="sm">:</Label>
-                    <Label size="sm"sm={3}>{this.state.status}</Label>
+                    <Label size="sm"sm={2}>Nomor Kontrak</Label><Label size="sm">:</Label>
+                    <Col sm={2} style={{display:(this.state.tgEdtNmr)?'block':'none'}}><Label size="sm">{this.state.nmr||"-"}</Label></Col>
+                    <Col sm={2} style={{display:(this.state.tgEdtNmr)?'none':'block'}}><Input id="inpNmr" defaultValue={this.state.nmr} type="text"/></Col>
+                    <Col sm={1}>
+                      <Button title="Ubah Nomor Kontrak" 
+                        style={{display:(this.state.tgEdtNmr)?'block':'none'}}
+                        size="sm" onClick={()=>{this.setState({tgEdtNmr: !this.state.tgEdtNmr})}}><MdEdit/></Button>
+                      <Button title="Simpan Nomor Kontrak" color="primary"
+                        style={{display:(this.state.tgEdtNmr)?'none':'block'}}
+                        size="sm" onClick={()=>{
+                          this.setState({tgEdtNmr: !this.state.tgEdtNmr});
+                          this.saveNomor();
+                        }}><MdCheck/></Button>
+
+                    </Col>
                     <Label size="sm"sm={2}>Tanggal Terakhir Diubah</Label><Label size="sm">:</Label>
                     <Label size="sm"sm={3}>{this.state.change}</Label>
+                  </Row>
+                  <Row>
+                    <Label size="sm"sm={2}>Status</Label><Label size="sm">:</Label>
+                    <Label size="sm"sm={3}>{this.state.status}</Label>
                   </Row>
                   <Row>
                     <Col>

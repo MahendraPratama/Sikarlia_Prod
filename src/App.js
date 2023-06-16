@@ -3,6 +3,7 @@ import GAListener from 'components/GAListener';
 import { EmptyLayout, LayoutRoute, MainLayout } from 'components/Layout';
 import PageSpinner from 'components/PageSpinner';
 import AuthPage from 'pages/AuthPage';
+import ViewSuratPage from 'pages/ViewSurat';
 import React from 'react';
 import componentQueries from 'react-component-queries';
 import { BrowserRouter, Redirect, Route, Switch, withRouter } from 'react-router-dom';
@@ -17,6 +18,7 @@ const ButtonPage = React.lazy(() => import('pages/ButtonPage'));
 const CardPage = React.lazy(() => import('pages/CardPage'));
 const ChartPage = React.lazy(() => import('pages/ChartPage'));
 const DashboardPage = React.lazy(() => import('pages/DashboardReal'));
+const ViewSurat = React.lazy(() => import('pages/ViewSurat'));
 const DropdownPage = React.lazy(() => import('pages/DropdownPage'));
 const FormPage = React.lazy(() => import('pages/FormPage'));
 const Profile = React.lazy(() => import('pages/Profile'));
@@ -34,6 +36,7 @@ const TypographyPage = React.lazy(() => import('pages/TypographyPage'));
 const WidgetPage = React.lazy(() => import('pages/WidgetPage'));
 const KontrakSaya = React.lazy(() => import('pages/KontrakSaya'));
 const Slider = React.lazy(() => import('pages/Slider'));
+const Persuratan = React.lazy(() => import('pages/PersuratanEO'));
 
 const getBasename = () => {
   return `/${process.env.PUBLIC_URL.split('/').pop()}`;
@@ -55,8 +58,13 @@ class App extends React.Component {
     var origin = window.location.origin;
     var curPath = curLoc.replace(origin,'');
     var session = localStorage.getItem("user_session");
+    
     if(curPath != "/"){
-      if(session==null){
+      var isViewSurat = curPath.includes("viewsurat");
+      if(isViewSurat){
+        return;
+      }
+      else if(session==null){
         window.location.href = "/";
         // console.log("Redir: " + origin + curLoc)
         // console.log(curLoc)
@@ -102,27 +110,19 @@ class App extends React.Component {
                 <AuthPage {...props} authState={STATE_SIGNUP} />
               )}
             />
+            <LayoutRoute
+              exact
+              path="/viewsurat"
+              layout={EmptyLayout}
+              component={props => (
+                <ViewSuratPage />
+              )}
+            />
 
             <MainLayout breakpoint={this.props.breakpoint}>
               <React.Suspense fallback={<PageSpinner />}>
                 <Route exact path="/dashboard" component={DashboardPage} />
-                <Route exact path="/login-modal" component={AuthModalPage} />
-                <Route exact path="/buttons" component={ButtonPage} />
-                <Route exact path="/cards" component={CardPage} />
-                <Route exact path="/widgets" component={WidgetPage} />
-                <Route exact path="/typography" component={TypographyPage} />
-                <Route exact path="/alerts" component={AlertPage} />
-                <Route exact path="/tables" component={TablePage} />
-                <Route exact path="/badges" component={BadgePage} />
-                <Route
-                  exact
-                  path="/button-groups"
-                  component={ButtonGroupPage}
-                />
-                <Route exact path="/dropdowns" component={DropdownPage} />
-                <Route exact path="/progress" component={ProgressPage} />
-                <Route exact path="/modals" component={ModalPage} />
-                <Route exact path="/forms" component={FormPage} />
+                <Route exact path="/persuratan" component={Persuratan} />
                 <Route exact path="/users" component={Users} />
                 <Route exact path="/profile" component={Profile} />
                 <Route exact path="/form100up" component={(routeProps)=> <FormKontrak50200 tipe="100up"  {...routeProps}/>} />
@@ -131,12 +131,8 @@ class App extends React.Component {
                 <Route exact path="/form50200PL" component={(routeProps)=> <FormKontrak50200 tipe="50200PL"  {...routeProps}/>} />
                 <Route exact path="/form100" component={(routeProps)=> <FormKontrak50200 tipe="100NonPL"  {...routeProps}/>} />
                 <Route exact path="/form50200" component={(routeProps)=> <FormKontrak50200 tipe="50200NonPL"  {...routeProps}/>} />
-                <Route exact path="/kuitansiGU" component={KuitansiGUPage} />
                 <Route exact path="/kuitansiPerjadin" component={KuitansiPerjadin} />
-                <Route exact path="/input-groups" component={InputGroupPage} />
-                <Route exact path="/charts" component={ChartPage} />
                 <Route exact path="/kontraksaya" component={KontrakSaya} />
-                <Route exact path="/slider" component={Slider} />
               </React.Suspense>
             </MainLayout>
             <Redirect to="/dashboard" />

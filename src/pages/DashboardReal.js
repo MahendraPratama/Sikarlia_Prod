@@ -97,7 +97,8 @@ class DashboardPage extends React.Component {
       Data: [],
       sumAllKontrak:0,
       dataRender:[],
-      modalInfo:false
+      modalInfo:false,
+      yearFilter: localStorage.getItem("yearFilter"),
     };
     
   }
@@ -119,7 +120,7 @@ class DashboardPage extends React.Component {
     const requestOptions = {
       method: 'POST',
       //headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userid: localStorage.getItem("user_session") })
+      body: JSON.stringify({ userid: localStorage.getItem("user_session"), yearFilter: this.state.yearFilter })
     };
     fetch(process.env.REACT_APP_URL_API+'/rest/countKontrak.php', requestOptions)
         .then(response => response.json())
@@ -145,7 +146,7 @@ class DashboardPage extends React.Component {
     const requestOptions2 = {
       method: 'POST',
       //headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userid: localStorage.getItem("user_session") })
+      body: JSON.stringify({ userid: localStorage.getItem("user_session"), yearFilter: this.state.yearFilter })
     };
     fetch(process.env.REACT_APP_URL_API+'/rest/kontrakTerbaru.php', requestOptions2)
         .then(response => response.json())

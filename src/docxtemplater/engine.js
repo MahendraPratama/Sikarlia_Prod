@@ -8,6 +8,7 @@ import angkaTerbilang from '@develoka/angka-terbilang-js';
 import Base64String from 'lz-string';
 import DocViewer from "react-doc-viewer";
 import ImageModule from 'docxtemplater-image-module-free';
+import InspectModule from 'docxtemplater/js/inspect-module';
 //import ImageModule from 'open-docxtemplater-image-module';
 //var ImageModule=require('docxtemplater-image-module');
 //var ImageModule=require('docxtemplater-image-module');
@@ -235,19 +236,21 @@ export const generateDocument = (dataKontrak, namaFile, isPreview = false) => {
               var src = 'https://docs.google.com/viewer?url='+process.env.REACT_APP_URL_API+'/rest/previewDocx/'+dataKontrak.userid+'.docx&embedded=true';
               try{
                 document.getElementById("viewer").src = src;
-                setTimeout(()=>{
-                  document.getElementById("viewer").src = src;
-                },300)
-                setTimeout(()=>{
-                  document.getElementById("viewer").src = src;
-                },300)
-                setTimeout(()=>{
-                  document.getElementById("viewer").src = src;
-                },300)
+                
+                
+                // setTimeout(()=>{
+                //   document.getElementById("viewer").src = src;
+                // },300)
+                // setTimeout(()=>{
+                //   document.getElementById("viewer").src = src;
+                // },300)
+                // setTimeout(()=>{
+                //   document.getElementById("viewer").src = src;
+                // },300)
               }catch(e){
                 
               }
-              
+              //return src;
             })
           };
         }
@@ -273,13 +276,50 @@ export const generateKwtPerjadin = (data, namaFile = "/Template_Perjadin.docx", 
         throw error;
       }
       
-        
+      var opts = {};
+      //opts.centered = true;
+      opts.getImage = function (tagValue, tagName) {
+        const base64Regex = /^data:image\/(png|jpg|jpeg|svg|svg\+xml);base64,/;
+        if (!base64Regex.test(tagValue)) {
+          return false;
+        }
+        const stringBase64 = tagValue.replace(base64Regex, "");
+        let binaryString;
+        if (typeof window !== "undefined") {
+          binaryString = window.atob(stringBase64);
+        } else {
+          binaryString = Buffer.from(stringBase64, "base64").toString(
+            "binary"
+          );
+        }
+        const len = binaryString.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+          const ascii = binaryString.charCodeAt(i);
+          bytes[i] = ascii;
+        }
+        return bytes.buffer;
+      };
+      opts.getSize = function (img, tagValue, tagName) {
+        var width = 330;
+        var height = 200;
+        const forceWidth = 130;
+        const ratio = forceWidth / width;
+        return [
+          forceWidth,
+          // calculate height taking into account aspect ratio
+          Math.round(height * ratio),
+        ];
+      };
+      
+
+      var imageModule = new ImageModule(opts);
       const zip = new PizZip(content);
       const doc = new Docxtemplater(zip, {
         paragraphLoop: true,
         linebreaks: true,
         nullGetter: nullGetter,
-        //modules: [imageModule, fixDocPrCorruptionModule],
+        modules: [imageModule, fixDocPrCorruptionModule],
       }).compile();
       doc.setData(setDataKwtPerjadin(data));
       //console.log(hps2);
@@ -339,7 +379,8 @@ function setDataKwtPerjadin(data){
       nip: x.nip,
       nominal: commafy(parseInt(x.nominal)),
       terbilang: angkaTerbilang(parseInt(x.nominal)) + " rupiah",
-      uraian_kegiatan: uraian + " a.n " + x.nama
+      uraian_kegiatan: uraian + " a.n " + x.nama,
+      ttd: x.base64ttd
     }
     items.push(row);
   })
@@ -759,6 +800,17 @@ function getDataSet(dataKontrak, hps2, pnw2=[]){
       //imgHPS:Base64String.decompress(dataKontrak.base64HPS),
     }
 
+
+    var nmr, nmrSpc;
+    if(dataKontrak.nmr == null || dataKontrak.nmr == '' || dataKontrak.nmr == undefined){
+      nmr = "………";
+      nmrSpc = "           ";
+    }else{
+      nmr = dataKontrak.nmr;
+      nmrSpc = dataKontrak.nmr;
+    }
+      dataSet.nmr = nmr;
+      dataSet.nmrSpc = nmrSpc;
     //if(dataKontrak.isHPSimg==true){
     //  dataSet.imgHPS = dataKontrak.base64HPS
     //}else if(dataKontrak.isHPSimg==false){

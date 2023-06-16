@@ -118,7 +118,8 @@
       color: theme-color(light);
 
       &:hover {
-        background: rgba(theme-color(light), 0.15);
+      //   background: rgba(theme-color(light), 0.15);
+        background: rgba(20, 109, 243, .20);
       }
     }
   }

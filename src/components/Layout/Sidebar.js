@@ -102,7 +102,7 @@ const navKontrakKonsultasi = [
   { to: '/form100up', name: 'Diatas 100 Juta', exact: false, Icon: MdChromeReaderMode },
 ]
 const navKuitansi = [
-  { to: '/kuitansiGU', name: 'Kuitansi GU', exact: true, Icon: MdChromeReaderMode },
+  //{ to: '/kuitansiGU', name: 'Kuitansi GU', exact: true, Icon: MdChromeReaderMode },
   { to: '/kuitansiPerjadin', name: 'Perjadin Jabodetabek', exact: false, Icon: MdChromeReaderMode },
 ]
 const bem = bn.create('sidebar');
@@ -140,7 +140,7 @@ class Sidebar extends React.Component {
         <div>
         <NavItem key={1} className={bem.e('nav-item')}>
           <BSNavLink
-          style={{color:"#000"}}
+            style={{color:"#000"}}
             id={`navItem-${'users'}-${1}`}
             //className="text-uppercase"
             tag={NavLink}
@@ -170,26 +170,43 @@ class Sidebar extends React.Component {
       );
     }else{
       return (
-        <NavItem key={1} className={bem.e('nav-item')}>
-          <BSNavLink
-            style={{color:"#000"}}
-            id={`navItem-${'kontraksaya'}-${1}`}
-            //className="text-uppercase"
-            tag={NavLink}
-            to={'/kontraksaya'}
-            activeClassName="active"
-            exact={true}
-          >
-            <MdRateReview style={{color:"#146df3"}} className={bem.e('nav-item-icon')} />
-            <span className="sideItm">{'Kontrak Saya'}</span>
-          </BSNavLink>
-        </NavItem>
+        <div>
+          <NavItem key={1} className={bem.e('nav-item')}>
+            <BSNavLink
+              style={{color:"#000"}}
+              id={`navItem-${'kontraksaya'}-${1}`}
+              //className="text-uppercase"
+              tag={NavLink}
+              to={'/kontraksaya'}
+              activeClassName="active"
+              exact={true}
+            >
+              <MdRateReview style={{color:"#146df3"}} className={bem.e('nav-item-icon')} />
+              <span className="sideItm">{'Kontrak Saya'}</span>
+            </BSNavLink>
+          </NavItem>
+          <NavItem key={1} className={bem.e('nav-item')}>
+            <BSNavLink
+              style={{color:"#000"}}
+              id={`navItem-${'persuratan'}-${1}`}
+              //className="text-uppercase"
+              tag={NavLink}
+              to={'/persuratan'}
+              activeClassName="active"
+              exact={true}
+            >
+              <MdRateReview style={{color:"#146df3"}} className={bem.e('nav-item-icon')} />
+              <span className="sideItm">{'Persuratan EO'}</span>
+            </BSNavLink>
+          </NavItem>
+        </div>
       );
     }
     
   }
   render() {
     return (
+      
       // data-image={sidebarBgImage}
       <aside className={bem.b()} >
         <div className={bem.e('background')} style={sidebarBackground} />
@@ -363,7 +380,8 @@ class Sidebar extends React.Component {
             </div>
             }
 
-            {this.menuAdmin()}            
+            {this.menuAdmin()} 
+                       
           </Nav>
         </div>
       </aside>
