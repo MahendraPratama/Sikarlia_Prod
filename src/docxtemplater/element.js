@@ -57,7 +57,10 @@ export const modalLoading = (state) =>{
     >
 
     <ModalBody>
-      <img src={loadingImg}></img>
+      <img src={loadingImg} style={{
+        //width:'40%', 
+        //height:'40%'
+      }}></img>
     </ModalBody>
   </Modal>
 }
@@ -306,12 +309,12 @@ export const autoBAPP = (flag="penandatangananKontrak",dataKontrak) => {
     var arrElmt = [
       {diff:1, elmt:'suratPemesanan'},
       {diff:1, elmt:'laporanPelaksanaan'},
-      {diff:2, elmt:'suratKesanggupan'},
-      {diff:2, elmt:'penetapanPenyedia'},
-      {diff:2, elmt:'evaluasi'},
-      {diff:3, elmt:'undanganEvaluasi'},
-      {diff:2, elmt:'pengajuanPenawaran'},
-      {diff:2, elmt:'penawaranRKS'},
+      {diff:1, elmt:'suratKesanggupan'},
+      {diff:1, elmt:'penetapanPenyedia'},
+      {diff:1, elmt:'evaluasi'},
+      {diff:1, elmt:'undanganEvaluasi'},
+      {diff:1, elmt:'pengajuanPenawaran'},
+      {diff:1, elmt:'penawaranRKS'},
       {diff:1, elmt:'HPS'},
       {diff:0, elmt:'pengadaanBarJas'},
       {diff:1, elmt:'suratPermintaanPPK'},

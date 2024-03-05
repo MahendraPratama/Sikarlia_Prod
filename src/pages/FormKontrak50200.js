@@ -30,6 +30,9 @@ import { fstat } from 'fs';
 var tableHPS = [];
 var tablePnwrn = [];
 var tblPenampung = [];
+var pdtKoordinator = [];
+var pdtPPBJ = [];
+var pdtPPK = [];
 const urlFile= 'https://drive.google.com/u/0/uc?id=15uCHB-w4Xhz-pQAqwBzcil3AoRZB7f6U&export=download';
 const path = window.location.origin  + '/kontrak50_200.docx';
 const urlLocal = 'https://localhost/docxtemplate/kontrak50_200.docx';
@@ -39,6 +42,7 @@ class Form50200 extends React.Component {
   constructor(props){
     super(props)
     this.state = {
+      togleLS:true,
       dtProps: [
         {tipe:'50200NonPL',name:'Barang & Jasa Lainnya / Kontrak 50 - 200 Juta', filename:'/kontrak50_200_test.docx'},
         {tipe:'100NonPL',name:'Jasa Konsultasi / Kontrak dibawah 100 Juta', filename:'/kontrak50_200_test.docx'},
@@ -62,12 +66,13 @@ class Form50200 extends React.Component {
           'none',
           'none',
           'none',
+          'none',
         ],
         stateBtnSave:'',
         message_step1: '',
         message_step1: '',
         message_step1_2:'',
-        activeStep:0,
+        activeStep:1,
         msg_j1:'',
         msg_j2:'',
         msg_j3:'',
@@ -139,6 +144,7 @@ class Form50200 extends React.Component {
         overNilai:false,
 
         toglehidePmb:true,
+        yearFilter: localStorage.getItem("yearFilter"),
     };
     //this.handleNext = this.handleNext.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -174,11 +180,16 @@ class Form50200 extends React.Component {
     tablePnwrn = [];
   }
   componentDidMount(){
+    
     tableHPS = [];
     tablePnwrn = [];
+    pdtKoordinator = JSON.parse(localStorage.getItem("pdtKoordinator"));
+    pdtPPK = JSON.parse(localStorage.getItem("pdtPPK"));
+    pdtPPBJ = JSON.parse(localStorage.getItem("pdtPPBJ"));
     
     this.setState({tipe:this.props.tipe});
     dataKontrak = getDefaultSetDataKontrak(this.props.tipe);
+    //this.getPenandatangan();
     const {data} = this.props.location;
     if(!data){
       return;
@@ -240,6 +251,14 @@ class Form50200 extends React.Component {
     dataKontrak.mgmtFeeNmnlPnw        = data.mgmtFeeNmnlPnw;
 
     dataKontrak.nmr                   = data.nmr;
+
+    dataKontrak.namaRek               = data.namaRek;
+    dataKontrak.noRek                 = data.noRek;
+    dataKontrak.bankRek               = data.bankRek;
+
+    dataKontrak.pdtKoordinator        = data.pdtKoordinator;
+    dataKontrak.pdtPPK                = data.pdtPPK;
+    dataKontrak.pdtPPBJ               = data.pdtPPBJ;
 
 
     //dataKontrak.isHPSimg              = data.isHPSimg == 1 ? true:false;
@@ -312,6 +331,17 @@ class Form50200 extends React.Component {
 
     document.getElementById("nmr").value         = data.nmr;
 
+    document.getElementById("namaRek").value         = data.namaRek;
+    document.getElementById("noRek").value         = data.noRek;
+    document.getElementById("bankRek").value         = data.bankRek;
+
+    if(data.LSorNon == "LS"){
+      document.getElementById("rdLS").checked = true;
+      this.setState({message_step1_3:'',togleLS:false});
+    }else if(data.LSorNon == "NonLS"){
+      document.getElementById("rdNonLS").checked = true;
+      this.setState({message_step1_3:'',msg_p6:'',msg_p7:'',msg_p8:'',togleLS:true});
+    }
     // document.getElementById("chooserMgmtFee").selectedIndex         = data.isPctgMgmtFee;
     // document.getElementById("chooserMgmtFeePnw").selectedIndex         = data.isPctgMgmtFeePnw;
     // document.getElementById("mgmtFeeNmnl").value         = data.mgmtFeeNmnl;
@@ -407,6 +437,9 @@ class Form50200 extends React.Component {
     if(key=='npwpPerusahaan'){
       this.setState({msg_p4:''})
     }
+    if(key=='namaRek'){ this.setState({msg_p6:''}) };
+    if(key=='noRek'){ this.setState({msg_p7:''}) };
+    if(key=='bankRek'){ this.setState({msg_p8:''}) };
 
     if(key=='cb_managementFee' || key=='cb_managementFeePnw'){
       var flag = (key=='cb_managementFee')?"HPS":"Pnw";
@@ -728,6 +761,12 @@ class Form50200 extends React.Component {
         dataKontrak.jenisPengadaan = radio.value;
       }
     }
+
+    var radioLS = document.querySelector('input[name="radio_LS"]:checked');
+      if(radioLS!=null){
+        dataKontrak.LSorNon = radioLS.value;
+      }
+
     dataKontrak.TABELNego = dataNegosiasi;
     dataKontrak.TABEL = [{
       descr: "descr",
@@ -900,6 +939,7 @@ class Form50200 extends React.Component {
     }
   }
   validation_step1(){
+    
     var data = dataKontrak;
     if(!data.namaPekerjaan){
       this.setState({message_step1: 'Nama Pekerjaan Harus diisi !!'});
@@ -913,10 +953,47 @@ class Form50200 extends React.Component {
         return false;
       }
     }
+    if(!data.pdtKoordinator){
+      this.setState({msg_p1: 'Pilih penandatangan dulu !!'});
+      return false;
+    }
+    if(!data.pdtPPK){
+      this.setState({msg_p1: 'Pilih penandatangan dulu !!'});
+      return false;
+    }
+    if(!data.pdtPPBJ){
+      this.setState({msg_p1: 'Pilih penandatangan dulu !!'});
+      return false;
+    }
   }
   validation_step3(){
-    var data = dataKontrak;
-    var cFalse = 0;
+    var data = dataKontrak;var cFalse = 0;
+    var radio = document.querySelector('input[name="radio_LS"]:checked');
+    
+    if(radio==null){
+      this.setState({message_step1_3: 'Pilih dulu LS apa GU !!'});
+      return false;
+    }
+    else if(radio.value=="LS"){
+      if(!data.namaRek){
+        this.setState({msg_p6: 'INI DIISI DULU SAYANG !!'});
+        cFalse++;
+      }
+      if(!data.noRek){
+        this.setState({msg_p7: 'INI DIISI DULU SAYANG !!'});
+        cFalse++;
+      }
+      if(!data.bankRek){
+        this.setState({msg_p8: 'INI DIISI DULU SAYANG !!'});
+        cFalse++;
+      }
+      if(cFalse>0){
+        return false;
+      }
+    }
+
+    
+    
     if(!data.namaPerusahaan){
       this.setState({msg_p1: 'Harus diisi !!'});
       cFalse++;
@@ -981,18 +1058,127 @@ class Form50200 extends React.Component {
           document.getElementById('namaDirektur').value = dtChoosed.namaDirektur;
           document.getElementById('jabatan').value = dtChoosed.jabatan;
           document.getElementById('npwpPerusahaan').value = dtChoosed.npwpPerusahaan;
+          document.getElementById('namaRek').value = dtChoosed.namaRek;
+          document.getElementById('noRek').value = dtChoosed.noRek;
+          document.getElementById('bankRek').value = dtChoosed.bankRek;
 
           dataKontrak.namaPerusahaan    = dtChoosed.namaPerusahaan;
           dataKontrak.alamatPerusahaan  = dtChoosed.alamatPerusahaan;
           dataKontrak.namaDirektur      = dtChoosed.namaDirektur;
           dataKontrak.jabatan           = dtChoosed.jabatan;
           dataKontrak.npwpPerusahaan    = dtChoosed.npwpPerusahaan;
+          dataKontrak.namaRek           = dtChoosed.namaRek;
+          dataKontrak.noRek             = dtChoosed.noRek;
+          dataKontrak.bankRek           = dtChoosed.bankRek;
         }}
       >
         {options}
       </Input>
     )
   }
+
+  renderChooserKoordinator(){
+    var data = pdtKoordinator;
+    
+    if(!data){
+      return null;
+    }
+    var datalen = data.length;
+    var options = [];
+
+    for(var i = 0; i < datalen; i++){
+      options.push(<option key={i} value={data[i].id} selected={data[i].id==dataKontrak.pdtKoordinator?true:false}>{data[i].nama} | {data[i].nip}</option>)
+    }
+    return (
+      <Input 
+        //hidden={this.state.hideChooser}
+        type="select" name="chooserKoordinator" 
+        id="chooserKoordinator" 
+        onChange={()=>{
+          var idx = document.getElementById('chooserKoordinator').selectedIndex;
+          //console.log(document.getElementById('chooser').selectedIndex)
+          //this.setState({hideChooser:true, msg_p1:'', msg_p2:'', msg_p3:'', msg_p4:''});
+          var dtChoosed = data[idx];
+
+          dataKontrak.pdtKoordinator    = dtChoosed.id;
+          dataKontrak.koordinator    = dtChoosed.nama;
+          dataKontrak.nipkoordinator    = dtChoosed.nip;
+          console.log(dataKontrak);
+          this.setState({msg_p1: ''});
+        }}
+      >
+        {options}
+      </Input>
+    )
+  }
+  
+
+  renderChooserPPK(){
+    var data = pdtPPK;
+    
+    if(!data){
+      return null;
+    }
+    var datalen = data.length;
+    var options = [];
+    for(var i = 0; i < datalen; i++){
+      options.push(<option key={i} value={data[i].id} selected={data[i].id==dataKontrak.pdtPPK?true:false}>{data[i].nama} | {data[i].nip}</option>)
+    }
+    return (
+      <Input 
+        //hidden={this.state.hideChooser}
+        type="select" name="chooserPPK" 
+        id="chooserPPK" 
+        onChange={()=>{
+          var idx = document.getElementById('chooserPPK').selectedIndex;
+          //console.log(document.getElementById('chooser').selectedIndex)
+          //this.setState({hideChooser:true, msg_p1:'', msg_p2:'', msg_p3:'', msg_p4:''});
+          var dtChoosed = data[idx];
+
+          dataKontrak.pdtPPK    = dtChoosed.id;
+          dataKontrak.PPK    = dtChoosed.nama;
+          dataKontrak.nipPPK    = dtChoosed.nip;
+          this.setState({msg_p1: ''});
+        }}
+      >
+        {options}
+      </Input>
+    )
+  }
+
+  renderChooserPPBJ(){
+    var data = pdtPPBJ;
+    
+    if(!data){
+      return null;
+    }
+    var datalen = data.length;
+    var options = [];
+    for(var i = 0; i < datalen; i++){
+      options.push(<option key={i} value={data[i].id} selected={data[i].id==dataKontrak.pdtPPBJ?true:false}>{data[i].nama} | {data[i].nip}</option>)
+    }
+    return (
+      <Input 
+        //hidden={this.state.hideChooser}
+        type="select" name="chooserPPBJ" 
+        id="chooserPPBJ" 
+        onChange={()=>{
+          var idx = document.getElementById('chooserPPBJ').selectedIndex;
+          //console.log(document.getElementById('chooser').selectedIndex)
+          //this.setState({hideChooser:true, msg_p1:'', msg_p2:'', msg_p3:'', msg_p4:''});
+          var dtChoosed = data[idx];
+
+          dataKontrak.pdtPPBJ    = dtChoosed.id;
+          dataKontrak.PPBJ    = dtChoosed.nama;
+          dataKontrak.nipPPBJ    = dtChoosed.nip;
+          this.setState({msg_p1: ''});
+        }}
+      >
+        {options}
+      </Input>
+    )
+  }
+  
   render(){
     return (
       <header>
@@ -1034,6 +1220,7 @@ class Form50200 extends React.Component {
             {/* <CardBody> onSubmit={this.handleSubmit} */}
               <Form >
               <Card style={{display:this.state.step[0]}}>
+                
                 <CardHeader>Input Nama Pekerjaan</CardHeader>
                 <CardBody>
                   <Row>
@@ -1070,6 +1257,7 @@ class Form50200 extends React.Component {
                           <FormText style={{fontSize:12}}>kalo belom ada nomor kontrak dari PPBJ kosongin aja yah, nanti bisa diedit di menu 'Kontrak Saya'</FormText>
                         </Col>
                       </FormGroup>
+                      
                       {this.props.tipe == "200up"?
                         <FormGroup tag="fieldset" row>
                         <Label for="jenisPengadaan" sm={2}>
@@ -1091,12 +1279,48 @@ class Form50200 extends React.Component {
                       </FormGroup>
                       :null}
                     </Col>
+                    
+                  </Row>
+                </CardBody>
+                <hr/>
+                <CardHeader>Penandatangan</CardHeader>
+                <CardBody>
+                  <Row>
+                    <Col xl={12} lg={12} md={12}>
+                      <FormGroup row>
+                        <Label for="hrgtotalPNW" sm={2}>
+                          Koordinator
+                        </Label>
+                        <Col sm={4}>
+                        {this.renderChooserKoordinator()}
+                          <FormText color={'danger'}>{this.state.msg_p1}</FormText>
+                        </Col>
+                      </FormGroup>
+                      <FormGroup row>
+                        <Label for="hrgtotal" sm={2}>
+                          PPK
+                        </Label>
+                        <Col sm={4}>
+                        {this.renderChooserPPK()}
+                          <FormText color={'danger'}>{this.state.msg_p1}</FormText>
+                        </Col>
+                      </FormGroup>
+                      <FormGroup row>
+                        <Label for="hrgtotal" sm={2}>
+                          PPBJ
+                        </Label>
+                        <Col sm={4}>
+                        {this.renderChooserPPBJ()}
+                          <FormText color={'danger'}>{this.state.msg_p1}</FormText>
+                        </Col>
+                      </FormGroup>
+                    </Col>
                     <hr/>
                     <Col xl={12} lg={12} md={12}>
                       <FormGroup row className="d-flex justify-content-end">
                         <Col sm={3} className="d-flex justify-content-end">
                           <Button color="danger" onClick={()=>{this.props.history.goBack();}}>Batal</Button> &nbsp;
-                          {this.renderBtnSaveDraft()} &nbsp;
+                          {/* {this.renderBtnSaveDraft()} &nbsp; */}
                           <Button color="primary" onClick={()=> this.handleNext(1)}>Selanjutnya</Button>
                         </Col>
                       </FormGroup>
@@ -1411,7 +1635,7 @@ class Form50200 extends React.Component {
                       <FormGroup row className="d-flex justify-content-end">
                         <Col sm={3} className="d-flex justify-content-end">
                           <Button color="danger" onClick={()=>this.handleNext(0)}>Kembali</Button> &nbsp;
-                          {this.renderBtnSaveDraft()} &nbsp;
+                          {/* {this.renderBtnSaveDraft()} &nbsp; */}
                           <Button color="primary" onClick={()=>this.handleNext(2)}>Selanjutnya</Button>
                         </Col>
                       </FormGroup>
@@ -1502,6 +1726,82 @@ class Form50200 extends React.Component {
                             //maxLength="5"
                           />
                           <FormText color={'danger'}>{this.state.msg_p4}</FormText>
+                        </Col>
+                      </FormGroup>
+                      <hr/>
+                      <FormGroup tag="fieldset" row>
+                        <Label for="LSorNon" sm={3}>
+                          LS / GU / TUP
+                        </Label>
+                        <Col sm={6}>
+                          <FormGroup check>
+                            <Label check>
+                              <Input id="rdLS" onChange={()=>{
+                                this.setState({message_step1_3:'',togleLS:false});
+                                
+                                }} type="radio" name="radio_LS" value="LS" /> LS
+                            </Label>
+                          </FormGroup>
+                          <FormGroup check>
+                            <Label check>
+                              <Input id="rdNonLS" onChange={()=>{
+                                  this.setState({message_step1_3:'',msg_p6:'',msg_p7:'',msg_p8:'',togleLS:true});
+                                  
+                                  }} type="radio" name="radio_LS" value="NonLS" /> GU / TUP
+                            </Label>
+                          </FormGroup>
+                          <FormText color={'danger'}>{this.state.message_step1_3}</FormText>
+                        </Col>
+                      </FormGroup>
+                      <FormGroup row>
+                        <Label for="namaRek" sm={3}>
+                          Nama Rekening Perusahaan
+                        </Label>
+                        <Col sm={6}>
+                          <Input
+                            disabled={this.state.togleLS}
+                            type="text"
+                            name="namaRek"
+                            id="namaRek"
+                            placeholder="nama rekening, cth : Buana Subur Lestari PT"
+                            onChange={this.handleInputChange}
+                            //maxLength="5"
+                          />
+                          <FormText color={'danger'}>{this.state.msg_p6}</FormText>
+                        </Col>
+                      </FormGroup>
+                      <FormGroup row>
+                        <Label for="noRek" sm={3}>
+                          Nomor Rekening
+                        </Label>
+                        <Col sm={6}>
+                          <Input
+                            disabled={this.state.togleLS}
+                            type="text"
+                            name="noRek"
+                            id="noRek"
+                            placeholder="nomor rekening"
+                            onChange={this.handleInputChange}
+                            //maxLength="5"
+                          />
+                          <FormText color={'danger'}>{this.state.msg_p7}</FormText>
+                        </Col>
+                      </FormGroup>
+                      <FormGroup row>
+                        <Label for="bankRek" sm={3}>
+                          {"Bank & Cabang"}
+                        </Label>
+                        <Col sm={6}>
+                          <Input
+                            disabled={this.state.togleLS}
+                            type="text"
+                            name="bankRek"
+                            id="bankRek"
+                            placeholder="nama bank. cth : BCA KCU Bumi Serpong Damai"
+                            onChange={this.handleInputChange}
+                            //maxLength="5"
+                          />
+                          <FormText color={'danger'}>{this.state.msg_p8}</FormText>
                         </Col>
                       </FormGroup>
                     </Col>
@@ -1647,7 +1947,7 @@ class Form50200 extends React.Component {
                       <FormGroup row className="d-flex justify-content-end">
                         <Col sm={3} className="d-flex justify-content-end">
                           <Button color="danger" onClick={()=>this.handleNext(1)}>Kembali</Button> &nbsp;
-                          {this.renderBtnSaveDraft()} &nbsp;
+                          {/* {this.renderBtnSaveDraft()} &nbsp; */}
                           <Button color="primary" onClick={()=> this.handleNext(3)}>Selanjutnya</Button>
                         </Col>
                       </FormGroup>
@@ -1784,7 +2084,7 @@ class Form50200 extends React.Component {
                                       onClick={()=>{
                                           dataNegosiasi.push({uraianNego:"",hasilNego:"Ada perubahan harga, semula Rp xxx.xxx,- menjadi Rp. xxx.xxx,-"});
                                           this.setState({dataRenderNegosiasi:dataNegosiasi});
-                                          console.log(this.state.dataRenderNegosiasi)
+                                          //console.log(this.state.dataRenderNegosiasi)
                                       }}
                                       size="sm"
                                   ><MdAdd/></Button>:null
@@ -1802,18 +2102,28 @@ class Form50200 extends React.Component {
                       <FormGroup row className="d-flex justify-content-end">
                         <Col sm={4} className="d-flex justify-content-end">
                           <Button color="danger" onClick={()=>this.handleNext(2)}>Kembali</Button> &nbsp;
-                          {this.renderBtnSaveDraft()} &nbsp;
+                          {/* {this.renderBtnSaveDraft()} &nbsp; */}
                           {this.isUp200()?<Button disabled={this.state.overNilai} color="primary" onClick={()=> this.handleNext(4)}>Selanjutnya</Button>:
-                          // <Button disabled={this.state.overNilai} color="secondary" onClick={()=> this.handleSubmit("generate")}>Unduh DOCX</Button>
-                          null
+                            <Button 
+                              //disabled={val == '' ? true:false}
+                              color="success" 
+                              onClick={()=>{
+                                this.handleSubmit("save");
+                              }}
+                              >
+                                Simpan
+                            </Button>
                           }
-                          
                         </Col>
                       </FormGroup>
                     </Col>
                   </Row>
                 </CardBody>
               </Card>
+
+
+
+
 
               <Card style={{display:this.state.step[4]}}>
                 <CardHeader>Input Data Pokja</CardHeader>
@@ -1938,14 +2248,17 @@ class Form50200 extends React.Component {
                       <FormGroup row>
                         <Col sm={{ offset: 8 }}>
                           <Button color="danger" onClick={()=>this.handleNext(4)}>Kembali</Button> &nbsp;
-                          {this.renderBtnSaveDraft()} &nbsp;
-                          <Button color="secondary" onClick={()=> this.handleSubmit("generate")}>Unduh DOCX</Button>
+                          {this.renderBtnSaveDraft()}
+                          {/* <Button color="secondary" onClick={()=> this.handleSubmit("generate")}>Unduh DOCX</Button> */}
                         </Col>
                       </FormGroup>
                     </Col>
                   </Row>
                 </CardBody>
               </Card>
+
+
+              
 
               
               </Form>

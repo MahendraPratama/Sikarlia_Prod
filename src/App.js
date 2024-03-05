@@ -37,6 +37,7 @@ const WidgetPage = React.lazy(() => import('pages/WidgetPage'));
 const KontrakSaya = React.lazy(() => import('pages/KontrakSaya'));
 const Slider = React.lazy(() => import('pages/Slider'));
 const Persuratan = React.lazy(() => import('pages/PersuratanEO'));
+const KuitansiAjah = React.lazy(() => import('pages/KuitansiAjah'));
 
 const getBasename = () => {
   return `/${process.env.PUBLIC_URL.split('/').pop()}`;
@@ -133,6 +134,7 @@ class App extends React.Component {
                 <Route exact path="/form50200" component={(routeProps)=> <FormKontrak50200 tipe="50200NonPL"  {...routeProps}/>} />
                 <Route exact path="/kuitansiPerjadin" component={KuitansiPerjadin} />
                 <Route exact path="/kontraksaya" component={KontrakSaya} />
+                <Route exact path="/kuitansiAjah" component={KuitansiAjah} />
               </React.Suspense>
             </MainLayout>
             <Redirect to="/dashboard" />

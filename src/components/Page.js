@@ -6,6 +6,7 @@ import bn from 'utils/bemnames';
 import { Breadcrumb, BreadcrumbItem } from 'reactstrap';
 
 import Typography from './Typography';
+import '../styles/custom/page.css';
 
 const bem = bn.create('page');
 
@@ -18,7 +19,7 @@ const Page = ({
   ...restProps
 }) => {
   const classes = bem.b('px-3', className);
-
+  // eff4fc
   return (
     <Tag style={{backgroundColor:"#eff4fc"}} className={classes} {...restProps}>
       <div className={bem.e('header')}>
@@ -41,7 +42,32 @@ const Page = ({
           </Breadcrumb>
         )}
       </div>
+      <div class="area" >
+            <ul class="circles">
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+            </ul>
+        </div>
       {children}
+      
     </Tag>
   );
 };

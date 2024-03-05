@@ -9,7 +9,7 @@ const Footer = () => {
     <Navbar>
       <Nav navbar>
         <NavItem>
-          2021 | Tim Literasi Digital
+          2024 | Tim Sukses Sikarlia
         </NavItem>
       </Nav>
     </Navbar>

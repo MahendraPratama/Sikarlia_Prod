@@ -1,4 +1,4 @@
-import logo200Image from 'assets/img/logo/logo_login.png';
+import logo200Image from 'assets/img/logo/logo_baru.png';
 import sidebarBgImage from 'assets/img/sidebar/sidebar.png';
 import SourceLink from 'components/SourceLink';
 import React from 'react';
@@ -104,6 +104,7 @@ const navKontrakKonsultasi = [
 const navKuitansi = [
   //{ to: '/kuitansiGU', name: 'Kuitansi GU', exact: true, Icon: MdChromeReaderMode },
   { to: '/kuitansiPerjadin', name: 'Perjadin Jabodetabek', exact: false, Icon: MdChromeReaderMode },
+  { to: '/kuitansiAjah', name: 'Kuitansi Ajah', exact: false, Icon: MdChromeReaderMode },
 ]
 const bem = bn.create('sidebar');
 
@@ -217,8 +218,8 @@ class Sidebar extends React.Component {
               <img
                 src={logo200Image}
                 style={{marginTop:55,marginBottom:0}}
-                width="168"
-                height="46"
+                width="100%"
+                height="100%"
                 className="pr-2"
                 alt=""
               />

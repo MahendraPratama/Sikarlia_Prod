@@ -1,5 +1,6 @@
 import Avatar from 'components/Avatar';
 import { UserCard } from 'components/Card';
+import {modalLoading} from '../../docxtemplater/element';
 import Notifications from 'components/Notifications';
 import SearchInput from 'components/SearchInput';
 import { notificationsData } from 'demos/header';
@@ -55,8 +56,9 @@ class Header extends React.Component {
       isNotificationConfirmed: false,
       isOpenUserCardPopover: false,
       yearFilter: localStorage.getItem("yearFilter"),
+      modal: false
     };
-    //this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleYearFilter = this.handleYearFilter.bind(this);
     //this.handleKeyDown = this.handleKeyDown.bind(this);
   }
 
@@ -98,18 +100,90 @@ class Header extends React.Component {
     window.location.href = "/";
   }
   handleYearFilter(event){
+    
     const target = event.target;
     const value = target.type === 'checkbox' ? target.checked : target.value;
     const key = target.name;
     localStorage.setItem("yearFilter", value);
+    // localStorage.removeItem("pdtKoordinator");
+    // localStorage.removeItem("pdtPPK");
+    // localStorage.removeItem("pdtPPBJ");
+    this.setState({modal:true});
+    this.getPenandatangan();
+
+    setTimeout(() => {
+      window.location.href = window.location.pathname;
+      this.setState({modal:false})
+    }, 1500);
+
     
-    window.location.href = window.location.pathname;
+  }
+  getPenandatangan=()=>{
+    var value = localStorage.getItem("yearFilter");
+    const ro1 = {
+      method: 'POST',
+      //headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role: "Koordinator", year:value })
+    };
+    fetch(process.env.REACT_APP_URL_API+'/rest/lookupPdt.php', ro1)
+        .then(response => response.json())
+        .then(respon => {
+          var dataAPI = respon;
+          
+          if(dataAPI.response_code != 200){
+            this.setState({ message: dataAPI.message });
+          }else{
+            localStorage.setItem("pdtKoordinator", JSON.stringify(dataAPI.data));
+            console.log("pdtKoordinator");
+            console.log(dataAPI.data);
+
+            //this.setState({ pdtKoordinator : dataAPI});
+          }
+        });
+
+    const ro2 = {
+      method: 'POST',
+      //headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role: "PPBJ", year: value })
+    };
+    fetch(process.env.REACT_APP_URL_API+'/rest/lookupPdt.php', ro2)
+        .then(response => response.json())
+        .then(respon => {
+          var dataAPI = respon;
+          
+          if(dataAPI.response_code != 200){
+            this.setState({ message: dataAPI.message });
+          }else{
+            localStorage.setItem("pdtPPBJ", JSON.stringify(dataAPI.data));
+            //this.setState({ pdtPPBJ : dataAPI});
+          }
+        });
+
+    const ro3 = {
+      method: 'POST',
+      //headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role: "PPK", year: value })
+    };
+    fetch(process.env.REACT_APP_URL_API+'/rest/lookupPdt.php', ro3)
+        .then(response => response.json())
+        .then(respon => {
+          var dataAPI = respon;
+          
+          if(dataAPI.response_code != 200){
+            this.setState({ message: dataAPI.message });
+          }else{
+            localStorage.setItem("pdtPPK", JSON.stringify(dataAPI.data));
+            //this.setState({ pdtPPK : dataAPI});
+          }
+        });
+        
   }
   render() {
     const { isNotificationConfirmed } = this.state;
 
     return (
       <Navbar light expand className={bem.b('bg-white')}>
+        {modalLoading(this.state.modal)}
         <Nav 
         style={{
           
@@ -126,7 +200,7 @@ class Header extends React.Component {
             <Input 
                 style={{fontSize:14, marginLeft:10,}}
                 type={"select"}
-                //name={x.id}
+                //name={xs.id}
                 //id={x.id}
                 //placeholder={x.placeholder}
                 value={this.state.yearFilter}
@@ -137,9 +211,11 @@ class Header extends React.Component {
                   <option value={y.value}>{y.label}</option>
                 ))
               :null} */}
+              
               <option value={2021}>2021</option>
               <option value={2022}>2022</option>
               <option value={2023}>2023</option>
+              <option value={2024}>2024</option>
             </Input>
           </NavItem>
         </Nav>

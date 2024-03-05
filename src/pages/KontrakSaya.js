@@ -15,18 +15,26 @@ import {
 } from 'react-icons/md';
 import Pagination from "react-js-pagination";
 import Label from 'reactstrap/lib/Label';
+import { charAtIndex } from 'pdf-lib';
 const tableTypes = ['', 'bordered', 'striped', 'hover'];
 // const docs = [
 //   { uri:  },
 //   //{ uri: window.location.origin+"/kontrak50_200.docx" }, // Local File
 // ];
 const fileMaster = {
-  '50200PL':'/kontrak50_200PL.docx',
-  '50200NonPL':'/kontrak50_200.docx',
-  '200up':'/kontrak200up.docx',
-  '100PL':'/kontrak50_200PL.docx',
-  '100NonPL':'/kontrak50_200.docx',
-  '100up':'/kontrak200up.docx',
+  '50200PL-NonLS':'/kontrak50_200PL.docx',
+  '50200NonPL-NonLS':'/kontrak50_200.docx',
+  '200up-NonLS':'/kontrak200up.docx',
+  '100PL-NonLS':'/kontrak50_200PL.docx',
+  '100NonPL-NonLS':'/kontrak50_200.docx',
+  '100up-NonLS':'/kontrak200up.docx',
+
+  '50200PL-LS':'/kontrak50_200PL_LS.docx',
+  '50200NonPL-LS':'/kontrak50_200_LS.docx',
+  '200up-LS':'/kontrak200up_LS.docx',
+  '100PL-LS':'/kontrak50_200PL_LS.docx',
+  '100NonPL-LS':'/kontrak50_200_LS.docx',
+  '100up-LS':'/kontrak200up_LS.docx',
 }
 class KontrakSaya extends React.Component {
   constructor(props){
@@ -169,7 +177,8 @@ class KontrakSaya extends React.Component {
       namaPkj:data.namaPekerjaan,
       prshnPmn:data.namaPerusahaan||'-',
       choosedIdx:idx,
-      nmr: data.nmr
+      nmr: data.nmr,
+      LSorNon: data.LSorNon,
     })
 
     var cb_mgntFee = data.cb_managementFee;
@@ -189,10 +198,21 @@ class KontrakSaya extends React.Component {
         .then(respon => {
           var dataAPI = respon;
           if(dataAPI.response_code == 200){
+            console.log("DATA API DATA");
             console.log(dataAPI.data);
             data.TABEL = dataAPI.data.tabel;
             data.TABELPnw =  dataAPI.data.tabelPnw;
             data.TABELNego =  dataAPI.data.tabelNego;
+            data.koordinator = dataAPI.data.tabelPdtKoor[0].nama;
+            data.nipkoordinator = dataAPI.data.tabelPdtKoor[0].nip;
+            data.PPK = dataAPI.data.tabelPdtPPK[0].nama;
+            data.nipPPK = dataAPI.data.tabelPdtPPK[0].nip;
+            data.PPBJ = dataAPI.data.tabelPdtPPBJ[0].nama;
+            data.nipPPBJ = dataAPI.data.tabelPdtPPBJ[0].nip;
+
+            data.jabatanKoor = dataAPI.data.tabelPdtKoor[0].jabatan;
+            data.jabatanPPK = dataAPI.data.tabelPdtPPK[0].jabatan;
+            
             data = this.hitungTotal(data,dataAPI.data);
           }
           else{
@@ -211,7 +231,8 @@ class KontrakSaya extends React.Component {
           data = setupTgl(data);
           console.log(data);
           this.setState({dataToGenerate:data});
-          generateDocument(data,fileMaster[data.tipeKontrak],true);
+          //console.log(data.tipeKontrak.concat("-",data.LSorNon));
+          generateDocument(data,fileMaster[data.tipeKontrak.concat("-",data.LSorNon)],true);
           this.setState({
             urlIFrame: 'https://docs.google.com/viewer?url='+process.env.REACT_APP_URL_API+'/rest/previewDocx/'+localStorage.user_session+'.docx&embedded=true'
           })
@@ -400,6 +421,8 @@ class KontrakSaya extends React.Component {
                     <Label size="sm"sm={3}>{this.state.change}</Label>
                   </Row>
                   <Row>
+                    <Label size="sm"sm={2}>Jenis Pengajuan</Label><Label size="sm">:</Label>
+                    <Label size="sm"sm={3}>{this.state.LSorNon}</Label>
                     <Label size="sm"sm={2}>Status</Label><Label size="sm">:</Label>
                     <Label size="sm"sm={3}>{this.state.status}</Label>
                   </Row>
@@ -416,7 +439,7 @@ class KontrakSaya extends React.Component {
                         onClick={()=>{
                           var dt = this.state.dataToGenerate;
                           console.log(dt);
-                          generateDocument(dt,fileMaster[dt.tipeKontrak]);
+                          generateDocument(dt,fileMaster[dt.tipeKontrak.concat("-",dt.LSorNon)]);
                         }}
                       > Unduh DOCX</Button>
                     </Col>

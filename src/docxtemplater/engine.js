@@ -368,6 +368,169 @@ export const generateKwtPerjadin = (data, namaFile = "/Template_Perjadin.docx", 
   };
 
 
+  export const generateKuitansiKeplek = (dataKontrak, namaFile, isPreview = false) => {    
+    var path = window.location.origin + namaFile; //+ '/testTemplate.docx'
+      //event.PreventDefault();
+      loadFile(path, function(
+        error,
+        content
+      ) {
+        if (error) {
+          throw error;
+        }
+        //var ImageModule = require("open-docxtemplater-image-module");
+        var opts = {};
+        opts.centered = true;
+        opts.getImage = function (tagValue, tagName) {
+          const base64Regex = /^data:image\/(png|jpg|svg|svg\+xml);base64,/;
+          if (!base64Regex.test(tagValue)) {
+            return false;
+          }
+          const stringBase64 = tagValue.replace(base64Regex, "");
+          let binaryString;
+          if (typeof window !== "undefined") {
+            binaryString = window.atob(stringBase64);
+          } else {
+            binaryString = Buffer.from(stringBase64, "base64").toString(
+              "binary"
+            );
+          }
+          const len = binaryString.length;
+          const bytes = new Uint8Array(len);
+          for (let i = 0; i < len; i++) {
+            const ascii = binaryString.charCodeAt(i);
+            bytes[i] = ascii;
+          }
+          return bytes.buffer;
+        };
+        opts.getSize = function (img, tagValue, tagName) {
+          var width = dataKontrak.HPSimgW;
+          var height = dataKontrak.HPSimgH;
+          const forceWidth = 620;
+          const ratio = forceWidth / width;
+          return [
+            forceWidth,
+            // calculate height taking into account aspect ratio
+            Math.round(height * ratio),
+          ];
+        };
+        
+  
+        var imageModule = new ImageModule(opts);
+  
+        const zip = new PizZip(content);
+        const doc = new Docxtemplater(zip, {
+          paragraphLoop: true,
+          linebreaks: true,
+          nullGetter: nullGetter,
+          //modules: [imageModule, fixDocPrCorruptionModule],
+        }).compile();
+        doc.setData(getDataSetKuitansi(dataKontrak));
+        //console.log(hps2);
+        try {
+          // render the document (replace all occurences of {first_name} by John, {last_name} by Doe, ...)
+          doc.render();
+          //console.log(dataKontrak);
+        } catch (error) {
+          // The error thrown here contains additional information when logged with JSON.stringify (it contains a properties object containing all suberrors).
+          function replaceErrors(key, value) {
+            if (value instanceof Error) {
+              return Object.getOwnPropertyNames(value).reduce(function(
+                error,
+                key
+              ) {
+                error[key] = value[key];
+                return error;
+              },
+              {});
+            }
+            return value;
+          }
+          console.log(JSON.stringify({ error: error }, replaceErrors));
+  
+          if (error.properties && error.properties.errors instanceof Array) {
+            const errorMessages = error.properties.errors
+              .map(function(error) {
+                return error.properties.explanation;
+              })
+              .join('\n');
+            console.log('errorMessages', errorMessages);
+            // errorMessages is a humanly readable message looking like this :
+            // 'The tag beginning with "foobar" is unopened'
+          }
+          throw error;
+        }
+        const out = doc.getZip().generate({
+          type: 'blob',
+          mimeType:
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            //'application/pdf'
+            //'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        }); //Output the document using Data-URI
+        if(isPreview){
+          
+          //var newurl = window.URL.createObjectURL(out);
+          //console.log("blob link: "+ newurl.substring(4,newurl.length+1));
+          //console.log(doc.getZip);
+          //var trim = newurl.substring(4,newurl.length+1);
+          
+          // setTimeout(()=>{
+          //   document.getElementById("viewer").src = src;
+          // },200)
+          
+          //document.getElementById("viewer").src = src;
+          // return <DocViewer documents={{ uri: newurl }} />;
+          var reader = new FileReader();
+          const pvw = doc.getZip().generate({
+            type: "nodebuffer",
+            compression: "DEFLATE",
+            //mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+          })
+          var blob = new Blob([pvw], {
+            type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+          });
+          //saveAs(blob)
+          try{
+            reader.readAsDataURL(blob);
+            reader.onloadend = function() {
+              var base64data = reader.result;
+              fetch(process.env.REACT_APP_URL_API+'/rest/uploadFileViewer.php', {
+                method: 'POST',
+                body: JSON.stringify({ base64: base64data, userid: dataKontrak.userid})
+              }).then((response) => {
+                console.log(response)
+                //var src = "https://view.officeapps.live.com/op/embed.aspx?src="+"https://sikarliaapi.000webhostapp.com/rest/asu.docx";//+"&embedded=true";
+                //var src = "https://docs.google.com/viewerng/viewer?url="+"https://sikarliaapi.000webhostapp.com/rest/asu.docx"+"&embedded=true";
+                var src = 'https://docs.google.com/viewer?url='+process.env.REACT_APP_URL_API+'/rest/previewDocx/'+dataKontrak.userid+'.docx&embedded=true';
+                try{
+                  document.getElementById("viewer").src = src;
+                  
+                  
+                  // setTimeout(()=>{
+                  //   document.getElementById("viewer").src = src;
+                  // },300)
+                  // setTimeout(()=>{
+                  //   document.getElementById("viewer").src = src;
+                  // },300)
+                  // setTimeout(()=>{
+                  //   document.getElementById("viewer").src = src;
+                  // },300)
+                }catch(e){
+                  
+                }
+                //return src;
+              })
+            };
+          }
+          catch(e){
+            console.log(e);
+          }
+          return;
+        }
+        saveAs(out, dataKontrak.namaPekerjaan+'_output.docx');
+      });
+    };
+
 function setDataKwtPerjadin(data){
   var items = [], dataJadi = {};
   var h = data.head;
@@ -427,7 +590,10 @@ function getMonth(dateInput){
   var dateString = dateInput.split("-");
   return dateString[1];
 }
-
+function getYear(dateInput){
+  var dateString = dateInput.split("-");
+  return dateString[0];
+}
 function setTabelHPS(dtTabel){
   var tblFIX = [];
   dtTabel.map((d,index)=>{
@@ -482,6 +648,36 @@ function titleCase(str) {
   }
   // Directly return the joined string
   return splitStr.join(' '); 
+}
+
+function getDataSetKuitansi(dataKuitansi){
+  return{
+    namaPekerjaan : dataKuitansi.namaPekerjaan,
+    tglpembayaran: setTanggal(dataKuitansi.tglPembayaran,"tgl"),
+    hrgtotal: commafy(dataKuitansi.hrgtotal),
+    hrgtotaltb: angkaTerbilang(dataKuitansi.hrgtotal),
+
+    namaPerusahaanCap: dataKuitansi.namaPerusahaan.toUpperCase(),
+    namaPerusahaan: dataKuitansi.namaPerusahaan,
+    namaDirektur: dataKuitansi.namaDirektur,
+    alamatPerusahaan: dataKuitansi.alamatPerusahaan,
+    jabatan: dataKuitansi.jabatan,
+
+
+    koordinator : dataKuitansi.koordinator,
+    nipkoordinator : dataKuitansi.nipkoordinator,
+    PPK : dataKuitansi.PPK,
+    nipPPK : dataKuitansi.nipPPK,
+    jabatanKoor : dataKuitansi.jabatanKoor,
+    jabatanPPK : dataKuitansi.jabatanPPK,
+
+    nmrSpc : dataKuitansi.nmrSpc,
+    tglsuratPemesanan : setTanggal(dataKuitansi.tglPemesanan,"tgl"),
+    m10 : getMonth(dataKuitansi.tglPemesanan),
+    year : getYear(dataKuitansi.tglPemesanan),
+    
+  }
+
 }
 
 function getDataSet(dataKontrak, hps2, pnw2=[]){
@@ -585,6 +781,21 @@ function getDataSet(dataKontrak, hps2, pnw2=[]){
 
       satPelaksanaanPkj:dataKontrak.satPlkPkj,
       jenisPengadaan:dataKontrak.jenisPengadaan,
+
+      namaRek: dataKontrak.namaRek,
+      noRek: dataKontrak.noRek,
+      bankRek: dataKontrak.bankRek,
+
+      year: getYear(dataKontrak.penandatangananKontrak),
+      noPPBJ : "3 Tahun 2024 tanggal 2 Januari 2024",
+      noDIPA : "SP DIPA-059.04-0/2024 Tanggal 24 November 2023",
+      koordinator : dataKontrak.koordinator,
+      nipkoordinator : dataKontrak.nipkoordinator,
+      PPK : dataKontrak.PPK,
+      nipPPK : dataKontrak.nipPPK,
+      PPBJ : dataKontrak.PPBJ,
+      nipPPBJ : dataKontrak.nipPPBJ,
+
 
       table: {
         "data": [
@@ -738,6 +949,20 @@ function getDataSet(dataKontrak, hps2, pnw2=[]){
 
       satPelaksanaanPkj:dataKontrak.satPlkPkj,
 
+      namaRek: dataKontrak.namaRek,
+      noRek: dataKontrak.noRek,
+      bankRek: dataKontrak.bankRek,
+
+      year: getYear(dataKontrak.penandatangananKontrak),
+      noPPBJ : "3 Tahun 2024 tanggal 2 Januari 2024",
+      noDIPA : "SP DIPA-059.04-0/2024 Tanggal 24 November 2023",
+      koordinator : dataKontrak.koordinator,
+      nipkoordinator : dataKontrak.nipkoordinator,
+      PPK : dataKontrak.PPK,
+      nipPPK : dataKontrak.nipPPK,
+      PPBJ : dataKontrak.PPBJ,
+      nipPPBJ : dataKontrak.nipPPBJ,
+
       table: {
         "data": [
           [
@@ -822,6 +1047,9 @@ function getDataSet(dataKontrak, hps2, pnw2=[]){
       dataSet.nego = setTabelNego(dataKontrak.TABELNego);
     //}
     //console.log(dataSet);
+
+      dataSet.jabatanKoor = dataKontrak.jabatanKoor;
+      dataSet.jabatanPPK = dataKontrak.jabatanPPK;
     return dataSet;
   }
 }

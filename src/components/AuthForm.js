@@ -1,4 +1,4 @@
-import logo200Image from 'assets/img/logo/logo_login.png';
+import logo200Image from 'assets/img/logo/logo_login_baru.png';
 import PropTypes from 'prop-types';
 import {modalLoading} from '../docxtemplater/element'
 import React from 'react';
@@ -33,10 +33,66 @@ class AuthForm extends React.Component {
   }
 
   componentDidMount() {
+    this.getPenandatangan();
     if (localStorage.getItem("user_session"))
       window.location.href = "/dashboard"
   }
+  getPenandatangan(){
+    var newDate = new Date();
+    const ro1 = {
+      method: 'POST',
+      //headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role: "Koordinator", year: newDate.getFullYear() })
+    };
+    fetch(process.env.REACT_APP_URL_API+'/rest/lookupPdt.php', ro1)
+        .then(response => response.json())
+        .then(respon => {
+          var dataAPI = respon;
+          this.setState({modal:false});
+          if(dataAPI.response_code != 200){
+            this.setState({ message: dataAPI.message });
+          }else{
+            localStorage.setItem("pdtKoordinator", JSON.stringify(dataAPI.data));
+            //this.setState({ pdtKoordinator : dataAPI});
+          }
+        });
 
+    const ro2 = {
+      method: 'POST',
+      //headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role: "PPBJ", year: newDate.getFullYear() })
+    };
+    fetch(process.env.REACT_APP_URL_API+'/rest/lookupPdt.php', ro2)
+        .then(response => response.json())
+        .then(respon => {
+          var dataAPI = respon;
+          this.setState({modal:false});
+          if(dataAPI.response_code != 200){
+            this.setState({ message: dataAPI.message });
+          }else{
+            localStorage.setItem("pdtPPBJ", JSON.stringify(dataAPI.data));
+            //this.setState({ pdtPPBJ : dataAPI});
+          }
+        });
+
+    const ro3 = {
+      method: 'POST',
+      //headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role: "PPK", year: newDate.getFullYear() })
+    };
+    fetch(process.env.REACT_APP_URL_API+'/rest/lookupPdt.php', ro3)
+        .then(response => response.json())
+        .then(respon => {
+          var dataAPI = respon;
+          this.setState({modal:false});
+          if(dataAPI.response_code != 200){
+            this.setState({ message: dataAPI.message });
+          }else{
+            localStorage.setItem("pdtPPK", JSON.stringify(dataAPI.data));
+            //this.setState({ pdtPPK : dataAPI});
+          }
+        });
+  }
   changeAuthState = authState => event => {
     event.preventDefault();
 
@@ -87,9 +143,11 @@ class AuthForm extends React.Component {
             localStorage.setItem("id", dataAPI.data.id);
             localStorage.setItem("password", dataAPI.data.password);
             localStorage.setItem("email", dataAPI.data.email);
+            var newDate = new Date();
+            localStorage.setItem("yearFilter", newDate.getFullYear());
 
-            localStorage.setItem("yearFilter", 2023);
-            var now = new Date().getTime();
+            var now = newDate.getTime();
+            
             localStorage.setItem('setupTime', now);
             IsLogin = true;
             //window.location.href = "/dashboard";
@@ -149,7 +207,7 @@ class AuthForm extends React.Component {
             <img
               src={logo200Image}
               className="rounded"
-              style={{ width: 210, height: 62, cursor: 'pointer' }}
+              style={{ width: '50%', height: '50%', cursor: 'pointer' }}
               alt="logo"
               onClick={onLogoClick}
             />
