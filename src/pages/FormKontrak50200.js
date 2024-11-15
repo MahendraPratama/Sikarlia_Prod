@@ -1087,7 +1087,7 @@ class Form50200 extends React.Component {
     var options = [];
 
     for(var i = 0; i < datalen; i++){
-      options.push(<option key={i} value={data[i].id} selected={data[i].id==dataKontrak.pdtKoordinator?true:false}>{data[i].nama} | {data[i].nip}</option>)
+      options.push(<option key={i} value={data[i].id} selected={data[i].id==dataKontrak.pdtKoordinator?true:false}>{data[i].nama} | {data[i].jabatan}</option>)
     }
     return (
       <Input 
@@ -1122,7 +1122,7 @@ class Form50200 extends React.Component {
     var datalen = data.length;
     var options = [];
     for(var i = 0; i < datalen; i++){
-      options.push(<option key={i} value={data[i].id} selected={data[i].id==dataKontrak.pdtPPK?true:false}>{data[i].nama} | {data[i].nip}</option>)
+      options.push(<option key={i} value={data[i].id} selected={data[i].id==dataKontrak.pdtPPK?true:false}>{data[i].nama} | {data[i].role} {data[i].jabatan}</option>)
     }
     return (
       <Input 
@@ -1155,7 +1155,7 @@ class Form50200 extends React.Component {
     var datalen = data.length;
     var options = [];
     for(var i = 0; i < datalen; i++){
-      options.push(<option key={i} value={data[i].id} selected={data[i].id==dataKontrak.pdtPPBJ?true:false}>{data[i].nama} | {data[i].nip}</option>)
+      options.push(<option key={i} value={data[i].id} selected={data[i].id==dataKontrak.pdtPPBJ?true:false}>{data[i].nama} | {data[i].role}</option>)
     }
     return (
       <Input 
